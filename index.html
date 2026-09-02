@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="zh-HK">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WebOS 網頁作業系統</title>
+<style>
+  /* CSS 重設及全域變數 */
+  :root {
+    --bg-color: #1e1e1e;
+    --window-bg: rgba(255, 255, 255, 0.85);
+    --taskbar-bg: rgba(0, 0, 0, 0.75);
+    --text-dark: #333;
+  }
+  body, html { 
+    margin: 0; padding: 0; height: 100%; overflow: hidden; 
+    font-family: '-apple-system', 'Segoe UI', Tahoma, sans-serif; 
+    user-select: none; 
+  }
+
+  /* 開機畫面 */
+  #boot-screen {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: black; color: #00ff00; font-family: 'Courier New', Courier, monospace; 
+    font-size: 16px; padding: 20px; box-sizing: border-box; z-index: 9999;
+  }
+
+  /* 桌面背景 */
+  #desktop {
+    position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+    background: linear-gradient(135deg, #1f4037 0%, #99f2c8 100%);
+    display: none;
+  }
+
+  /* 桌面圖示 */
+  .desktop-icons { padding: 20px; display: flex; flex-direction: column; gap: 15px; }
+  .icon {
+    width: 90px; height: 90px; display: inline-flex;
+    flex-direction: column; align-items: center; justify-content: center;
+    color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.8); cursor: pointer;
+    border-radius: 12px; transition: 0.2s;
+  }
+  .icon:hover { background: rgba(255, 255, 255, 0.2); }
+  .icon-emoji { font-size: 40px; margin-bottom: 8px; }
+
+  /* 底部工作列 */
+  #taskbar {
+    position: absolute; bottom: 0; left: 0; width: 100%; height: 45px;
+    background: var(--taskbar-bg); backdrop-filter: blur(10px);
+    display: flex; align-items: center; padding: 0 15px; box-sizing: border-box; 
+    color: white; justify-content: space-between; z-index: 9000;
+  }
+  #start-btn { 
+    font-weight: bold; cursor: pointer; padding: 8px 18px; 
+    background: rgba(255,255,255,0.15); border-radius: 6px; transition: 0.2s;
+  }
+  #start-btn:hover { background: rgba(255,255,255,0.3); }
+
+  /* 開始功能表 */
+  #start-menu {
+    display: none; position: absolute; bottom: 55px; left: 15px; width: 220px; 
+    background: var(--window-bg); backdrop-filter: blur(15px); border-radius: 10px; 
+    box-shadow: 0 8px 20px rgba(0,0,0,0.4); padding: 10px; z-index: 8999; color: var(--text-dark);
+  }
+  .menu-item { padding: 10px; cursor: pointer; border-radius: 6px; margin: 2px 0; }
+  .menu-item:hover { background: rgba(0,0,0,0.1); }
+
+  /* 視窗 UI */
+  .window {
+    position: absolute; top: 10%; left: 15%; width: 450px; height: 350px;
+    background: var(--window-bg); backdrop-filter: blur(15px); border-radius: 12px; 
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3); display: flex; flex-direction: column; 
+    overflow: hidden; display: none; border: 1px solid rgba(255,255,255,0.4);
+  }
+  .title-bar {
+    background: rgba(0, 0, 0, 0.8); color: white; padding: 10px 15px; 
+    display: flex; justify-content: space-between; align-items: center; cursor: move;
+  }
+  .close-btn { 
+    cursor: pointer; color: #ff5f56; font-weight: bold; 
+    background: #ff5f56; border-radius: 50%; width: 14px; height: 14px; 
+    display: flex; align-items: center; justify-content: center; font-size: 0px;
+  }
+  .close-btn:hover { color: white; font-size: 10px; }
+  .window-content { flex: 1; padding: 15px; overflow-y: auto; color: var(--text-dark); }
+  
+  /* 計算機按鈕 */
+  .calc-btn { 
+    font-size: 18px; border: none; background: #f0f0f0; 
+    border-radius: 8px; cursor: pointer; padding: 10px; 
+  }
+  .calc-btn:hover { background: #dcdcdc; }
+</style>
+</head>
+<body>
+
+<div id="boot-screen"></div>
+
+<div id="desktop">
+  <div class="desktop-icons">
+    <div class="icon" ondblclick="openWindow('app-code')">
+      <div class="icon-emoji">👨‍💻</div>
+      <div>Code 編輯器</div>
+    </div>
+    <div class="icon" ondblclick="openWindow('app-term')">
+      <div class="icon-emoji">🖥️</div>
+      <div>終端機</div>
+    </div>
+    <div class="icon" ondblclick="openWindow('app-calc')">
+      <div class="icon-emoji">🧮</div>
+      <div>計算機</div>
+    </div>
+    <div class="icon" ondblclick="openWindow('app-settings')">
+      <div class="icon-emoji">⚙️</div>
+      <div>系統設定</div>
+    </div>
+  </div>
+
+  <div id="start-menu">
+    <div class="menu-item" onclick="openWindow('app-code'); toggleStartMenu();">👨‍💻 Swift 模式編輯器</div>
+    <div class="menu-item" onclick="openWindow('app-term'); toggleStartMenu();">🖥️ 系統終端機</div>
+    <div class="menu-item" onclick="openWindow('app-calc'); toggleStartMenu();">🧮 計算機</div>
+    <hr style="border: 0; border-top: 1px solid #ccc; margin: 5px 0;">
+    <div class="menu-item" onclick="openWindow('app-settings'); toggleStartMenu();">⚙️ 系統設定</div>
+  </div>
+
+  <div class="window" id="app-code">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-code')">
+      <span>Code 編輯器 (Swift Playground 模式)</span>
+      <span class="close-btn" onclick="closeWindow('app-code')">✖</span>
+    </div>
+    <div class="window-content" style="padding: 0;">
+      <textarea style="width:100%;height:100%;box-sizing:border-box;font-family:monospace;resize:none;padding:10px;border:none;outline:none;background:#2d2d2d;color:#dcdcdc;">import SwiftUI
+
+struct ContentView: View {
+    var body: some View {
+        VStack {
+            Image(systemName: "globe")
+                .imageScale(.large)
+                .foregroundColor(.accentColor)
+            Text("Hello, WebOS!")
+        }
+    }
+}</textarea>
+    </div>
+  </div>
+
+  <div class="window" id="app-term">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-term')">
+      <span>終端機</span>
+      <span class="close-btn" onclick="closeWindow('app-term')">✖</span>
+    </div>
+    <div class="window-content" style="background: rgba(0,0,0,0.9); color: #0f0; font-family: 'Courier New', monospace;">
+      root@webos:~# <br/>
+      > 系統核心載入完成。<br/>
+      > 網絡連線: 已連接 (狀態: 穩定)<br/>
+      <div style="display:flex; margin-top:10px;">
+        <span>$</span>
+        <input type="text" style="background: transparent; border: none; color: #0f0; outline: none; margin-left: 5px; width: 100%; font-family: monospace;" placeholder="輸入指令..." />
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="app-calc" style="width: 300px; height: 380px;">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-calc')">
+      <span>計算機</span>
+      <span class="close-btn" onclick="closeWindow('app-calc')">✖</span>
+    </div>
+    <div class="window-content" style="display:flex;flex-direction:column;gap:10px;">
+      <input type="text" id="calc-display" disabled style="font-size:28px;text-align:right;padding:10px;border-radius:6px;border:1px solid #ccc;background:#fff;" value="0">
+      <div style="display:grid;grid-template-columns:repeat(4,1fr);gap:8px;flex:1;">
+        <button class="calc-btn" onclick="calc('7')">7</button>
+        <button class="calc-btn" onclick="calc('8')">8</button>
+        <button class="calc-btn" onclick="calc('9')">9</button>
+        <button class="calc-btn" onclick="calc('/')" style="background:#ffb347;color:white;">÷</button>
+        <button class="calc-btn" onclick="calc('4')">4</button>
+        <button class="calc-btn" onclick="calc('5')">5</button>
+        <button class="calc-btn" onclick="calc('6')">6</button>
+        <button class="calc-btn" onclick="calc('*')" style="background:#ffb347;color:white;">×</button>
+        <button class="calc-btn" onclick="calc('1')">1</button>
+        <button class="calc-btn" onclick="calc('2')">2</button>
+        <button class="calc-btn" onclick="calc('3')">3</button>
+        <button class="calc-btn" onclick="calc('-')" style="background:#ffb347;color:white;">-</button>
+        <button class="calc-btn" onclick="calc('C')">C</button>
+        <button class="calc-btn" onclick="calc('0')">0</button>
+        <button class="calc-btn" onclick="calc('=')" style="background:#4caf50;color:white;">=</button>
+        <button class="calc-btn" onclick="calc('+')" style="background:#ffb347;color:white;">+</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="window" id="app-settings">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-settings')">
+      <span>系統設定</span>
+      <span class="close-btn" onclick="closeWindow('app-settings')">✖</span>
+    </div>
+    <div class="window-content">
+      <h3 style="margin-top:0;">WebOS 控制台</h3>
+      <div style="background: rgba(255,255,255,0.5); padding: 10px; border-radius: 8px; margin-bottom: 10px;">
+        <p><strong>語言設定：</strong>廣東話 (繁體中文)</p>
+        <p><strong>時區：</strong>亞洲/香港 (HKT)</p>
+        <p><strong>地理圖資核心：</strong>開封 (汴京) - 已同步</p>
+      </div>
+      <div style="background: rgba(255,0,0,0.1); padding: 10px; border-radius: 8px; color: #d32f2f;">
+        <strong>系統權限聲明：</strong><br/>
+        基於開發者要求，本作業系統已徹底移除所有內購 (IAP) 及應用程式商店模組，以確保封閉且安全嘅開發及操作環境。
+      </div>
+    </div>
+  </div>
+
+  <div id="taskbar">
+    <div id="start-btn" onclick="toggleStartMenu()">WebOS 開始</div>
+    <div id="clock">00:00</div>
+  </div>
+</div>
+
+<script>
+// --- 開機流程邏輯 ---
+const bootLines = [
+  "BIOS Version 4.0.1 - GitHub Pages Compatible",
+  "Checking main memory... OK (8192 MB)",
+  "Loading WebOS Kernel... OK",
+  "Mounting Virtual File System... OK",
+  "Initializing UI Daemon...",
+  "[ OK ] Started Window Manager",
+  "Welcome to WebOS!"
+];
+const bootScreen = document.getElementById('boot-screen');
+const desktop = document.getElementById('desktop');
+let bootHTML = "";
+let lineIdx = 0;
+
+function bootProcess() {
+  if (lineIdx < bootLines.length) {
+    bootHTML += bootLines[lineIdx] + "<br/>";
+    bootScreen.innerHTML = bootHTML;
+    lineIdx++;
+    // 模擬真實的隨機載入延遲
+    setTimeout(bootProcess, 200 + Math.random() * 400);
+  } else {
+    setTimeout(() => {
+      bootScreen.style.display = 'none';
+      desktop.style.display = 'block';
+    }, 1000);
+  }
+}
+
+window.onload = () => {
+  bootProcess();
+  setInterval(updateClock, 1000);
+  updateClock();
+};
+
+// --- UI 與視窗管理邏輯 ---
+let zIndex = 100;
+function toggleStartMenu() {
+  const menu = document.getElementById('start-menu');
+  menu.style.display = (menu.style.display === 'none' || menu.style.display === '') ? 'block' : 'none';
+}
+function openWindow(id) {
+  const win = document.getElementById(id);
+  win.style.display = 'flex';
+  bringToFront(id);
+}
+function closeWindow(id) {
+  document.getElementById(id).style.display = 'none';
+}
+function bringToFront(id) {
+  zIndex++;
+  document.getElementById(id).style.zIndex = zIndex;
+}
+
+// 點擊桌面空白處關閉開始功能表
+document.getElementById('desktop').addEventListener('click', function(e) {
+  if (e.target === this) { document.getElementById('start-menu').style.display = 'none'; }
+});
+
+// --- 視窗拖曳邏輯 ---
+let isDragging = false;
+let currentWindow = null;
+let offsetX, offsetY;
+
+function dragStart(e, id) {
+  isDragging = true;
+  currentWindow = document.getElementById(id);
+  bringToFront(id);
+  const rect = currentWindow.getBoundingClientRect();
+  offsetX = e.clientX - rect.left;
+  offsetY = e.clientY - rect.top;
+  document.addEventListener('mousemove', drag);
+  document.addEventListener('mouseup', dragEnd);
+}
+function drag(e) {
+  if (isDragging && currentWindow) {
+    currentWindow.style.left = (e.clientX - offsetX) + 'px';
+    currentWindow.style.top = (e.clientY - offsetY) + 'px';
+  }
+}
+function dragEnd() {
+  isDragging = false;
+  currentWindow = null;
+  document.removeEventListener('mousemove', drag);
+  document.removeEventListener('mouseup', dragEnd);
+}
+
+// --- 計算機邏輯 ---
+let calcValue = "";
+function calc(btn) {
+  if (btn === 'C') { 
+    calcValue = ""; 
+  } else if (btn === '=') { 
+    try { 
+      // 簡單安全的運算
+      calcValue = Function("return " + calcValue)().toString(); 
+    } catch(e) { 
+      calcValue = "Error"; 
+    }
+  } else {
+    calcValue += btn;
+  }
+  document.getElementById('calc-display').value = calcValue || "0";
+}
+
+// --- 時鐘邏輯 ---
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clock').innerText = now.toLocaleTimeString('zh-HK', { hour12: false });
+}
+</script>
+</body>
+</html>
