@@ -11,7 +11,7 @@
 </head>
 <body class="theme-win10" onload="brython()" oncontextmenu="return false;">
 
-  <!-- Python 引擎橋接代碼 (必須放喺 HTML 內) -->
+  <!-- Python 引擎橋接代碼 -->
   <script type="text/python">
     import sys
     from browser import document
@@ -33,7 +33,7 @@
     document["clear-py-btn"].bind("click", clear_output)
   </script>
 
-  <!-- 系統過場與開機畫面 -->
+  <!-- 系統畫面 -->
   <div id="black-screen" class="sys-screen"></div>
   <div id="bios-screen" class="sys-screen" style="background: black;"><div id="bios-text"></div></div>
   <div id="boot-screen" class="sys-screen" style="background: black;">
@@ -159,7 +159,7 @@
           </div>
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
-            <p>Version: Project Horizon v6.0<br>Engine: Brython / HTML5 VFS</p>
+            <p>Version: Project Horizon v7.0<br>Engine: Brython / HTML5 VFS</p>
             <pre class="license-box">MIT License
 Copyright (c) 2026 iAnyFeature
 
@@ -186,6 +186,114 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
       <div class="window-content" style="background: var(--set-body-bg); color: var(--set-text);">
         <div class="store-header" data-i18n="store_desc">開源應用程式社群 (All Apps Free)</div>
         <div class="store-grid" id="store-grid"></div>
+      </div>
+    </div>
+
+    <!-- APP: User Guide (使用手冊) -->
+    <div class="window" id="app-guide" style="width: 850px; height: 600px;">
+      <div class="title-bar" data-win="app-guide">
+        <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
+        <div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div>
+      </div>
+      <div class="window-content guide-layout">
+        <div class="guide-nav">
+          <div class="guide-nav-item active" data-tab="guide-intro">📌 系統介紹</div>
+          <div class="guide-nav-item" data-tab="guide-cmd">🖥️ CMD 指令大全</div>
+          <div class="guide-nav-item" data-tab="guide-mdm">🛡️ WebKit MDM Bypass</div>
+          <div class="guide-nav-item" data-tab="guide-apps">🎨 應用程式特色</div>
+          <div class="guide-nav-item" data-tab="guide-license">📜 版權與授權</div>
+        </div>
+        <div class="guide-main">
+          <!-- 介紹 -->
+          <div id="guide-intro" class="guide-section" style="display:block;">
+            <h2>歡迎使用 WebOS Project Horizon</h2>
+            <p>這是一個基於純瀏覽器環境構建的高效仿真實作業系統，兼容於 GitHub Pages，支援 Windows 10、macOS 15 及 Ubuntu 22 三大桌面環境風格隨時切換。</p>
+            <div class="guide-card">
+              <h3>核心特色</h3>
+              <ul>
+                <li><strong>真實 BIOS POST 開機</strong>：完整開機自檢程序與多段式載入流程。</li>
+                <li><strong>完全無 IAP</strong>：所有應用程式一律開源免費，無任何商城內購干擾。</li>
+                <li><strong>本地儲存隔離 (VFS)</strong>：記事本、檔案管理員、系統設定皆自動永久儲存至 LocalStorage。</li>
+              </ul>
+            </div>
+          </div>
+
+          <!-- CMD 指令集 -->
+          <div id="guide-cmd" class="guide-section" style="display:none;">
+            <h2>命令提示字元 (Command Prompt) 完全手冊</h2>
+            <p>本系統的 CMD 支援真實的目錄切換、虛擬檔案操作與指令歷史記錄（支援鍵盤 ↑/↓ 鍵回顧）：</p>
+            <table class="guide-table">
+              <thead><tr><th>指令</th><th>用法說明</th><th>範例</th></tr></thead>
+              <tbody>
+                <tr><td><code>help</code></td><td>列出所有內建支援之指令清單</td><td><code>help</code></td></tr>
+                <tr><td><code>dir</code> / <code>ls</code></td><td>顯示當前目錄的所有檔案與詳細資訊</td><td><code>dir</code></td></tr>
+                <tr><td><code>cd [路徑]</code></td><td>切換當前工作目錄（支援 <code>..</code> 及 <code>\</code>）</td><td><code>cd Documents</code></td></tr>
+                <tr><td><code>md</code> / <code>mkdir [名稱]</code></td><td>建立新的資料夾</td><td><code>mkdir Projects</code></td></tr>
+                <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type Notes.txt</code></td></tr>
+                <tr><td><code>echo [文字] [&gt; 檔名]</code></td><td>輸出文字或建立覆蓋文字檔案</td><td><code>echo Hello &gt; test.txt</code></td></tr>
+                <tr><td><code>del [檔案名]</code></td><td>刪除虛擬檔案系統內的檔案</td><td><code>del test.txt</code></td></tr>
+                <tr><td><code>color [代碼]</code></td><td>變更終端機文字顏色 (0a 亮綠, 0c 亮紅, 0f 亮白)</td><td><code>color 0a</code></td></tr>
+                <tr><td><code>cls</code> / <code>clear</code></td><td>清除終端機螢幕所有文字</td><td><code>cls</code></td></tr>
+                <tr><td><code>ver</code></td><td>顯示當前系統核心與版本號</td><td><code>ver</code></td></tr>
+                <tr><td><code>date</code> / <code>time</code></td><td>檢視當前日期或時間</td><td><code>date</code></td></tr>
+                <tr><td><code>exit</code></td><td>關閉命令提示字元視窗</td><td><code>exit</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+
+          <!-- MDM Bypass 說明 -->
+          <div id="guide-mdm" class="guide-section" style="display:none;">
+            <h2>WebKit MDM Bypass 運作原理與指引</h2>
+            <div class="guide-callout">
+              <strong>功能背景：</strong>在學校或企業設備（如配置了 MDM 限制設定檔的 iPad 或 Mac）上，某些網站可能遭到 WebKit 層級或網絡防火牆攔截。
+            </div>
+            <h3>技術架構與操作方式</h3>
+            <ol>
+              <li>開啟系統內建之 <strong>Edge Browser</strong>。</li>
+              <li>點擊網址列右側之 <strong>「MDM Proxy: OFF」</strong> 按鈕，將其切換為 <strong>綠色 ON</strong> 狀態。</li>
+              <li>在網址列輸入目標網址（例如 <code>wikipedia.org</code>）並按下 Enter。</li>
+            </ol>
+            <h3>代理通道機制：</h3>
+            <p>系統會自動將目標網址重定向至 Google Web Translation 代理伺服器（<code>translate.google.com/translate?...</code>）。由於校園網絡通常將 Google 網域列入白名單，連線請求會由 Google 伺服器代理抓取目標網頁並轉譯返回，從而繞過設備端對原始網址的直接連線封鎖。</p>
+          </div>
+
+          <!-- 應用程式特色 -->
+          <div id="guide-apps" class="guide-section" style="display:none;">
+            <h2>內建應用程式指南</h2>
+            <ul>
+              <li><strong>小畫家 (Paint)</strong>：具備精確座標計算之 HTML5 Canvas，提供筆刷粗幼調整、自訂色彩選取、橡皮擦以及匯出下載 PNG 圖檔功能。</li>
+              <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需伺服器即可在瀏覽器本地即時編譯執行標準 Python 3 語法與運算。</li>
+              <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度衛星定位。</li>
+              <li><strong>檔案總管 (VFS)</strong>：支援本地文字檔案建立與實體檔案上傳轉碼儲存。</li>
+            </ul>
+          </div>
+
+          <!-- 版權 -->
+          <div id="guide-license" class="guide-section" style="display:none;">
+            <h2>版權條款 (License)</h2>
+            <pre class="license-box">MIT License
+
+Copyright (c) 2026 iAnyFeature
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
+          </div>
+        </div>
       </div>
     </div>
 
@@ -221,15 +329,15 @@ print("Pi =", math.pi)</textarea>
       </div>
     </div>
 
-    <!-- APP: Terminal -->
-    <div class="window" id="app-cmd" style="width: 650px; height: 450px;">
-      <div class="title-bar" data-win="app-cmd"><div class="title-text">Terminal</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+    <!-- APP: Terminal / CMD -->
+    <div class="window" id="app-cmd" style="width: 700px; height: 480px;">
+      <div class="title-bar" data-win="app-cmd"><div class="title-text">命令提示字元 (Command Prompt)</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
       <div class="window-content term-content" id="term-container">
-        WebOS Terminal [Version 6.0]<br>(c) iAnyFeature. All rights reserved.<br><br>
+        Microsoft Windows [版本 10.0.19045.3086]<br>(c) Microsoft Corporation. 著作權所有，並保留一切權利。<br><br>
         <div id="term-output"></div>
         <div class="term-input-row">
-          <span style="color:#0f0; margin-right:8px;">admin@webos:~$</span>
-          <input type="text" id="term-input" class="term-input" autocomplete="off">
+          <span id="term-prompt" style="color:#fff; margin-right:5px; white-space:nowrap;">C:\Users\Admin&gt;</span>
+          <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false">
         </div>
       </div>
     </div>
@@ -271,15 +379,24 @@ print("Pi =", math.pi)</textarea>
       </div>
     </div>
 
-    <!-- APP: Paint -->
-    <div class="window" id="app-paint" style="width: 750px; height: 550px;">
-      <div class="title-bar" data-win="app-paint"><div class="title-text" data-i18n="paint">小畫家</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
-      <div class="window-content" style="overflow:hidden;">
+    <!-- APP: Paint (真的完全可用的小畫家) -->
+    <div class="window" id="app-paint" style="width: 800px; height: 580px;">
+      <div class="title-bar" data-win="app-paint"><div class="title-text" data-i18n="paint">小畫家 (Paint)</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="window-content" style="overflow:hidden; display:flex; flex-direction:column;">
         <div class="paint-toolbar" id="paint-toolbar">
-          <button id="p-clear">Clear Canvas</button>
-          <div style="width:1px; height:20px; background:#ccc; margin:0 10px;"></div>
+          <button id="p-tool-pen" class="paint-tool-btn active">✏️ 畫筆</button>
+          <button id="p-tool-eraser" class="paint-tool-btn">🧽 橡皮擦</button>
+          <label style="font-size:12px; margin-left:5px;">粗幼:</label>
+          <input type="range" id="p-brush-size" min="1" max="40" value="4" style="width:70px;">
+          <span id="p-brush-val" style="font-size:12px; min-width:20px;">4px</span>
+          <input type="color" id="p-color-picker" value="#000000" title="選擇自訂色彩" style="cursor:pointer; width:30px; height:30px; padding:0; border:none;">
+          <div style="width:1px; height:20px; background:#ccc; margin:0 5px;"></div>
+          <button id="p-clear" class="paint-tool-btn">🗑️ 清除畫布</button>
+          <button id="p-save" class="paint-tool-btn" style="background:#28a745; color:white;">💾 匯出 PNG</button>
         </div>
-        <canvas id="paint-canvas" width="1200" height="800"></canvas>
+        <div style="flex:1; position:relative; background:#808080; overflow:auto; display:flex; justify-content:center; align-items:center; padding:10px;">
+          <canvas id="paint-canvas" width="900" height="600" style="background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"></canvas>
+        </div>
       </div>
     </div>
     
