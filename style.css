@@ -30,7 +30,7 @@ body.theme-ubuntu {
   --taskbar-top: 0; --taskbar-bottom: auto; --taskbar-height: 35px;
   --ctrl-dir: row-reverse; --ctrl-pos-right: 10px; --ctrl-pos-left: auto;
   --mac-btn-size: 16px; --mac-btn-radius: 50%; --mac-btn-color: #555;
-  --set-sidebar-bg: #2c2c2c; --set-body-bg: #3a3a3a; --set-text: #fff; 
+  --set-sidebar-bg: #2c2c2c; --set-body-bg: #1e1e1e; --set-text: #fff; 
   --set-item-hover: #444; --set-item-act: #E95420;
 }
 
@@ -49,7 +49,7 @@ body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family:
 .lock-time { font-size: 90px; font-weight: 200; line-height: 1; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
 .lock-date { font-size: 24px; text-shadow: 1px 1px 5px rgba(0,0,0,0.5); }
 
-#login-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(25px); background: rgba(0,0,0,0.3); transform: translateY(100%); transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); }
+#login-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(25px); background: rgba(0,0,0,0.3); transform: translateY(100%); transition: transform 0.6s; }
 .login-box { text-align: center; }
 .login-box img { width: 120px; height: 120px; border-radius: 50%; margin-bottom: 20px; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
 .login-input-group { display: flex; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
@@ -110,7 +110,7 @@ body.theme-ubuntu #power-menu { top: 50px; bottom: auto; }
 .tile:hover { border: 2px solid rgba(255,255,255,0.4); transform: scale(0.98); }
 
 .window { position: absolute; top: 10%; left: 15%; width: 750px; height: 500px; background: var(--window-bg); color: var(--text-dark); border-radius: var(--win-radius); box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 100; overflow: hidden; border: 1px solid rgba(150,150,150,0.3); }
-.title-bar { height: 35px; display: flex; align-items: center; background: #f0f0f0; cursor: default; position: relative; border-bottom: 1px solid #ddd; }
+.title-bar { height: 35px; display: flex; align-items: center; background: #f0f0f0; cursor: default; position: relative; border-bottom: 1px solid #ddd; flex-shrink: 0; }
 .title-text { flex: 1; text-align: center; font-size: 13px; font-weight: 600; pointer-events: none; }
 .window-controls { display: flex; position: absolute; right: var(--ctrl-pos-right); left: var(--ctrl-pos-left); height: 100%; flex-direction: var(--ctrl-dir); align-items: center; gap: 8px; padding: 0 8px; }
 .ctrl-btn { width: var(--mac-btn-size); height: var(--mac-btn-size); border-radius: var(--mac-btn-radius); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; font-family: 'Segoe UI Symbol'; transition: 0.1s; background: var(--mac-btn-color); color: transparent; border: 1px solid transparent; }
@@ -127,6 +127,12 @@ body.theme-ubuntu .ctrl-btn.close { background: #333; }
 
 .window-content { flex: 1; position: relative; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
 
+/* Dynamic Resizing Handles */
+.resizer { position: absolute; z-index: 10; }
+.resizer-r { right: 0; top: 0; width: 5px; height: 100%; cursor: e-resize; }
+.resizer-b { bottom: 0; left: 0; width: 100%; height: 5px; cursor: s-resize; }
+.resizer-br { right: 0; bottom: 0; width: 10px; height: 10px; cursor: se-resize; z-index: 11; }
+
 /* Settings App */
 .settings-layout { display: flex; height: 100%; background: var(--set-body-bg); color: var(--set-text); transition: 0.3s; }
 .settings-nav { width: 220px; background: var(--set-sidebar-bg); padding-top: 20px; transition: 0.3s; }
@@ -137,9 +143,16 @@ body.theme-macos .set-nav-item { border-radius: 8px; margin: 0 10px 5px 10px; pa
 body.theme-macos .set-nav-item.active { background: var(--set-item-act); color: white; font-weight: bold; }
 body.theme-ubuntu .set-nav-item.active { background: var(--set-item-act); color: white; font-weight: bold; }
 .settings-main { flex: 1; padding: 40px; overflow-y: auto; }
+
+body.theme-win10 .set-group input, body.theme-win10 .set-group select { border: 2px solid #ccc; border-radius: 0; box-shadow: none; }
+body.theme-macos .set-group { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #e1e1e1; }
+body.theme-macos .set-group label { font-weight: bold; margin-bottom: 10px; }
+body.theme-macos .set-group input, body.theme-macos .set-group select { border-radius: 6px; border: 1px solid #d1d1d1; }
+body.theme-ubuntu .set-group input, body.theme-ubuntu .set-group select { background: #444; border: 1px solid #555; color: white; border-radius: 4px; }
+
 .set-group { margin-bottom: 25px; }
 .set-group label { display: block; font-size: 14px; margin-bottom: 8px; font-weight: 500; }
-.set-group input, .set-group select { width: 100%; padding: 10px; border: 1px solid #ccc; outline: none; border-radius: 4px; background: rgba(255,255,255,0.9); color: #333; box-sizing: border-box; }
+.set-group input, .set-group select { width: 100%; padding: 10px; border: 1px solid #ccc; outline: none; border-radius: 4px; background: rgba(255,255,255,0.9); color: #333; box-sizing: border-box; transition: 0.2s; }
 .set-btn { padding: 10px 25px; background: #ccc; border: none; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; color: #333; }
 .set-btn.primary { background: var(--win-blue); color: white; }
 .license-box { font-size:11px; white-space: pre-wrap; background:rgba(150,150,150,0.1); padding:15px; border-radius:6px; border: 1px solid rgba(150,150,150,0.3); }
@@ -161,12 +174,6 @@ body.theme-ubuntu .set-nav-item.active { background: var(--set-item-act); color:
 .guide-nav-item.active { background: #fff; border-left: 3px solid var(--win-blue); font-weight: bold; color: var(--win-blue); }
 .guide-main { flex: 1; padding: 30px 40px; overflow-y: auto; line-height: 1.6; }
 .guide-section h2 { margin-top: 0; color: #111; border-bottom: 2px solid #eaecef; padding-bottom: 8px; }
-.guide-card { background: #f6f8fa; border: 1px solid #d1d5da; border-radius: 6px; padding: 15px 20px; margin: 15px 0; }
-.guide-table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 13px; }
-.guide-table th, .guide-table td { border: 1px solid #dfe2e5; padding: 8px 12px; text-align: left; }
-.guide-table th { background: #f6f8fa; font-weight: 600; }
-.guide-table tr:nth-child(even) { background: #fafbfc; }
-.guide-callout { background: #e7f3fe; border-left: 4px solid var(--win-blue); padding: 12px 15px; margin: 15px 0; border-radius: 2px; }
 
 /* File Explorer */
 .fs-toolbar { padding: 10px 15px; background: rgba(150,150,150,0.1); border-bottom: 1px solid rgba(150,150,150,0.2); display: flex; gap: 10px; align-items: center; }
@@ -209,9 +216,6 @@ body.theme-ubuntu .set-nav-item.active { background: var(--set-item-act); color:
 .calc-grid button { font-size: 22px; border: none; border-radius: 6px; background: #fff; cursor: pointer; box-shadow: 0 1px 3px rgba(0,0,0,0.1); }
 
 /* Command Prompt */
-.term-content { background: #0c0c0c; color: #cccccc; font-family: 'Consolas', 'Courier New', monospace; padding: 15px; overflow-y: auto; cursor: text; font-size: 14px; line-height: 1.4; }
+.term-content { background: #0c0c0c; color: #cccccc; font-family: 'Consolas', monospace; padding: 15px; overflow-y: auto; cursor: text; font-size: 14px; line-height: 1.4; }
 .term-input-row { display: flex; align-items: center; margin-top: 4px; }
 .term-input { background: transparent; border: none; color: inherit; outline: none; font-family: inherit; font-size: 14px; flex: 1; padding: 0; margin: 0; }
-
-/* Notepad */
-#np-text { width:100%; height:100%; border:none; outline:none; padding:15px; font-family:Consolas, monospace; resize:none; font-size:15px; box-sizing:border-box; }
