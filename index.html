@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>WebOS - Ultimate Python & Themes Edition</title>
+<title>WebOS - The Ultimate Masterpiece</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.js"></script>
 <style>
@@ -15,268 +15,194 @@
     --window-bg: #ffffff;
     --text-dark: #000000;
     --win-radius: 0px;
-    --taskbar-bottom: 0;
-    --taskbar-top: auto;
-    --taskbar-left: 0;
-    --taskbar-width: 100%;
-    --taskbar-height: 40px;
-    --taskbar-flex: flex-start;
-    --ctrl-dir: row-reverse;
-    --ctrl-pos-right: 0;
-    --ctrl-pos-left: auto;
-    --mac-btn-size: 45px;
-    --mac-btn-radius: 0px;
-    --mac-btn-color: transparent;
+    --taskbar-bottom: 0; --taskbar-top: auto; --taskbar-left: 0; --taskbar-width: 100%; --taskbar-height: 40px;
+    --ctrl-dir: row-reverse; --ctrl-pos-right: 0; --ctrl-pos-left: auto;
+    --mac-btn-size: 45px; --mac-btn-radius: 0px; --mac-btn-color: transparent;
+    --set-sidebar-bg: #e6e6e6; --set-body-bg: #fff; --set-text: #000; --set-item-hover: #d4d4d4; --set-item-act: #f3f3f3;
   }
 
-  /* macOS 15 主題覆蓋 */
+  /* macOS 15 Theme */
   body.theme-macos {
-    --taskbar-bg: rgba(255, 255, 255, 0.3);
-    --win-radius: 12px;
-    --taskbar-bottom: 10px;
-    --taskbar-left: 50%;
-    --taskbar-width: max-content;
-    --taskbar-height: 55px;
-    --taskbar-flex: center;
-    --ctrl-dir: row;
-    --ctrl-pos-left: 10px;
-    --ctrl-pos-right: auto;
-    --mac-btn-size: 14px;
-    --mac-btn-radius: 50%;
+    --taskbar-bg: rgba(255, 255, 255, 0.35); --win-radius: 12px;
+    --taskbar-bottom: 15px; --taskbar-left: 50%; --taskbar-width: max-content; --taskbar-height: 55px;
+    --ctrl-dir: row; --ctrl-pos-left: 12px; --ctrl-pos-right: auto;
+    --mac-btn-size: 13px; --mac-btn-radius: 50%;
+    --set-sidebar-bg: rgba(230, 230, 230, 0.7); --set-body-bg: #f9f9f9; --set-item-hover: rgba(0,0,0,0.05); --set-item-act: #007AFF;
   }
 
-  /* Ubuntu 22 主題覆蓋 */
+  /* Ubuntu 22 Theme */
   body.theme-ubuntu {
-    --taskbar-bg: rgba(30, 30, 30, 0.95);
-    --win-blue: #E95420; /* Ubuntu Orange */
-    --win-radius: 8px;
-    --taskbar-top: 0;
-    --taskbar-bottom: auto;
-    --taskbar-left: 0;
-    --taskbar-width: 100%;
-    --taskbar-height: 35px;
-    --ctrl-dir: row-reverse;
-    --ctrl-pos-right: 10px;
-    --ctrl-pos-left: auto;
-    --mac-btn-size: 16px;
-    --mac-btn-radius: 50%;
-    --mac-btn-color: #555;
+    --taskbar-bg: rgba(30, 30, 30, 0.95); --win-blue: #E95420; --win-radius: 8px;
+    --taskbar-top: 0; --taskbar-bottom: auto; --taskbar-height: 35px;
+    --ctrl-dir: row-reverse; --ctrl-pos-right: 10px; --ctrl-pos-left: auto;
+    --mac-btn-size: 16px; --mac-btn-radius: 50%; --mac-btn-color: #555;
+    --set-sidebar-bg: #2c2c2c; --set-body-bg: #3a3a3a; --set-text: #fff; --set-item-hover: #444; --set-item-act: #E95420;
   }
 
   body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: '-apple-system', 'Segoe UI', Tahoma, sans-serif; user-select: none; background: #000; color: #fff; }
 
-  /* 系統畫面 */
+  /* 桌面與系統核心 UI */
   .sys-screen { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10000; background: #000; display: none; }
-  #boot-screen { display: flex; flex-direction: column; justify-content: center; align-items: center; }
-  .spinner { width: 40px; height: 40px; border: 4px solid rgba(255,255,255,0.1); border-top: 4px solid var(--win-blue); border-radius: 50%; animation: spin 1s linear infinite; margin-top:20px; }
-  @keyframes spin { 100% { transform: rotate(360deg); } }
-
   #lock-screen { background: center/cover no-repeat; overflow: hidden; }
-  #lock-time-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 50px; box-sizing: border-box; transition: transform 0.5s; cursor: pointer; }
-  .lock-time { font-size: 80px; font-weight: 200; line-height: 1; }
+  #lock-time-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: flex-end; padding: 50px; transition: transform 0.5s; cursor: pointer; }
+  .lock-time { font-size: 80px; font-weight: 200; line-height: 1; text-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
   
-  #login-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(20px); transform: translateY(100%); transition: transform 0.5s; }
+  #login-view { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; backdrop-filter: blur(25px); transform: translateY(100%); transition: transform 0.5s; }
   .login-box { text-align: center; }
-  .login-box img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; }
-  .login-input-group { display: flex; background: rgba(255,255,255,0.9); border-radius: 4px; overflow: hidden; }
-  .login-input-group input { border: none; padding: 10px; width: 200px; color: black; outline:none; }
-  .login-input-group button { background: #ccc; border: none; padding: 10px 15px; cursor: pointer; }
+  .login-box img { width: 100px; height: 100px; border-radius: 50%; margin-bottom: 15px; border: 2px solid rgba(255,255,255,0.2); object-fit: cover; }
+  .login-input-group { display: flex; background: #fff; border-radius: 4px; overflow: hidden; }
+  .login-input-group input { border: none; padding: 10px; width: 200px; outline:none; }
+  .login-input-group button { background: #e0e0e0; border: none; padding: 10px 15px; cursor: pointer; font-weight: bold; }
   .login-input-group button:hover { background: var(--win-blue); color: white; }
 
-  /* 桌面 */
   #desktop { position: absolute; top:0; left:0; width: 100%; height: 100%; background: center/cover no-repeat; display: none; }
   .desktop-icons { padding: 10px; display: grid; grid-template-rows: repeat(8, 90px); grid-auto-columns: 80px; grid-auto-flow: column; gap: 5px; }
-  body.theme-ubuntu .desktop-icons { margin-top: 40px; } /* 避開 Ubuntu 頂部欄 */
+  body.theme-ubuntu .desktop-icons { margin-top: 40px; }
   .icon { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 90px; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); cursor: pointer; font-size: 12px; text-align: center; transition: 0.1s; border-radius: 5px; }
-  .icon:hover { background: rgba(255,255,255,0.2); }
-  .icon img { width: 42px; height: 42px; margin-bottom: 5px; filter: drop-shadow(0px 3px 4px rgba(0,0,0,0.6)); }
+  .icon:hover { background: rgba(255,255,255,0.15); }
+  .icon img { width: 42px; height: 42px; margin-bottom: 5px; filter: drop-shadow(0px 2px 3px rgba(0,0,0,0.6)); }
 
-  /* 右鍵選單 */
-  #context-menu { display: none; position: absolute; background: #eee; border: 1px solid #aaa; box-shadow: 2px 2px 5px rgba(0,0,0,0.3); z-index: 10000; color: black; font-size: 12px; width: 200px; padding: 4px 0; }
-  .cm-item { padding: 8px 20px; cursor: pointer; }
-  .cm-item:hover { background: var(--win-blue); color: white; }
-  .cm-divider { height: 1px; background: #ccc; margin: 3px 0; }
-
-  /* 工作列 (支援多主題變形) */
-  #taskbar { position: absolute; bottom: var(--taskbar-bottom); top: var(--taskbar-top); left: var(--taskbar-left); width: var(--taskbar-width); height: var(--taskbar-height); background: var(--taskbar-bg); display: flex; align-items: center; z-index: 9000; backdrop-filter: blur(15px); border-radius: var(--win-radius); transform: translateX(calc(var(--taskbar-left) * -1)); box-sizing: border-box; padding: 0 10px; transition: 0.3s; }
-  
+  /* 工作列 */
+  #taskbar { position: absolute; bottom: var(--taskbar-bottom); top: var(--taskbar-top); left: var(--taskbar-left); width: var(--taskbar-width); height: var(--taskbar-height); background: var(--taskbar-bg); display: flex; align-items: center; z-index: 9000; backdrop-filter: blur(20px); border-radius: var(--win-radius); transform: translateX(calc(var(--taskbar-left) * -1)); box-sizing: border-box; padding: 0 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); transition: 0.3s; }
   .start-btn { width: 40px; height: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
-  .start-btn:hover { background: rgba(255,255,255,0.1); }
-  body.theme-macos .start-btn { display: none; } /* macOS dock doesn't have start button usually, but we'll keep it as a finder face */
+  .start-btn:hover { background: rgba(255,255,255,0.15); }
+  body.theme-macos .start-btn { display: none; }
   
-  .taskbar-apps { display: flex; flex: 1; height: 100%; justify-content: var(--taskbar-flex); gap: 5px; align-items: center; }
-  .taskbar-icon { width: 40px; height: 80%; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 4px; transition: 0.2s; }
-  body.theme-macos .taskbar-icon { width: 50px; height: 50px; }
+  .taskbar-apps { display: flex; flex: 1; height: 100%; gap: 5px; align-items: center; margin-left: 10px; }
+  body.theme-macos .taskbar-apps { justify-content: center; margin-left: 0; }
+  .taskbar-icon { width: 44px; height: 80%; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 4px; transition: 0.2s; border-bottom: 3px solid transparent; }
+  body.theme-macos .taskbar-icon { width: 50px; height: 50px; border-bottom: none; position: relative; }
   .taskbar-icon img { width: 24px; height: 24px; }
-  body.theme-macos .taskbar-icon img { width: 40px; height: 40px; }
-  .taskbar-icon:hover { background: rgba(255,255,255,0.2); }
-  .taskbar-icon.active { background: rgba(255,255,255,0.1); border-bottom: 2px solid var(--win-blue); }
-  body.theme-macos .taskbar-icon.active { border-bottom: none; position: relative; }
-  body.theme-macos .taskbar-icon.active::after { content: ''; position: absolute; bottom: 2px; width: 4px; height: 4px; background: white; border-radius: 50%; }
-
-  .system-tray { display: flex; align-items: center; height: 100%; font-size: 12px; cursor: pointer; padding: 0 10px; }
-  body.theme-macos .system-tray { display: none; } /* macOS menu bar hides this */
-
-  /* 開始功能表 */
-  #start-menu { display: none; position: absolute; bottom: 50px; left: 0; width: 600px; height: 500px; background: rgba(30, 30, 30, 0.95); backdrop-filter: blur(25px); color: white; z-index: 8999; display: flex; border: 1px solid rgba(255,255,255,0.1); border-radius: var(--win-radius); }
-  body.theme-ubuntu #start-menu { top: 35px; bottom: auto; }
-  body.theme-macos #start-menu { left: 50%; transform: translateX(-50%); bottom: 70px; }
-  
-  .start-sidebar { width: 48px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 10px; }
-  .start-sidebar-icon { width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; }
-  .start-sidebar-icon:hover { background: rgba(255,255,255,0.1); }
-  
-  #power-menu { display: none; position: absolute; bottom: 50px; left: 48px; background: #2b2b2b; width: 180px; flex-direction: column; box-shadow: 2px 2px 10px rgba(0,0,0,0.5); }
-  .power-item { padding: 12px 15px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; }
-  .power-item:hover { background: #444; }
-
-  .start-app-list { width: 200px; padding: 15px; overflow-y: auto; background: rgba(0,0,0,0.2); }
-  .start-app-item { padding: 10px; display: flex; align-items: center; cursor: pointer; font-size: 13px; }
-  .start-app-item img { width: 24px; height: 24px; margin-right: 10px; }
-  .start-app-item:hover { background: rgba(255,255,255,0.1); }
-  
-  .start-tiles { flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 95px; gap: 8px; overflow-y: auto; align-content: start; }
-  .tile { background: var(--win-blue); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; border: 2px solid transparent; transition: 0.1s; }
-  .tile img { width: 32px; height: 32px; margin-bottom: 10px; }
-  .tile:hover { transform: scale(0.98); border: 2px solid rgba(255,255,255,0.4); }
+  body.theme-macos .taskbar-icon img { width: 42px; height: 42px; transition: 0.2s; }
+  body.theme-macos .taskbar-icon:hover img { transform: scale(1.1) translateY(-5px); }
+  .taskbar-icon:hover { background: rgba(255,255,255,0.15); }
+  body.theme-macos .taskbar-icon:hover { background: transparent; }
+  .taskbar-icon.active { background: rgba(255,255,255,0.1); border-bottom: 3px solid var(--win-blue); }
+  body.theme-macos .taskbar-icon.active { background: transparent; border-bottom: none; }
+  body.theme-macos .taskbar-icon.active::after { content: ''; position: absolute; bottom: 2px; width: 5px; height: 5px; background: rgba(255,255,255,0.8); border-radius: 50%; }
+  .system-tray { display: flex; align-items: center; height: 100%; font-size: 13px; cursor: pointer; padding: 0 10px; gap: 15px; }
+  body.theme-macos .system-tray { display: none; }
 
   /* 視窗 UI */
-  .window { position: absolute; top: 10%; left: 15%; width: 700px; height: 500px; background: var(--window-bg); color: var(--text-dark); border-radius: var(--win-radius); box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 100; overflow: hidden; border: 1px solid rgba(150,150,150,0.3); }
+  .window { position: absolute; top: 10%; left: 15%; width: 750px; height: 500px; background: var(--window-bg); color: var(--text-dark); border-radius: var(--win-radius); box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 100; overflow: hidden; border: 1px solid rgba(150,150,150,0.3); }
   .title-bar { height: 35px; display: flex; align-items: center; background: #f0f0f0; cursor: default; position: relative; border-bottom: 1px solid #ddd; }
   .title-text { flex: 1; text-align: center; font-size: 13px; font-weight: 600; pointer-events: none; }
-  
-  .window-controls { display: flex; position: absolute; right: var(--ctrl-pos-right); left: var(--ctrl-pos-left); height: 100%; flex-direction: var(--ctrl-dir); align-items: center; gap: 5px; padding: 0 5px; }
+  .window-controls { display: flex; position: absolute; right: var(--ctrl-pos-right); left: var(--ctrl-pos-left); height: 100%; flex-direction: var(--ctrl-dir); align-items: center; gap: 8px; padding: 0 8px; }
   .ctrl-btn { width: var(--mac-btn-size); height: var(--mac-btn-size); border-radius: var(--mac-btn-radius); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; font-family: 'Segoe UI Symbol'; transition: 0.1s; background: var(--mac-btn-color); color: transparent; border: 1px solid transparent; }
   
-  /* Windows Controls Hover */
   body.theme-win10 .ctrl-btn { height: 100%; color: #333; }
   body.theme-win10 .ctrl-btn:hover { background: #e5e5e5; }
   body.theme-win10 .ctrl-btn.close:hover { background: #e81123; color: white; }
-  
-  /* macOS Controls Colors */
   body.theme-macos .ctrl-btn.close { background: #ff5f56; border-color: #e0443e; }
   body.theme-macos .ctrl-btn.max { background: #27c93f; border-color: #1aab29; }
   body.theme-macos .ctrl-btn.min { background: #ffbd2e; border-color: #dea123; }
   body.theme-macos .ctrl-btn:hover { color: rgba(0,0,0,0.6); }
-
-  /* Ubuntu Controls Colors */
   body.theme-ubuntu .ctrl-btn { background: #e95420; color: white; }
   body.theme-ubuntu .ctrl-btn.close { background: #333; }
 
-  .window-content { flex: 1; position: relative; display: flex; flex-direction: column; background: #fff; }
+  .window-content { flex: 1; position: relative; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
 
-  /* Settings UI */
-  .settings-layout { display: flex; height: 100%; background: #f3f3f3; }
-  .settings-nav { width: 220px; background: #e6e6e6; padding-top: 20px; }
-  .set-nav-item { padding: 15px 25px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; }
-  .set-nav-item:hover { background: #d4d4d4; }
-  .set-nav-item.active { background: #f3f3f3; border-left: 4px solid var(--win-blue); font-weight: bold; }
+  /* ★ 動態 Settings UI (適應主題) ★ */
+  .settings-layout { display: flex; height: 100%; background: var(--set-body-bg); color: var(--set-text); transition: 0.3s; }
+  .settings-nav { width: 220px; background: var(--set-sidebar-bg); padding-top: 20px; transition: 0.3s; }
+  .set-nav-item { padding: 15px 25px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; }
+  .set-nav-item:hover { background: var(--set-item-hover); }
+  
+  /* Win10 Settings Style */
+  body.theme-win10 .set-nav-item.active { background: var(--set-item-act); border-left: 4px solid var(--win-blue); font-weight: bold; }
+  /* macOS Settings Style */
+  body.theme-macos .set-nav-item { border-radius: 8px; margin: 0 10px 5px 10px; padding: 10px 15px; border-left: none; }
+  body.theme-macos .set-nav-item.active { background: var(--set-item-act); color: white; font-weight: bold; }
+  /* Ubuntu Settings Style */
+  body.theme-ubuntu .set-nav-item.active { background: var(--set-item-act); color: white; font-weight: bold; }
+
   .settings-main { flex: 1; padding: 40px; overflow-y: auto; }
   .set-group { margin-bottom: 25px; }
   .set-group label { display: block; font-size: 14px; margin-bottom: 8px; font-weight: 500; }
-  .set-group input, .set-group select { width: 100%; padding: 10px; border: 1px solid #ccc; outline: none; border-radius: 4px; }
-  .set-btn { padding: 10px 25px; background: #ccc; border: none; cursor: pointer; border-radius: 4px; }
+  .set-group input, .set-group select { width: 100%; padding: 10px; border: 1px solid #ccc; outline: none; border-radius: 4px; font-family: inherit; background: rgba(255,255,255,0.9); color: #333; }
+  .set-btn { padding: 10px 25px; background: #ccc; border: none; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; color: #333; }
   .set-btn.primary { background: var(--win-blue); color: white; }
 
-  /* Python Editor UI */
-  .py-layout { display: flex; flex-direction: column; height: 100%; background: #1e1e1e; color: #d4d4d4; }
-  .py-toolbar { padding: 10px; background: #333; display: flex; gap: 10px; }
-  .py-toolbar button { background: #4CAF50; color: white; border: none; padding: 5px 15px; cursor: pointer; border-radius: 3px; font-weight: bold; }
-  .py-editor { flex: 1; display: flex; }
-  .py-code { flex: 1; background: #1e1e1e; color: #9cdcfe; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; outline: none; border: none; resize: none; border-right: 1px solid #444; }
-  .py-output { flex: 1; background: #000; color: #0f0; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; overflow-y: auto; white-space: pre-wrap; }
+  /* App Store */
+  .store-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; background: inherit; overflow-y: auto; }
+  .store-card { background: rgba(150,150,150,0.1); border: 1px solid rgba(150,150,150,0.3); padding: 15px; border-radius: 8px; display: flex; align-items: center; }
+  .store-card img { width: 50px; height: 50px; margin-right: 15px; }
+  .store-btn { padding: 8px 15px; border: none; background: var(--win-blue); color: white; cursor: pointer; border-radius: 4px; font-weight: bold; }
+  .store-btn.installed { background: #dc3545; }
 
-  /* 其他 APP 共用 */
-  .browser-bar { padding: 8px; background: #f1f1f1; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #ddd; }
-  .browser-bar input { flex: 1; padding: 6px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; }
-  .mdm-toggle { font-size: 12px; background: #ff4444; color: white; padding: 5px 10px; border-radius: 12px; cursor: pointer; font-weight: bold; }
-  .mdm-toggle.active { background: #00C851; }
+  /* File Explorer */
+  .fs-toolbar { padding: 10px; background: rgba(150,150,150,0.1); border-bottom: 1px solid rgba(150,150,150,0.2); display: flex; gap: 10px; }
+  .fs-btn { padding: 5px 15px; background: var(--win-blue); color: white; border: none; border-radius: 3px; cursor: pointer; }
+  .fs-grid { display: flex; flex-wrap: wrap; gap: 15px; padding: 20px; align-content: flex-start; overflow-y: auto; flex: 1; }
+  .fs-item { width: 80px; text-align: center; cursor: pointer; padding: 5px; border-radius: 4px; border: 1px solid transparent; transition: 0.2s; }
+  .fs-item:hover { background: rgba(0, 120, 215, 0.1); border: 1px solid var(--win-blue); }
+  .fs-item img { width: 48px; height: 48px; margin-bottom: 5px; }
+  .fs-item-name { font-size: 11px; word-break: break-all; color: var(--set-text); }
+
+  /* Python / Weather / Apps 共用 */
+  .py-layout { display: flex; flex-direction: column; height: 100%; background: #1e1e1e; color: #d4d4d4; }
+  .py-toolbar { padding: 10px 15px; background: #2d2d2d; display: flex; gap: 10px; }
+  .py-code { flex: 1; background: #1e1e1e; color: #9cdcfe; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; border: none; outline: none; border-right: 2px solid #333; }
+  .py-output { flex: 1; background: #000; color: #4af626; padding: 15px; font-family: 'Consolas', monospace; font-size: 14px; overflow-y: auto; white-space: pre-wrap; margin:0; }
   .weather-top { background: linear-gradient(to bottom, #1e3c72 0%, #2a5298 100%); color: white; padding: 40px; text-align: center; }
   .temp-big { font-size: 80px; font-weight: bold; margin: 15px 0; }
 </style>
 </head>
-<body class="theme-win10" onload="brython()" oncontextmenu="showContextMenu(event); return false;" onclick="hideContextMenu(event)">
+<body class="theme-win10" onload="brython()" oncontextmenu="return false;">
 
+<!-- Python Engine Bridge -->
 <script type="text/python">
 import sys
 from browser import document
-
-# 將 Python 的 print() 輸出重定向到 HTML 嘅 pre 標籤入面
 class MyOutput:
     def write(self, data):
         document["py-output"].text += data
-
+    def flush(self): pass
 sys.stdout = MyOutput()
 sys.stderr = MyOutput()
 
 def run_python_code(ev):
-    document["py-output"].text = ">>> 執行中...\n"
-    code = document["py-code"].value
-    try:
-        # 喺瀏覽器入面執行 Python 代碼
-        exec(code)
-    except Exception as e:
-        document["py-output"].text += "\n錯誤: " + str(e)
-    document["py-output"].text += "\n>>> 程式執行完畢。"
+    document["py-output"].text = ">>> Executing...\n"
+    try: exec(document["py-code"].value, {})
+    except Exception as e: document["py-output"].text += f"\n[Error] {e}"
+    document["py-output"].text += "\n\n>>> Done."
 
+def clear_output(ev): document["py-output"].text = ">>> Output cleared."
 document["run-py-btn"].bind("click", run_python_code)
+document["clear-py-btn"].bind("click", clear_output)
 </script>
 
+<!-- Black Screen -->
 <div id="black-screen" class="sys-screen"></div>
-<div id="boot-screen" class="sys-screen">
-  <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" id="boot-logo">
-  <div class="spinner"></div>
-  <div style="margin-top:20px; color:#aaa; font-family:monospace;">載入系統核心及 Python 引擎...</div>
-</div>
 
-<div id="lock-screen" class="sys-screen">
+<!-- Lock & Login -->
+<div id="lock-screen" class="sys-screen" style="display:block;">
   <div id="lock-time-view" onclick="showLoginPrompt()">
     <div class="lock-time" id="lock-huge-time">00:00</div>
     <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
   </div>
   <div id="login-view">
     <div class="login-box">
-      <img src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-      <h2 id="login-user-name">Admin</h2>
+      <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+      <h2 id="login-user-name" style="color:white; text-shadow:1px 1px 5px black;">Admin</h2>
       <div class="login-input-group">
-        <input type="password" id="login-pw" placeholder="請輸入密碼 (如有)" onkeydown="if(event.key==='Enter') attemptLogin()">
+        <input type="password" id="login-pw" data-i18n-ph="login_pw_ph" placeholder="請輸入密碼" onkeydown="if(event.key==='Enter') attemptLogin()">
         <button onclick="attemptLogin()">➔</button>
       </div>
-      <div id="login-err" style="color:#ff6b6b; margin-top:10px; display:none;">密碼錯誤，請重試。</div>
-      <button style="margin-top:20px; background:transparent; border:none; color:white; cursor:pointer;" onclick="hideLoginPrompt()">取消</button>
+      <div id="login-err" style="color:#ff4444; font-weight:bold; margin-top:10px; display:none;" data-i18n="login_err">密碼錯誤。</div>
+      <button style="margin-top:20px; background:transparent; border:none; color:white; cursor:pointer;" onclick="hideLoginPrompt()" data-i18n="cancel">取消</button>
     </div>
   </div>
 </div>
 
+<!-- Desktop -->
 <div id="desktop">
   <div class="desktop-icons" id="desktop-icons"></div>
 
-  <div id="context-menu">
-    <div class="cm-item" onclick="location.reload()">重新整理 (Refresh)</div>
-    <div class="cm-divider"></div>
-    <div class="cm-item" onclick="openApp('app-settings'); switchSettingsTab('theme')">主題與佈景 (Themes)</div>
-  </div>
-
-  <div id="start-menu">
-    <div class="start-sidebar">
-      <div class="start-sidebar-icon">≡</div>
-      <div style="flex:1;"></div>
-      <div class="start-sidebar-icon" onclick="openApp('app-settings'); switchSettingsTab('account')">👤</div>
-      <div class="start-sidebar-icon" onclick="openApp('app-settings')">⚙️</div>
-      <div class="start-sidebar-icon" onclick="togglePowerMenu(event)">⏻</div>
-      <div id="power-menu">
-        <div class="power-item" onclick="sysAction('logout')">👤 登出 / 切換使用者</div>
-        <div class="power-item" onclick="sysAction('reboot')">🔄 重新啟動</div>
-        <div class="power-item" onclick="sysAction('shutdown')">⏻ 關機</div>
-      </div>
-    </div>
-    <div class="start-app-list" id="start-app-list"></div>
-    <div class="start-tiles" id="start-tiles"></div>
-  </div>
-
-  <div class="window" id="app-settings" style="width: 800px; height: 550px;">
+  <!-- Settings App (Adaptive Theme) -->
+  <div class="window" id="app-settings" style="width: 800px; height: 550px;" onmousedown="bringToFront('app-settings')">
     <div class="title-bar" onmousedown="dragStart(event, 'app-settings')">
-      <div class="title-text">系統設定 (Settings)</div>
+      <div class="title-text" data-i18n="settings">系統設定 (Settings)</div>
       <div class="window-controls">
         <div class="ctrl-btn close" onclick="closeApp('app-settings')">✕</div>
         <div class="ctrl-btn max" onclick="maxApp('app-settings')">□</div>
@@ -285,44 +211,54 @@ document["run-py-btn"].bind("click", run_python_code)
     </div>
     <div class="window-content settings-layout">
       <div class="settings-nav">
-        <div class="set-nav-item active" onclick="switchSettingsTab('theme')">🎨 佈景主題 (Themes)</div>
-        <div class="set-nav-item" onclick="switchSettingsTab('system')">💻 系統資訊</div>
-        <div class="set-nav-item" onclick="switchSettingsTab('account')">👤 帳戶設定</div>
-        <div class="set-nav-item" onclick="switchSettingsTab('about')">ℹ️ 關於與版權</div>
+        <div class="set-nav-item active" onclick="switchSettingsTab('theme')" data-i18n="tab_theme">🎨 佈景主題</div>
+        <div class="set-nav-item" onclick="switchSettingsTab('account')" data-i18n="tab_acc">👤 帳戶管理</div>
+        <div class="set-nav-item" onclick="switchSettingsTab('lang')" data-i18n="tab_lang">🌐 語言 (Language)</div>
+        <div class="set-nav-item" onclick="switchSettingsTab('about')" data-i18n="tab_about">ℹ️ 關於系統</div>
       </div>
       <div class="settings-main">
+        <!-- Theme Tab -->
         <div id="set-theme" style="display:block;">
-          <h2>佈景主題與外觀</h2>
+          <h2 data-i18n="theme_title">佈景主題與外觀</h2>
           <div class="set-group">
-            <label>選擇作業系統風格 (即時生效)</label>
+            <label data-i18n="theme_select">作業系統風格</label>
             <select id="theme-select" onchange="changeTheme()">
-              <option value="theme-win10">Windows 10 (預設)</option>
-              <option value="theme-macos">macOS 15 (Sequoia 風格)</option>
-              <option value="theme-ubuntu">Ubuntu 22 (Linux 風格)</option>
+              <option value="theme-win10">Windows 10 (經典靠左)</option>
+              <option value="theme-macos">macOS 15 (圓角 Dock)</option>
+              <option value="theme-ubuntu">Ubuntu 22 (Linux 頂部欄)</option>
             </select>
           </div>
           <div class="set-group">
-            <label>桌面背景 (URL)</label>
+            <label data-i18n="bg_url">桌面背景 (URL)</label>
             <input type="text" id="set-bg-url">
-            <button class="set-btn primary" style="margin-top:10px;" onclick="changeWallpaper()">套用背景</button>
+            <div style="margin-top:10px;">
+              <button class="set-btn primary" onclick="changeWallpaper()" data-i18n="apply">套用</button>
+              <button class="set-btn" onclick="document.getElementById('set-bg-url').value='https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500'; changeWallpaper();" data-i18n="default">還原預設</button>
+            </div>
           </div>
         </div>
-        <div id="set-system" style="display:none;">
-          <h2>系統資訊</h2>
-          <p>引擎: HTML5 + Brython 3.12 (Python 支援)</p>
-          <p>限制: 已經全面封鎖所有 IAP 內購及應用程式商店功能。</p>
-          <button class="set-btn" style="background:#ff4444; color:white; margin-top:20px;" onclick="factoryReset()">洗機 (清除所有本地資料)</button>
-        </div>
+        <!-- Account Tab -->
         <div id="set-account" style="display:none;">
-          <h2>使用者帳戶</h2>
-          <div class="set-group"><label>使用者名稱</label><input type="text" id="set-username"></div>
-          <div class="set-group"><label>登入密碼 (留空代表無密碼)</label><input type="password" id="set-password"></div>
-          <button class="set-btn primary" onclick="saveAccount()">儲存</button>
+          <h2 data-i18n="acc_title">使用者管理</h2>
+          <div class="set-group"><label data-i18n="acc_name">使用者名稱</label><input type="text" id="set-username"></div>
+          <div class="set-group"><label data-i18n="acc_pw">密碼 (留空代表無密碼)</label><input type="password" id="set-password"></div>
+          <div class="set-group"><label data-i18n="acc_avatar">頭像圖片 (URL)</label><input type="text" id="set-avatar"></div>
+          <button class="set-btn primary" onclick="saveAccount()" data-i18n="save">儲存設定</button>
+          <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ccc;">
+          <button class="set-btn" style="background:#ff4444; color:white;" onclick="factoryReset()" data-i18n="reset">洗機 (重設系統)</button>
         </div>
+        <!-- Language Tab -->
+        <div id="set-lang" style="display:none;">
+          <h2>Language / 語言</h2>
+          <div class="set-group">
+            <button class="set-btn primary" onclick="setLang('zh')">廣東話 (Cantonese)</button>
+            <button class="set-btn primary" onclick="setLang('en')">English</button>
+          </div>
+        </div>
+        <!-- About Tab -->
         <div id="set-about" style="display:none;">
-          <h2>版權宣告</h2>
-          <pre style="font-size:11px; white-space: pre-wrap; background:#e6e6e6; padding:15px; border-radius:3px; color:#333;">MIT License
-
+          <h2 data-i18n="about_title">系統與版權</h2>
+          <pre style="font-size:11px; white-space: pre-wrap; background:rgba(150,150,150,0.2); padding:15px; border-radius:4px;">MIT License
 Copyright (c) 2026 iAnyFeature
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -337,124 +273,126 @@ copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.</pre>
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.</pre>
         </div>
       </div>
     </div>
   </div>
 
-  <div class="window" id="app-python" style="width: 850px; height: 600px;">
-    <div class="title-bar" onmousedown="dragStart(event, 'app-python')">
-      <div class="title-text">Python 開發環境 (Powered by Brython)</div>
-      <div class="window-controls">
-        <div class="ctrl-btn close" onclick="closeApp('app-python')">✕</div>
-        <div class="ctrl-btn max" onclick="maxApp('app-python')">□</div>
-        <div class="ctrl-btn min" onclick="minApp('app-python')">─</div>
-      </div>
+  <!-- APP: App Store -->
+  <div class="window" id="app-store" style="width: 800px; height: 550px;" onmousedown="bringToFront('app-store')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-store')">
+      <div class="title-text" data-i18n="store">App Store (免費/無內購)</div>
+      <div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-store')">✕</div><div class="ctrl-btn max" onclick="maxApp('app-store')">□</div><div class="ctrl-btn min" onclick="minApp('app-store')">─</div></div>
     </div>
+    <div class="window-content" style="background: var(--set-body-bg); color: var(--set-text);">
+      <div style="padding: 20px; font-size: 20px; font-weight: bold;" data-i18n="store_desc">探索應用程式 (All Free)</div>
+      <div class="store-grid" id="store-grid"></div>
+    </div>
+  </div>
+
+  <!-- APP: File Explorer -->
+  <div class="window" id="app-explorer" style="width: 750px; height: 500px;" onmousedown="bringToFront('app-explorer')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-explorer')">
+      <div class="title-text" data-i18n="file_explorer">檔案總管 (File Explorer)</div>
+      <div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-explorer')">✕</div><div class="ctrl-btn max" onclick="maxApp('app-explorer')">□</div><div class="ctrl-btn min" onclick="minApp('app-explorer')">─</div></div>
+    </div>
+    <div class="window-content" style="background: var(--set-body-bg);">
+      <div class="fs-toolbar">
+        <button class="fs-btn" onclick="createFile()" data-i18n="fs_new">新增文字檔</button>
+        <button class="fs-btn" onclick="document.getElementById('fs-upload').click()" data-i18n="fs_upload">上傳檔案</button>
+        <button class="fs-btn" style="background:#dc3545;" onclick="clearFS()" data-i18n="fs_clear">清空磁碟</button>
+        <input type="file" id="fs-upload" style="display:none;" onchange="uploadFile(event)">
+      </div>
+      <div class="fs-grid" id="fs-grid"></div>
+    </div>
+  </div>
+
+  <!-- APP: Python IDE -->
+  <div class="window" id="app-python" style="width: 850px; height: 600px;" onmousedown="bringToFront('app-python')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-python')"><div class="title-text">Python IDE (Brython)</div><div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-python')">✕</div><div class="ctrl-btn max" onclick="maxApp('app-python')">□</div><div class="ctrl-btn min" onclick="minApp('app-python')">─</div></div></div>
     <div class="window-content py-layout">
       <div class="py-toolbar">
-        <button id="run-py-btn">▶ 執行 (Run Code)</button>
-        <span style="font-size:12px; line-height:28px; color:#aaa;">(支援標準 Python 3 語法，無須伺服器)</span>
+        <button id="run-py-btn" style="background:#4CAF50; color:white; border:none; padding:8px 15px; border-radius:3px; cursor:pointer; font-weight:bold;">▶ Run</button>
+        <button id="clear-py-btn" style="background:#d9534f; color:white; border:none; padding:8px 15px; border-radius:3px; cursor:pointer; font-weight:bold;">🗑️ Clear</button>
       </div>
-      <div class="py-editor">
-        <textarea id="py-code" class="py-code" spellcheck="false"># 喺度寫你嘅 Python 代碼
-print("Hello, WebOS Ultimate!")
-
-# 簡單嘅運算測試
-def calculate_sum(n):
-    return sum(range(1, n + 1))
-
-total = calculate_sum(100)
-print(f"1 到 100 嘅總和係: {total}")
-
-# 類別測試
-class Developer:
-    def __init__(self, name):
-        self.name = name
-    def say_hi(self):
-        print(f"{self.name} 話：Python 已經完美整合！")
-
-dev = Developer("iAnyFeature")
-dev.say_hi()</textarea>
-        <pre id="py-output" class="py-output">>>> 等待執行...</pre>
+      <div style="flex:1; display:flex;">
+        <textarea id="py-code" class="py-code">print("Welcome to Python in WebOS!")
+# 支援全功能運算
+def fib(n):
+    a, b = 0, 1
+    for _ in range(n):
+        yield a
+        a, b = b, a + b
+print(list(fib(10)))</textarea>
+        <pre id="py-output" class="py-output">>>> Ready.</pre>
       </div>
     </div>
   </div>
 
-  <div class="window" id="app-browser" style="width: 800px; height: 550px;">
-    <div class="title-bar" onmousedown="dragStart(event, 'app-browser')">
-      <div class="title-text">Browser (MDM Bypass Enabled)</div>
-      <div class="window-controls">
-        <div class="ctrl-btn close" onclick="closeApp('app-browser')">✕</div>
-        <div class="ctrl-btn max" onclick="maxApp('app-browser')">□</div>
-        <div class="ctrl-btn min" onclick="minApp('app-browser')">─</div>
-      </div>
-    </div>
-    <div class="window-content">
-      <div class="browser-bar">
-        <button style="border:none; background:transparent; cursor:pointer;" onclick="document.getElementById('browser-frame').contentWindow.history.back()">⟵</button>
-        <button style="border:none; background:transparent; cursor:pointer;" onclick="navBrowser()">↻</button>
-        <input type="text" id="url-input" value="wikipedia.org" onkeydown="if(event.key==='Enter') navBrowser()">
-        <div id="mdm-toggle-btn" class="mdm-toggle" onclick="toggleMDM()">MDM Bypass: OFF</div>
-      </div>
-      <iframe class="browser" id="browser-frame" src="https://zh.wikipedia.org/" style="width:100%; height:100%; border:none;"></iframe>
-    </div>
-  </div>
-
-  <div class="window" id="app-weather" style="width: 450px; height: 550px;">
-    <div class="title-bar" onmousedown="dragStart(event, 'app-weather')">
-      <div class="title-text">天氣與氣象</div>
-      <div class="window-controls">
-        <div class="ctrl-btn close" onclick="closeApp('app-weather')">✕</div>
-        <div class="ctrl-btn min" onclick="minApp('app-weather')">─</div>
-      </div>
-    </div>
-    <div class="window-content" style="background:#f5f5f5;">
-      <div style="padding:15px; display:flex; gap:10px; background:#fff; border-bottom:1px solid #ddd;">
-        <select id="weather-city" style="flex:1; padding:8px; outline:none; border-radius:4px;">
+  <!-- APP: Weather -->
+  <div class="window" id="app-weather" style="width: 450px; height: 550px;" onmousedown="bringToFront('app-weather')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-weather')"><div class="title-text" data-i18n="weather">天氣</div><div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-weather')">✕</div><div class="ctrl-btn min" onclick="minApp('app-weather')">─</div></div></div>
+    <div class="window-content" style="background:#f5f5f5; color:black;">
+      <div style="padding:15px; display:flex; gap:10px; background:#fff;">
+        <select id="weather-city" style="flex:1; padding:8px;">
           <option value="22.31,114.17">香港 (Hong Kong)</option>
           <option value="34.79,114.30">開封/汴京 (Kaifeng/Bianjing)</option>
           <option value="51.50,-0.12">倫敦 (London)</option>
         </select>
-        <button style="padding:8px 15px; border:none; background:#eee; cursor:pointer; border-radius:4px;" onclick="fetchWeatherManual()">搜尋</button>
-        <button style="background:var(--win-blue); color:white; border:none; padding:8px 15px; cursor:pointer; border-radius:4px;" onclick="autoLocateWeather()">📍 定位</button>
+        <button style="padding:8px; cursor:pointer;" onclick="fetchWeatherManual()" data-i18n="search">搜尋</button>
       </div>
       <div class="weather-top">
-        <div id="w-city" style="font-size:24px;">選擇地區</div>
+        <div id="w-city" style="font-size:24px;">Region</div>
         <div class="temp-big" id="w-temp">--°</div>
-        <div id="w-desc">讀取衛星數據中...</div>
-      </div>
-      <div style="padding:30px; color:black;">
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #ddd; padding-bottom:10px;"><span>風速</span><strong id="w-wind">-- km/h</strong></div>
-        <div style="display:flex; justify-content:space-between; margin-bottom:20px; border-bottom:1px solid #ddd; padding-bottom:10px;"><span>時間</span><strong id="w-time">--</strong></div>
+        <div id="w-desc">Loading...</div>
       </div>
     </div>
   </div>
 
-  <div class="window" id="app-notepad" style="width: 500px; height: 400px;">
-    <div class="title-bar" onmousedown="dragStart(event, 'app-notepad')">
-      <div class="title-text">記事本</div>
-      <div class="window-controls">
-        <div class="ctrl-btn close" onclick="closeApp('app-notepad')">✕</div>
-        <div class="ctrl-btn max" onclick="maxApp('app-notepad')">□</div>
-        <div class="ctrl-btn min" onclick="minApp('app-notepad')">─</div>
+  <!-- APP: Paint -->
+  <div class="window" id="app-paint" style="width: 700px; height: 500px;" onmousedown="bringToFront('app-paint')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-paint')"><div class="title-text" data-i18n="paint">小畫家</div><div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-paint')">✕</div><div class="ctrl-btn max" onclick="maxApp('app-paint')">□</div><div class="ctrl-btn min" onclick="minApp('app-paint')">─</div></div></div>
+    <div class="window-content" style="overflow:hidden;">
+      <div style="padding:5px; background:#f5f6f7; display:flex; gap:10px;">
+        <button onclick="clearCanvas()" style="padding:5px 15px;">Clear</button>
+        <div style="width:24px;height:24px;background:black;cursor:pointer;border:1px solid #000;" onclick="paintColor='black'"></div>
+        <div style="width:24px;height:24px;background:red;cursor:pointer;border:1px solid #000;" onclick="paintColor='red'"></div>
+        <div style="width:24px;height:24px;background:blue;cursor:pointer;border:1px solid #000;" onclick="paintColor='blue'"></div>
+        <div style="width:24px;height:24px;background:green;cursor:pointer;border:1px solid #000;" onclick="paintColor='green'"></div>
+      </div>
+      <canvas id="paint-canvas" style="background: white; cursor: crosshair; display:block;" width="1200" height="800"></canvas>
+    </div>
+  </div>
+  
+  <!-- APP: Calculator -->
+  <div class="window" id="app-calc" style="width: 320px; height: 480px;" onmousedown="bringToFront('app-calc')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-calc')"><div class="title-text" data-i18n="calc">計算機</div><div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-calc')">✕</div></div></div>
+    <div class="window-content" style="padding:15px; background:#f0f0f0;">
+      <input type="text" id="calc-display" disabled style="width:100%; height:70px; font-size:36px; text-align:right; border:none; margin-bottom:15px; box-sizing:border-box; color:black;" value="0">
+      <div style="display:grid; grid-template-columns: repeat(4,1fr); gap: 8px; height:300px;">
+        <button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('7')">7</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('8')">8</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('9')">9</button><button style="font-size:20px; border:none; border-radius:4px; background:#e0e0e0;" onclick="calcIn('/')">÷</button>
+        <button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('4')">4</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('5')">5</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('6')">6</button><button style="font-size:20px; border:none; border-radius:4px; background:#e0e0e0;" onclick="calcIn('*')">×</button>
+        <button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('1')">1</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('2')">2</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('3')">3</button><button style="font-size:20px; border:none; border-radius:4px; background:#e0e0e0;" onclick="calcIn('-')">-</button>
+        <button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('C')">C</button><button style="font-size:20px; border:none; border-radius:4px; background:#fff;" onclick="calcIn('0')">0</button><button style="font-size:20px; border:none; border-radius:4px; background:var(--win-blue); color:white;" onclick="calcIn('=')">=</button><button style="font-size:20px; border:none; border-radius:4px; background:#e0e0e0;" onclick="calcIn('+')">+</button>
       </div>
     </div>
-    <div class="window-content"><textarea id="np-text" style="width:100%;height:100%;border:none;outline:none;padding:15px;font-family:Consolas, monospace;resize:none;font-size:14px;" oninput="localStorage.setItem('win_np', this.value)"></textarea></div>
   </div>
 
+  <!-- APP: Notepad -->
+  <div class="window" id="app-notepad" style="width: 500px; height: 400px;" onmousedown="bringToFront('app-notepad')">
+    <div class="title-bar" onmousedown="dragStart(event, 'app-notepad')"><div class="title-text" data-i18n="notepad">記事本</div><div class="window-controls"><div class="ctrl-btn close" onclick="closeApp('app-notepad')">✕</div><div class="ctrl-btn max" onclick="maxApp('app-notepad')">□</div><div class="ctrl-btn min" onclick="minApp('app-notepad')">─</div></div></div>
+    <div class="window-content"><textarea id="np-text" style="width:100%;height:100%;border:none;outline:none;padding:15px;font-family:monospace;resize:none;font-size:15px;box-sizing:border-box;" oninput="localStorage.setItem('win_np', this.value)"></textarea></div>
+  </div>
+
+  <!-- Taskbar -->
   <div id="taskbar">
-    <div class="start-btn" onclick="toggleStart()">
+    <div class="start-btn" onclick="openApp('app-settings')">
       <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="22" style="filter: brightness(0) invert(1);">
     </div>
     <div class="taskbar-apps" id="taskbar-apps"></div>
     <div class="system-tray">
-      <span style="margin-right:15px;">🌐 🔊</span>
+      <span style="font-size:15px;">🌐 🔊</span>
       <div class="time-date">
         <div id="tb-time">00:00</div>
         <div id="tb-date">0000/00/00</div>
@@ -465,93 +403,161 @@ dev.say_hi()</textarea>
 
 <script>
 // ==========================================
-// 系統核心應用與資料庫 (完全免費無商店)
+// I18N 翻譯系統
 // ==========================================
-const sysApps = [
-  { id: 'app-python', name: 'Python IDE', icon: 'https://cdn-icons-png.flaticon.com/512/5968/5968350.png', color: '#ffde57' },
-  { id: 'app-browser', name: '瀏覽器', icon: 'https://cdn-icons-png.flaticon.com/512/888/888856.png', color: '#0078D7' },
-  { id: 'app-weather', name: '天氣', icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163661.png', color: '#00a4ef' },
-  { id: 'app-notepad', name: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png', color: '#00cc6a' },
-  { id: 'app-settings', name: '設定', icon: 'https://cdn-icons-png.flaticon.com/512/3132/3132084.png', color: '#555' }
+const dict = {
+  en: {
+    login_err: "Incorrect password.", cancel: "Cancel", settings: "Settings", 
+    tab_theme: "🎨 Themes", tab_acc: "👤 Account", tab_lang: "🌐 Language", tab_about: "ℹ️ About",
+    theme_title: "Themes & Appearance", theme_select: "OS Style (Live)", bg_url: "Background URL", apply: "Apply", default: "Default",
+    acc_title: "User Management", acc_name: "Username", acc_pw: "Password", acc_avatar: "Avatar URL", save: "Save", reset: "Factory Reset",
+    about_title: "About & License", store: "App Store (Free)", store_desc: "Discover Apps",
+    file_explorer: "File Explorer", fs_new: "New Text File", fs_upload: "Upload File", fs_clear: "Format Disk",
+    weather: "Weather", search: "Search", paint: "Paint", calc: "Calculator", notepad: "Notepad"
+  },
+  zh: {
+    login_err: "密碼錯誤。", cancel: "取消", settings: "系統設定 (Settings)", 
+    tab_theme: "🎨 佈景主題", tab_acc: "👤 帳戶管理", tab_lang: "🌐 語言", tab_about: "ℹ️ 關於系統",
+    theme_title: "佈景主題與外觀", theme_select: "作業系統風格 (即時生效)", bg_url: "桌面背景 (URL)", apply: "套用", default: "還原預設",
+    acc_title: "使用者管理", acc_name: "使用者名稱", acc_pw: "密碼 (留空代表無密碼)", acc_avatar: "頭像圖片 (URL)", save: "儲存設定", reset: "洗機 (重設系統)",
+    about_title: "系統與版權", store: "App Store (免費無內購)", store_desc: "探索應用程式 (完全免費)",
+    file_explorer: "檔案總管", fs_new: "新增文字檔", fs_upload: "上傳檔案", fs_clear: "清空磁碟",
+    weather: "天氣", search: "搜尋", paint: "小畫家", calc: "計算機", notepad: "記事本"
+  }
+};
+let curLang = localStorage.getItem('os_lang') || 'zh';
+function setLang(lang) {
+  curLang = lang; localStorage.setItem('os_lang', lang);
+  document.querySelectorAll('[data-i18n]').forEach(el => {
+    const k = el.getAttribute('data-i18n'); if(dict[lang][k]) el.innerText = dict[lang][k];
+  });
+  document.querySelectorAll('[data-i18n-ph]').forEach(el => {
+    const k = el.getAttribute('data-i18n-ph'); if(dict[lang][k.replace('_ph','')]) el.placeholder = dict[lang][k.replace('_ph','')];
+  });
+  renderStore(); renderDesktop();
+}
+
+// ==========================================
+// 應用程式資料庫
+// ==========================================
+const coreApps = [
+  { id: 'app-settings', name: 'Settings', icon: 'https://cdn-icons-png.flaticon.com/512/3132/3132084.png', color: '#555' },
+  { id: 'app-store', name: 'App Store', icon: 'https://cdn-icons-png.flaticon.com/512/888/888846.png', color: '#0078D7' },
+  { id: 'app-explorer', name: 'File Explorer', icon: 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png', color: '#0078D7' }
 ];
 
+const storeRegistry = [
+  { id: 'app-python', nameEn: 'Python IDE', nameZh: 'Python 開發', icon: 'https://cdn-icons-png.flaticon.com/512/5968/5968350.png', color: '#ffde57' },
+  { id: 'app-weather', nameEn: 'Weather', nameZh: '天氣', icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163661.png', color: '#00a4ef' },
+  { id: 'app-notepad', nameEn: 'Notepad', nameZh: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png', color: '#00cc6a' },
+  { id: 'app-calc', nameEn: 'Calculator', nameZh: '計算機', icon: 'https://cdn-icons-png.flaticon.com/512/1055/1055685.png', color: '#0078D7' },
+  { id: 'app-paint', nameEn: 'Paint', nameZh: '小畫家', icon: 'https://cdn-icons-png.flaticon.com/512/3003/3003102.png', color: '#881798' }
+];
+
+let installedApps = JSON.parse(localStorage.getItem('os_apps')) || ['app-notepad', 'app-calc'];
 let sysUser = localStorage.getItem('os_user') || 'Admin';
 let sysPw = localStorage.getItem('os_pw') || '';
 let sysBg = localStorage.getItem('os_bg') || 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500';
 let sysTheme = localStorage.getItem('os_theme') || 'theme-win10';
+let sysAvatar = localStorage.getItem('os_avatar') || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
 
 // ==========================================
-// 啟動與登入邏輯
+// 啟動與登入
 // ==========================================
-function initOS() {
+window.onload = () => {
   document.body.className = sysTheme;
   document.getElementById('theme-select').value = sysTheme;
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('login-user-name').innerText = sysUser;
+  document.getElementById('login-avatar').src = sysAvatar;
+  
   document.getElementById('set-username').value = sysUser;
   document.getElementById('set-bg-url').value = sysBg;
+  document.getElementById('set-avatar').value = sysAvatar;
   document.getElementById('np-text').value = localStorage.getItem('win_np') || '';
   
-  document.getElementById('boot-screen').style.display = 'flex';
-  setTimeout(() => {
-    document.getElementById('boot-screen').style.display = 'none';
-    document.getElementById('lock-screen').style.display = 'block';
-  }, 1500);
-
-  renderDesktop();
+  setTimeout(() => { document.getElementById('lock-screen').style.display = 'block'; }, 500);
+  setLang(curLang); renderFS(); initPaint();
   setInterval(updateTime, 1000); updateTime();
-}
+};
 
-function showLoginPrompt() {
-  document.getElementById('lock-time-view').style.transform = 'translateY(-100%)';
-  document.getElementById('login-view').style.transform = 'translateY(0)';
-}
-function hideLoginPrompt() {
-  document.getElementById('lock-time-view').style.transform = 'translateY(0)';
-  document.getElementById('login-view').style.transform = 'translateY(100%)';
-}
+function showLoginPrompt() { document.getElementById('lock-time-view').style.transform = 'translateY(-100%)'; document.getElementById('login-view').style.transform = 'translateY(0)'; setTimeout(()=>document.getElementById('login-pw').focus(), 500); }
+function hideLoginPrompt() { document.getElementById('lock-time-view').style.transform = 'translateY(0)'; document.getElementById('login-view').style.transform = 'translateY(100%)'; document.getElementById('login-err').style.display = 'none'; }
 function attemptLogin() {
-  const input = document.getElementById('login-pw').value;
-  if(sysPw === '' || input === sysPw) {
-    document.getElementById('lock-screen').style.display = 'none';
-    document.getElementById('desktop').style.display = 'block';
+  if(sysPw === '' || document.getElementById('login-pw').value === sysPw) {
+    document.getElementById('lock-screen').style.display = 'none'; document.getElementById('desktop').style.display = 'block';
   } else { document.getElementById('login-err').style.display = 'block'; }
 }
 
-function sysAction(action) {
-  document.getElementById('desktop').style.display = 'none';
-  if(action === 'logout') { hideLoginPrompt(); document.getElementById('lock-screen').style.display = 'block'; document.getElementById('login-pw').value = ''; }
-  else if (action === 'shutdown') { document.getElementById('black-screen').style.display = 'block'; }
-  else if (action === 'reboot') { document.getElementById('black-screen').style.display = 'block'; setTimeout(()=>location.reload(), 1000); }
-}
+// ==========================================
+// 渲染 Store & Desktop
+// ==========================================
+function getAppName(app) { return (app.name) ? app.name : (curLang === 'zh' ? app.nameZh : app.nameEn); }
+function getAllApps() { return [...coreApps, ...storeRegistry.filter(a => installedApps.includes(a.id))]; }
 
-// ==========================================
-// 渲染桌面
-// ==========================================
 function renderDesktop() {
   const desk = document.getElementById('desktop-icons');
-  const startList = document.getElementById('start-app-list');
-  const startTiles = document.getElementById('start-tiles');
   const tb = document.getElementById('taskbar-apps');
-  desk.innerHTML = ''; startList.innerHTML = ''; startTiles.innerHTML = ''; tb.innerHTML = '';
-
-  sysApps.forEach(app => {
-    desk.innerHTML += `<div class="icon" ondblclick="openApp('${app.id}')"><img src="${app.icon}"><span>${app.name}</span></div>`;
-    startList.innerHTML += `<div class="start-app-item" onclick="openApp('${app.id}')"><img src="${app.icon}"><span>${app.name}</span></div>`;
-    startTiles.innerHTML += `<div class="tile" style="background:${app.color}" onclick="openApp('${app.id}')"><img src="${app.icon}"><span>${app.name}</span></div>`;
-    tb.innerHTML += `<div class="taskbar-icon" id="tb-${app.id}" onclick="toggleApp('${app.id}')" title="${app.name}" style="display:none;"><img src="${app.icon}"></div>`;
+  desk.innerHTML = ''; tb.innerHTML = '';
+  getAllApps().forEach(app => {
+    let name = getAppName(app);
+    desk.innerHTML += `<div class="icon" ondblclick="openApp('${app.id}')"><img src="${app.icon}"><span>${name}</span></div>`;
+    tb.innerHTML += `<div class="taskbar-icon" id="tb-${app.id}" onclick="toggleApp('${app.id}')" title="${name}" style="display:none;"><img src="${app.icon}"></div>`;
   });
 }
+
+function renderStore() {
+  const grid = document.getElementById('store-grid'); grid.innerHTML = '';
+  storeRegistry.forEach(app => {
+    const isInst = installedApps.includes(app.id);
+    const btn = isInst ? `<button class="store-btn installed" onclick="uninstallApp('${app.id}')">Uninstall</button>` 
+                       : `<button class="store-btn" onclick="installApp('${app.id}')">Install (Free)</button>`;
+    grid.innerHTML += `<div class="store-card"><img src="${app.icon}"><div style="flex:1;"><div style="font-weight:bold;">${getAppName(app)}</div></div>${btn}</div>`;
+  });
+}
+function installApp(id) { installedApps.push(id); localStorage.setItem('os_apps', JSON.stringify(installedApps)); renderDesktop(); renderStore(); }
+function uninstallApp(id) { installedApps = installedApps.filter(a=>a!==id); localStorage.setItem('os_apps', JSON.stringify(installedApps)); closeApp(id); renderDesktop(); renderStore(); }
+
+// ==========================================
+// 檔案總管 (VFS)
+// ==========================================
+let vfs = JSON.parse(localStorage.getItem('os_vfs')) || { 'README.txt': '歡迎使用 WebOS 檔案總管！呢度嘅檔案會真實儲存喺瀏覽器。' };
+
+function saveVFS() { localStorage.setItem('os_vfs', JSON.stringify(vfs)); }
+function renderFS() {
+  const grid = document.getElementById('fs-grid'); grid.innerHTML = '';
+  for(let filename in vfs) {
+    let icon = filename.endsWith('.txt') ? 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' : 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png';
+    grid.innerHTML += `
+      <div class="fs-item" onclick="openFile('${filename}')" oncontextmenu="delFile('${filename}'); return false;" title="Right click to delete">
+        <img src="${icon}"><div class="fs-item-name">${filename}</div>
+      </div>`;
+  }
+}
+function createFile() {
+  let name = prompt("輸入檔案名稱 (例如: notes.txt):", "NewFile.txt");
+  if(name && !vfs[name]) { vfs[name] = ""; saveVFS(); renderFS(); }
+}
+function uploadFile(e) {
+  const file = e.target.files[0]; if(!file) return;
+  const reader = new FileReader();
+  reader.onload = (evt) => { vfs[file.name] = evt.target.result; saveVFS(); renderFS(); };
+  reader.readAsDataURL(file);
+}
+function openFile(name) {
+  if(name.endsWith('.txt')) { openApp('app-notepad'); document.getElementById('np-text').value = vfs[name]; }
+  else { alert("預覽功能未支援此格式。\n檔案大小: " + vfs[name].length + " bytes"); }
+}
+function delFile(name) { if(confirm("確定刪除 " + name + " ?")) { delete vfs[name]; saveVFS(); renderFS(); } }
+function clearFS() { if(confirm("確定清空所有檔案？")) { vfs = {}; saveVFS(); renderFS(); } }
 
 // ==========================================
 // 視窗管理系統
 // ==========================================
 let zIndex = 100;
 function openApp(id) {
-  document.getElementById(id).style.display = 'flex';
-  document.getElementById('start-menu').style.display = 'none';
-  document.getElementById('tb-' + id).style.display = 'flex';
+  document.getElementById(id).style.display = 'flex'; document.getElementById('tb-' + id).style.display = 'flex';
   bringToFront(id);
   document.querySelectorAll('.taskbar-icon').forEach(i => i.classList.remove('active'));
   document.getElementById('tb-' + id).classList.add('active');
@@ -577,86 +583,67 @@ function dragStart(e, id) { if(e.target.classList.contains('ctrl-btn')) return; 
 function drag(e) { if(isDrag && curWin && curWin.dataset.max!=='1') { curWin.style.left=(e.clientX-oX)+'px'; curWin.style.top=(e.clientY-oY)+'px'; } }
 function dragEnd() { isDrag=false; curWin=null; document.removeEventListener('mousemove', drag); document.removeEventListener('mouseup', dragEnd); }
 
-function toggleStart() { const m = document.getElementById('start-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-function togglePowerMenu(e) { e.stopPropagation(); const m=document.getElementById('power-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; }
-function showContextMenu(e) { if(e.target.closest('.window')) return; const m=document.getElementById('context-menu'); m.style.display='block'; m.style.left=e.clientX+'px'; m.style.top=e.clientY+'px'; }
-function hideContextMenu(e) { document.getElementById('context-menu').style.display='none'; if(e.target.id === 'desktop') document.getElementById('start-menu').style.display='none'; document.getElementById('power-menu').style.display='none'; }
-
 // ==========================================
 // 應用程式專屬邏輯
 // ==========================================
-// Settings & Themes
+// Settings
 function switchSettingsTab(tab) {
   document.querySelectorAll('.set-nav-item').forEach(e=>e.classList.remove('active'));
   document.querySelectorAll('.settings-main > div').forEach(e=>e.style.display='none');
-  event.target.classList.add('active');
-  document.getElementById('set-'+tab).style.display='block';
+  event.target.classList.add('active'); document.getElementById('set-'+tab).style.display='block';
 }
-function changeTheme() {
-  const theme = document.getElementById('theme-select').value;
-  document.body.className = theme;
-  localStorage.setItem('os_theme', theme);
-}
+function changeTheme() { const theme = document.getElementById('theme-select').value; document.body.className = theme; localStorage.setItem('os_theme', theme); }
 function changeWallpaper() { const url = document.getElementById('set-bg-url').value; localStorage.setItem('os_bg', url); document.getElementById('desktop').style.backgroundImage = `url('${url}')`; document.getElementById('lock-screen').style.backgroundImage = `url('${url}')`; }
-function saveAccount() { localStorage.setItem('os_user', document.getElementById('set-username').value); localStorage.setItem('os_pw', document.getElementById('set-password').value); alert("帳戶設定已儲存！下次登入生效。"); }
-function factoryReset() { if(confirm("確定要洗機？所有設定將會消失！")) { localStorage.clear(); location.reload(); } }
-
-// Browser
-let mdmMode = false;
-function toggleMDM() {
-  mdmMode = !mdmMode;
-  const btn = document.getElementById('mdm-toggle-btn');
-  if(mdmMode) { btn.classList.add('active'); btn.innerText = "MDM Bypass: ON"; } 
-  else { btn.classList.remove('active'); btn.innerText = "MDM Bypass: OFF"; }
+function saveAccount() { 
+  localStorage.setItem('os_user', document.getElementById('set-username').value); 
+  localStorage.setItem('os_pw', document.getElementById('set-password').value); 
+  localStorage.setItem('os_avatar', document.getElementById('set-avatar').value); 
+  alert("已儲存！下次登入生效。"); 
 }
-function navBrowser() {
-  let url = document.getElementById('url-input').value;
-  if(!url.startsWith('http')) url = 'https://' + url;
-  if(mdmMode) { url = `https://translate.google.com/translate?hl=en&sl=auto&tl=en&u=${encodeURIComponent(url)}`; } 
-  else if(url.includes('google.com')) { url = 'https://duckduckgo.com'; } 
-  document.getElementById('browser-frame').src = url;
-}
+function factoryReset() { if(confirm("確定要洗機？")) { localStorage.clear(); location.reload(); } }
 
-// Weather
-async function fetchWeather(lat, lon, cityName) {
-  document.getElementById('w-city').innerText = cityName;
+// Weather (保留開封選項)
+async function fetchWeatherManual() {
+  const val = document.getElementById('weather-city').value.split(',');
+  document.getElementById('w-city').innerText = document.getElementById('weather-city').options[document.getElementById('weather-city').selectedIndex].text;
   document.getElementById('w-temp').innerText = "...";
   try {
-    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+    const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${val[0]}&longitude=${val[1]}&current_weather=true`);
     const data = await res.json();
     document.getElementById('w-temp').innerText = data.current_weather.temperature + '°C';
-    document.getElementById('w-wind').innerText = data.current_weather.windspeed + ' km/h';
-    document.getElementById('w-time').innerText = data.current_weather.time.replace('T', ' ');
   } catch(e) { document.getElementById('w-desc').innerText = "網絡連接失敗"; }
 }
-function fetchWeatherManual() {
-  const val = document.getElementById('weather-city').value.split(',');
-  const name = document.getElementById('weather-city').options[document.getElementById('weather-city').selectedIndex].text;
-  fetchWeather(val[0], val[1], name);
+
+// Paint
+let paintCanvas, ctx, painting = false, paintColor = 'black';
+function initPaint() {
+  paintCanvas = document.getElementById('paint-canvas'); ctx = paintCanvas.getContext('2d'); ctx.lineCap = 'round'; ctx.lineWidth = 5;
+  paintCanvas.onmousedown = (e) => { painting = true; draw(e); };
+  paintCanvas.onmouseup = () => { painting = false; ctx.beginPath(); };
+  paintCanvas.onmousemove = draw;
 }
-function autoLocateWeather() {
-  if (navigator.geolocation) {
-    navigator.geolocation.getCurrentPosition(
-      (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "您的目前位置"),
-      () => alert("無法取得定位權限。")
-    );
-  }
+function draw(e) {
+  if(!painting) return; const rect = paintCanvas.getBoundingClientRect();
+  ctx.strokeStyle = paintColor; ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
+}
+function clearCanvas() { ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height); }
+
+// Calc
+let calcV = "";
+function calcIn(k) {
+  const d = document.getElementById('calc-display');
+  if(k === 'C') { calcV = ""; d.value = "0"; }
+  else if(k === '=') { try{ calcV = eval(calcV).toString(); d.value = calcV; }catch{ d.value="Error"; calcV=""; } }
+  else { calcV += k; d.value = calcV; }
 }
 
-// Time
 function updateTime() {
   const now = new Date();
-  const timeStr = now.toLocaleTimeString('zh-HK', { hour: '2-digit', minute: '2-digit', hour12: false });
-  const dateStr = now.toLocaleDateString('zh-HK', { year: 'numeric', month: '2-digit', day: '2-digit' });
-  
-  document.getElementById('tb-time').innerText = timeStr;
-  document.getElementById('tb-date').innerText = dateStr;
-  document.getElementById('lock-huge-time').innerText = timeStr;
-  document.getElementById('lock-huge-date').innerText = now.toLocaleDateString('zh-HK', { month: 'long', day: 'numeric', weekday: 'long' });
+  document.getElementById('tb-time').innerText = now.toLocaleTimeString(curLang==='zh'?'zh-HK':'en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
+  document.getElementById('tb-date').innerText = now.toLocaleDateString(curLang==='zh'?'zh-HK':'en-US', { year: 'numeric', month: '2-digit', day: '2-digit' });
+  document.getElementById('lock-huge-time').innerText = document.getElementById('tb-time').innerText;
 }
-
-// 啟動 OS
-initOS();
 </script>
 </body>
 </html>
