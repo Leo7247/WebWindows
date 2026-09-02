@@ -10,7 +10,7 @@ const dict = {
     about_title: "System Info", store: "App Store (Free)", store_desc: "Open Source Apps (No IAP)",
     file_explorer: "File Explorer (VFS)", fs_new: "New Text File", fs_upload: "Upload File", fs_clear: "Format Disk",
     weather: "Weather Station", search: "Search", paint: "Paint", calc: "Calculator", notepad: "Notepad",
-    refresh: "Refresh", cm_theme: "Personalization", login_pw_ph: "Enter password"
+    refresh: "Refresh", cm_theme: "Personalization", login_pw_ph: "Enter password", user_guide: "User Guide"
   },
   zh: {
     login_err: "密碼錯誤。", cancel: "取消", settings: "系統設定 (Settings)", 
@@ -20,7 +20,7 @@ const dict = {
     about_title: "關於 WebOS", store: "App Store (免費 / 無 IAP)", store_desc: "開源應用程式社群 (All Apps Free)",
     file_explorer: "檔案總管 (虛擬檔案系統)", fs_new: "新增文字檔", fs_upload: "上傳實體檔案", fs_clear: "格式化磁碟",
     weather: "氣象中心", search: "搜尋", paint: "小畫家", calc: "計算機", notepad: "記事本 (Auto-Save)",
-    refresh: "重新整理", cm_theme: "佈景主題", login_pw_ph: "請輸入密碼"
+    refresh: "重新整理", cm_theme: "佈景主題", login_pw_ph: "請輸入密碼", user_guide: "使用手冊 (User Guide)"
   }
 };
 
@@ -38,19 +38,20 @@ const coreApps = [
 ];
 
 const storeRegistry = [
+  { id: 'app-guide', nameEn: 'User Guide', nameZh: '使用手冊', icon: 'https://cdn-icons-png.flaticon.com/512/3874/3874550.png' },
   { id: 'app-browser', nameEn: 'Browser', nameZh: '瀏覽器', icon: 'https://cdn-icons-png.flaticon.com/512/888/888856.png' },
   { id: 'app-python', nameEn: 'Python IDE', nameZh: 'Python IDE', icon: 'https://cdn-icons-png.flaticon.com/512/5968/5968350.png' },
-  { id: 'app-weather', nameEn: 'Weather', nameZh: '天氣', icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163661.png' },
+  { id: 'app-cmd', nameEn: 'Command Prompt', nameZh: '命令提示字元', icon: 'https://cdn-icons-png.flaticon.com/512/3299/3299066.png' },
   { id: 'app-paint', nameEn: 'Paint', nameZh: '小畫家', icon: 'https://cdn-icons-png.flaticon.com/512/3003/3003102.png' },
+  { id: 'app-weather', nameEn: 'Weather', nameZh: '天氣', icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163661.png' },
   { id: 'app-calc', nameEn: 'Calculator', nameZh: '計算機', icon: 'https://cdn-icons-png.flaticon.com/512/1055/1055685.png' },
-  { id: 'app-notepad', nameEn: 'Notepad', nameZh: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' },
-  { id: 'app-cmd', nameEn: 'Terminal', nameZh: '終端機', icon: 'https://cdn-icons-png.flaticon.com/512/3299/3299066.png' }
+  { id: 'app-notepad', nameEn: 'Notepad', nameZh: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' }
 ];
 
-let installedApps = JSON.parse(localStorage.getItem('os_apps')) || ['app-browser', 'app-python', 'app-notepad'];
+let installedApps = JSON.parse(localStorage.getItem('os_apps')) || ['app-guide', 'app-browser', 'app-python', 'app-cmd', 'app-paint'];
 
 /* ==========================================
-   2. Initialization & Boot
+   2. Initialization & Boot Logic
    ========================================== */
 function initOS() {
   document.body.className = sysTheme;
@@ -68,17 +69,17 @@ function initOS() {
   updateStartIcon();
   setLang(curLang); 
   
-  // BIOS Boot Simulation
+  // BIOS POST Sequence
   document.getElementById('bios-screen').style.display = 'flex';
   const biosText = document.getElementById('bios-text');
   const biosLines = [
-    "Project Horizon BIOS v6.0.0",
-    "Initializing Hardware Core...",
-    "Checking Memory: 16384MB OK",
+    "Project Horizon BIOS v7.0.0",
+    "Checking Central Processor Core... OK",
+    "Checking System Memory: 16384MB OK",
     "Mounting Virtual File System (VFS)... OK",
-    "Loading Security Policies: IAP Restricted... OK",
-    "Loading Brython 3.12 Engine... OK",
-    "Booting Kernel..."
+    "Restricting In-App Purchases (IAP)... OK",
+    "Loading Paint Engine & Brython Python... OK",
+    "Starting Graphical User Interface..."
   ];
   let lineIdx = 0;
   function printBIOS() {
@@ -93,17 +94,16 @@ function initOS() {
         setTimeout(() => {
           document.getElementById('boot-screen').style.display = 'none';
           document.getElementById('lock-screen').style.display = 'block';
-        }, 1500);
-      }, 400);
+        }, 1200);
+      }, 300);
     }
   }
   printBIOS();
   
-  renderDesktop(); renderFS(); initPaint(); initCalc();
+  renderDesktop(); renderFS(); initPaint(); initCalc(); initGuide();
   setInterval(updateTime, 1000); updateTime();
 }
 
-// 根據主題改變 Start Button 圖示
 function updateStartIcon() {
   const icon = document.getElementById('start-icon');
   if(sysTheme === 'theme-win10') icon.src = 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg';
@@ -122,7 +122,7 @@ function setLang(lang) {
   renderStore(); renderDesktop();
 }
 
-// --- Login Handlers ---
+// Lock & Login
 document.getElementById('lock-time-view').onclick = () => {
   document.getElementById('lock-time-view').style.transform = 'translateY(-100%)';
   document.getElementById('login-view').style.transform = 'translateY(0)';
@@ -144,13 +144,13 @@ function attemptLogin() {
   } else { document.getElementById('login-err').style.display = 'block'; }
 }
 
-// --- Power Actions ---
+// Power Management
 document.getElementById('pwr-logout').onclick = () => { document.getElementById('desktop').style.display = 'none'; document.getElementById('login-cancel').click(); document.getElementById('lock-screen').style.display = 'block'; document.getElementById('login-pw').value = ''; };
 document.getElementById('pwr-reboot').onclick = () => { document.getElementById('desktop').style.display = 'none'; document.getElementById('black-screen').style.display = 'block'; setTimeout(()=>location.reload(), 1000); };
 document.getElementById('pwr-shutdown').onclick = () => { document.getElementById('desktop').style.display = 'none'; document.getElementById('black-screen').style.display = 'block'; };
 
 /* ==========================================
-   3. Window Manager (WM) & UI Handlers
+   3. Window Manager & UI Handlers
    ========================================== */
 let zIndex = 100;
 let isDrag=false, curWin=null, oX, oY;
@@ -181,7 +181,7 @@ function maxApp(id) {
 }
 function bringToFront(id) { zIndex++; document.getElementById(id).style.zIndex = zIndex; }
 
-// Bind Window Controls dynamically
+// Bind Window Controls
 document.querySelectorAll('.title-bar').forEach(bar => {
   const id = bar.getAttribute('data-win');
   bar.onmousedown = (e) => {
@@ -197,7 +197,7 @@ document.querySelectorAll('.title-bar').forEach(bar => {
 document.addEventListener('mousemove', (e) => { if(isDrag && curWin && curWin.dataset.max!=='1') { curWin.style.left=(e.clientX-oX)+'px'; curWin.style.top=(e.clientY-oY)+'px'; } });
 document.addEventListener('mouseup', () => { isDrag=false; curWin=null; });
 
-// Start Menu & Global Clicks
+// Start Menu & Global Click Listening
 document.getElementById('start-btn').onclick = (e) => { e.stopPropagation(); const m = document.getElementById('start-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; document.getElementById('power-menu').style.display = 'none'; };
 document.getElementById('start-pwr').onclick = (e) => { e.stopPropagation(); const m=document.getElementById('power-menu'); m.style.display = m.style.display === 'flex' ? 'none' : 'flex'; };
 document.getElementById('start-set').onclick = () => openApp('app-settings');
@@ -211,7 +211,7 @@ document.addEventListener('click', (e) => {
   if(!e.target.closest('#context-menu')) document.getElementById('context-menu').style.display = 'none';
 });
 
-// Context Menu
+// Desktop Context Menu
 document.addEventListener('contextmenu', (e) => {
   e.preventDefault();
   if(e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('#start-menu')) return;
@@ -223,7 +223,7 @@ document.getElementById('cm-theme').onclick = () => { openApp('app-settings'); d
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================
-   4. Render Desktop & Store
+   4. Render Desktop & App Store
    ========================================== */
 function getAppName(app) { return (app.name) ? app.name : (curLang === 'zh' ? app.nameZh : app.nameEn); }
 function getAllApps() { return [...coreApps, ...storeRegistry.filter(a => installedApps.includes(a.id))]; }
@@ -237,10 +237,9 @@ function renderDesktop() {
 
   getAllApps().forEach(app => {
     let name = getAppName(app);
-    let color = app.color || 'var(--win-blue)';
     desk.innerHTML += `<div class="icon" ondblclick="openApp('${app.id}')"><img src="${app.icon}"><span>${name}</span></div>`;
     startList.innerHTML += `<div class="start-app-item" onclick="openApp('${app.id}')"><img src="${app.icon}"><span>${name}</span></div>`;
-    startTiles.innerHTML += `<div class="tile" style="background:${color}" onclick="openApp('${app.id}')"><img src="${app.icon}"><span>${name}</span></div>`;
+    startTiles.innerHTML += `<div class="tile" onclick="openApp('${app.id}')"><img src="${app.icon}"><span>${name}</span></div>`;
     tb.innerHTML += `<div class="taskbar-icon" id="tb-${app.id}" onclick="toggleApp('${app.id}')" title="${name}" style="display:none;"><img src="${app.icon}"></div>`;
   });
 }
@@ -250,7 +249,7 @@ function renderStore() {
   storeRegistry.forEach(app => {
     const isInst = installedApps.includes(app.id);
     const btn = isInst ? `<button class="store-btn installed" onclick="uninstallApp('${app.id}')">Uninstall</button>` 
-                       : `<button class="store-btn" onclick="installApp('${app.id}')">Install</button>`;
+                       : `<button class="store-btn" onclick="installApp('${app.id}')">Install (Free)</button>`;
     grid.innerHTML += `<div class="store-card"><img src="${app.icon}"><div style="flex:1;"><div style="font-weight:bold; font-size:16px;">${getAppName(app)}</div></div>${btn}</div>`;
   });
 }
@@ -260,8 +259,11 @@ function uninstallApp(id) { installedApps = installedApps.filter(a=>a!==id); loc
 /* ==========================================
    5. Virtual File System (VFS)
    ========================================== */
-let vfs = JSON.parse(localStorage.getItem('os_vfs')) || { 'README.txt': 'WebOS Virtual File System. Uploads are saved in LocalStorage.' };
+let vfs = JSON.parse(localStorage.getItem('os_vfs')) || { 
+  'README.txt': 'WebOS Virtual File System.\nAll files and scripts are persistent in your browser LocalStorage.' 
+};
 function saveVFS() { localStorage.setItem('os_vfs', JSON.stringify(vfs)); }
+
 function renderFS() {
   const grid = document.getElementById('fs-grid'); grid.innerHTML = '';
   for(let filename in vfs) {
@@ -284,10 +286,326 @@ window.openFile = (name) => {
 window.delFile = (name) => { if(confirm(`Delete ${name}?`)) { delete vfs[name]; saveVFS(); renderFS(); } };
 
 /* ==========================================
-   6. Apps Logic
+   6. Paint App (100% Real Functionality)
    ========================================== */
+let paintCanvas, ctx, painting = false;
+let paintColor = '#000000';
+let brushSize = 4;
+let isEraser = false;
 
-// Settings
+function initPaint() {
+  paintCanvas = document.getElementById('paint-canvas');
+  ctx = paintCanvas.getContext('2d');
+  ctx.lineCap = 'round';
+  ctx.lineJoin = 'round';
+
+  function getCanvasCoords(e) {
+    const rect = paintCanvas.getBoundingClientRect();
+    const scaleX = paintCanvas.width / rect.width;
+    const scaleY = paintCanvas.height / rect.height;
+    return {
+      x: (e.clientX - rect.left) * scaleX,
+      y: (e.clientY - rect.top) * scaleY
+    };
+  }
+
+  paintCanvas.onmousedown = (e) => {
+    painting = true;
+    const pos = getCanvasCoords(e);
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+    draw(e);
+  };
+
+  paintCanvas.onmouseup = () => {
+    painting = false;
+    ctx.beginPath();
+  };
+
+  paintCanvas.onmouseleave = () => {
+    painting = false;
+    ctx.beginPath();
+  };
+
+  paintCanvas.onmousemove = draw;
+
+  function draw(e) {
+    if (!painting) return;
+    const pos = getCanvasCoords(e);
+    ctx.lineWidth = brushSize;
+    ctx.strokeStyle = isEraser ? '#ffffff' : paintColor;
+    ctx.lineTo(pos.x, pos.y);
+    ctx.stroke();
+    ctx.beginPath();
+    ctx.moveTo(pos.x, pos.y);
+  }
+
+  // Paint Toolbar Handlers
+  document.getElementById('p-tool-pen').onclick = () => {
+    isEraser = false;
+    document.getElementById('p-tool-pen').classList.add('active');
+    document.getElementById('p-tool-eraser').classList.remove('active');
+  };
+
+  document.getElementById('p-tool-eraser').onclick = () => {
+    isEraser = true;
+    document.getElementById('p-tool-eraser').classList.add('active');
+    document.getElementById('p-tool-pen').classList.remove('active');
+  };
+
+  const sizeInput = document.getElementById('p-brush-size');
+  sizeInput.oninput = () => {
+    brushSize = sizeInput.value;
+    document.getElementById('p-brush-val').innerText = brushSize + 'px';
+  };
+
+  const colorInput = document.getElementById('p-color-picker');
+  colorInput.onchange = () => {
+    paintColor = colorInput.value;
+    isEraser = false;
+    document.getElementById('p-tool-pen').classList.add('active');
+    document.getElementById('p-tool-eraser').classList.remove('active');
+  };
+
+  document.getElementById('p-clear').onclick = () => {
+    if(confirm("確定要清除整張畫布？")) {
+      ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+    }
+  };
+
+  document.getElementById('p-save').onclick = () => {
+    const link = document.createElement('a');
+    link.download = 'drawing.png';
+    link.href = paintCanvas.toDataURL('image/png');
+    link.click();
+  };
+}
+
+/* ==========================================
+   7. Real Command Prompt (CMD) Implementation
+   ========================================== */
+let cmdHistory = [];
+let historyIndex = -1;
+let currentPath = "C:\\Users\\Admin";
+
+const cmdInput = document.getElementById('term-input');
+const cmdOutput = document.getElementById('term-output');
+const cmdPromptLabel = document.getElementById('term-prompt');
+
+function updatePromptDisplay() {
+  cmdPromptLabel.innerText = currentPath + ">";
+}
+
+cmdInput.onkeydown = (e) => {
+  if (e.key === 'ArrowUp') {
+    if (cmdHistory.length > 0 && historyIndex > 0) {
+      historyIndex--;
+      cmdInput.value = cmdHistory[historyIndex];
+    } else if (cmdHistory.length > 0 && historyIndex === -1) {
+      historyIndex = cmdHistory.length - 1;
+      cmdInput.value = cmdHistory[historyIndex];
+    }
+    e.preventDefault();
+  } else if (e.key === 'ArrowDown') {
+    if (cmdHistory.length > 0 && historyIndex < cmdHistory.length - 1) {
+      historyIndex++;
+      cmdInput.value = cmdHistory[historyIndex];
+    } else {
+      historyIndex = -1;
+      cmdInput.value = "";
+    }
+    e.preventDefault();
+  } else if (e.key === 'Enter') {
+    const rawLine = cmdInput.value;
+    const trimmed = rawLine.trim();
+    if (trimmed) {
+      cmdHistory.push(trimmed);
+      historyIndex = -1;
+    }
+    executeCommand(trimmed, rawLine);
+    cmdInput.value = '';
+    document.getElementById('term-container').scrollTop = document.getElementById('term-container').scrollHeight;
+  }
+};
+
+function executeCommand(cmdStr, rawLine) {
+  cmdOutput.innerHTML += `<div>${currentPath}&gt; ${rawLine}</div>`;
+  if (!cmdStr) return;
+
+  // 支援輸出重定向: echo text > filename
+  if (cmdStr.includes('>')) {
+    const parts = cmdStr.split('>');
+    const left = parts[0].trim();
+    const right = parts[1].trim();
+    if (left.toLowerCase().startsWith('echo ') && right) {
+      const content = left.substring(5);
+      vfs[right] = content;
+      saveVFS(); renderFS();
+      return;
+    }
+  }
+
+  const tokens = cmdStr.split(' ');
+  const cmd = tokens[0].toLowerCase();
+  const args = tokens.slice(1);
+
+  switch (cmd) {
+    case 'help':
+      cmdOutput.innerHTML += `
+<div style="color:#aaa;">
+有關特定命令的詳細資訊，請參閱使用者手冊。<br>
+CD             顯示當前目錄的名稱或變更當前目錄。<br>
+CLS            清除螢幕。<br>
+COLOR          設定終端機色彩。<br>
+DATE           顯示當前系統日期。<br>
+DEL            刪除虛擬檔案系統中之檔案。<br>
+DIR            顯示目錄中的檔案與子目錄清單。<br>
+ECHO           顯示訊息，或將輸出重新定向到檔案。<br>
+EXIT           退出 CMD 命令列。<br>
+HELP           提供 Windows 命令的說明資訊。<br>
+MD / MKDIR     建立目錄。<br>
+TIME           顯示當前系統時間。<br>
+TYPE           顯示文字檔案的內容。<br>
+VER            顯示 Windows 作業系統版本。<br>
+</div>`;
+      break;
+
+    case 'dir':
+    case 'ls':
+      const files = Object.keys(vfs);
+      const now = new Date();
+      const dateStr = now.toLocaleDateString('zh-HK');
+      let dirHTML = `
+<div>磁碟區 C 中的磁碟是 WebOS_System</div>
+<div>磁碟區序號是 4A21-7B89</div>
+<br>
+<div> ${currentPath} 的目錄</div>
+<br>`;
+      dirHTML += `<div>${dateStr}  &lt;DIR&gt;          .</div>`;
+      dirHTML += `<div>${dateStr}  &lt;DIR&gt;          ..</div>`;
+      let totalBytes = 0;
+      files.forEach(f => {
+        const len = vfs[f].length;
+        totalBytes += len;
+        dirHTML += `<div>${dateStr}               ${len.toString().padStart(6, ' ')} ${f}</div>`;
+      });
+      dirHTML += `<br><div>               ${files.length} 個檔案       ${totalBytes} 位元組</div><br>`;
+      cmdOutput.innerHTML += dirHTML;
+      break;
+
+    case 'cd':
+      if (!args[0]) {
+        cmdOutput.innerHTML += `<div>${currentPath}</div>`;
+      } else if (args[0] === '..' || args[0] === '../') {
+        const segs = currentPath.split('\\');
+        if (segs.length > 1) {
+          segs.pop();
+          currentPath = segs.join('\\') || "C:\\";
+        }
+        updatePromptDisplay();
+      } else if (args[0] === '\\' || args[0] === '/') {
+        currentPath = "C:\\";
+        updatePromptDisplay();
+      } else {
+        currentPath = `${currentPath}\\${args[0]}`;
+        updatePromptDisplay();
+      }
+      break;
+
+    case 'cls':
+    case 'clear':
+      cmdOutput.innerHTML = '';
+      break;
+
+    case 'ver':
+      cmdOutput.innerHTML += `<div>Microsoft Windows [版本 10.0.19045.3086]</div>`;
+      break;
+
+    case 'date':
+      cmdOutput.innerHTML += `<div>當前系統日期: ${new Date().toLocaleDateString('zh-HK')}</div>`;
+      break;
+
+    case 'time':
+      cmdOutput.innerHTML += `<div>當前系統時間: ${new Date().toLocaleTimeString('zh-HK')}</div>`;
+      break;
+
+    case 'echo':
+      cmdOutput.innerHTML += `<div>${args.join(' ')}</div>`;
+      break;
+
+    case 'type':
+      if (!args[0]) {
+        cmdOutput.innerHTML += `<div>命令語法不正確。請指定檔案名稱。</div>`;
+      } else if (vfs[args[0]] !== undefined) {
+        cmdOutput.innerHTML += `<div>${vfs[args[0]]}</div>`;
+      } else {
+        cmdOutput.innerHTML += `<div>系統找不到指定的檔案。</div>`;
+      }
+      break;
+
+    case 'del':
+      if (!args[0]) {
+        cmdOutput.innerHTML += `<div>命令語法不正確。請指定要刪除的檔案名稱。</div>`;
+      } else if (vfs[args[0]] !== undefined) {
+        delete vfs[args[0]];
+        saveVFS(); renderFS();
+        cmdOutput.innerHTML += `<div>已刪除檔案: ${args[0]}</div>`;
+      } else {
+        cmdOutput.innerHTML += `<div>找不到 ${args[0]}。</div>`;
+      }
+      break;
+
+    case 'md':
+    case 'mkdir':
+      if (!args[0]) {
+        cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
+      } else {
+        vfs[`[DIR]_${args[0]}`] = "";
+        saveVFS(); renderFS();
+        cmdOutput.innerHTML += `<div>已建立子目錄: ${args[0]}</div>`;
+      }
+      break;
+
+    case 'color':
+      if (args[0]) {
+        const code = args[0].toLowerCase();
+        const term = document.getElementById('term-container');
+        if (code === '0a') term.style.color = '#00ff00';
+        else if (code === '0c') term.style.color = '#ff4444';
+        else if (code === '0f') term.style.color = '#ffffff';
+        else if (code === '0e') term.style.color = '#ffff00';
+        else term.style.color = '#cccccc';
+      }
+      break;
+
+    case 'exit':
+      closeApp('app-cmd');
+      break;
+
+    default:
+      cmdOutput.innerHTML += `<div>'${cmd}' 不是內部或外部命令、可執行的程式或批次檔。</div>`;
+      break;
+  }
+}
+
+/* ==========================================
+   8. User Guide Handlers
+   ========================================== */
+function initGuide() {
+  document.querySelectorAll('.guide-nav-item').forEach(item => {
+    item.onclick = () => {
+      document.querySelectorAll('.guide-nav-item').forEach(el => el.classList.remove('active'));
+      document.querySelectorAll('.guide-section').forEach(el => el.style.display = 'none');
+      item.classList.add('active');
+      const tabId = item.getAttribute('data-tab');
+      document.getElementById(tabId).style.display = 'block';
+    };
+  });
+}
+
+/* ==========================================
+   9. Settings & Adaptive Theming
+   ========================================== */
 document.querySelectorAll('.set-nav-item').forEach(item => {
   item.onclick = (e) => {
     document.querySelectorAll('.set-nav-item').forEach(el=>el.classList.remove('active'));
@@ -296,19 +614,32 @@ document.querySelectorAll('.set-nav-item').forEach(item => {
     document.getElementById(item.getAttribute('data-tab')).style.display='block';
   };
 });
-window.changeTheme = () => { sysTheme = document.getElementById('theme-select').value; document.body.className = sysTheme; localStorage.setItem('os_theme', sysTheme); updateStartIcon(); };
-window.changeWallpaper = () => { sysBg = document.getElementById('set-bg-url').value; localStorage.setItem('os_bg', sysBg); document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`; document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`; };
+window.changeTheme = () => { 
+  sysTheme = document.getElementById('theme-select').value; 
+  document.body.className = sysTheme; 
+  localStorage.setItem('os_theme', sysTheme); 
+  updateStartIcon(); 
+};
+window.changeWallpaper = () => { 
+  sysBg = document.getElementById('set-bg-url').value; 
+  localStorage.setItem('os_bg', sysBg); 
+  document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`; 
+  document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`; 
+};
 document.getElementById('btn-save-acc').onclick = () => { 
   localStorage.setItem('os_user', document.getElementById('set-username').value); 
   localStorage.setItem('os_pw', document.getElementById('set-password').value); 
   localStorage.setItem('os_avatar', document.getElementById('set-avatar').value); 
-  alert("Saved! Please reboot to see changes."); 
+  alert("帳戶資料已儲存！下次登入生效。"); 
 };
-document.getElementById('btn-reset').onclick = () => { if(confirm("Are you sure? This erases EVERYTHING.")) { localStorage.clear(); location.reload(); } };
+document.getElementById('btn-reset').onclick = () => { if(confirm("確定要重設？所有設定與虛擬磁碟將被抹除。")) { localStorage.clear(); location.reload(); } };
 document.getElementById('btn-lang-zh').onclick = () => setLang('zh');
 document.getElementById('btn-lang-en').onclick = () => setLang('en');
 
-// Browser (MDM Bypass default to Google)
+/* ==========================================
+   10. Browser, Weather, Calc, Notepad
+   ========================================== */
+// Browser
 let mdmMode = false;
 document.getElementById('mdm-toggle-btn').onclick = () => {
   mdmMode = !mdmMode; const btn = document.getElementById('mdm-toggle-btn');
@@ -318,8 +649,11 @@ document.getElementById('mdm-toggle-btn').onclick = () => {
 window.navBrowser = () => {
   let url = document.getElementById('url-input').value;
   if(!url.startsWith('http')) url = 'https://' + url;
-  if(mdmMode) { url = `https://translate.google.com/translate?hl=en&sl=auto&tl=en&u=${encodeURIComponent(url)}`; } 
-  else if(url.includes('google.com')) { url = 'https://www.google.com/webhp?igu=1'; } 
+  if(mdmMode) { 
+    url = `https://translate.google.com/translate?hl=en&sl=auto&tl=en&u=${encodeURIComponent(url)}`; 
+  } else if(url.includes('google.com')) { 
+    url = 'https://www.google.com/webhp?igu=1'; 
+  } 
   document.getElementById('browser-frame').src = url;
 };
 document.getElementById('b-reload').onclick = navBrowser;
@@ -327,13 +661,14 @@ document.getElementById('b-back').onclick = () => document.getElementById('brows
 
 // Weather
 async function fetchWeather(lat, lon, cityName) {
-  document.getElementById('w-city').innerText = cityName; document.getElementById('w-temp').innerText = "...";
+  document.getElementById('w-city').innerText = cityName; 
+  document.getElementById('w-temp').innerText = "...";
   try {
     const res = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
     const data = await res.json();
     document.getElementById('w-temp').innerText = data.current_weather.temperature + '°C';
-    document.getElementById('w-desc').innerText = 'Live Satellite Data';
-  } catch(e) { document.getElementById('w-desc').innerText = "Network Error"; }
+    document.getElementById('w-desc').innerText = 'Satellite Link OK';
+  } catch(e) { document.getElementById('w-desc').innerText = "連線失敗"; }
 }
 document.getElementById('w-search').onclick = () => {
   const val = document.getElementById('weather-city').value.split(',');
@@ -343,37 +678,13 @@ document.getElementById('w-search').onclick = () => {
 document.getElementById('w-gps').onclick = () => {
   if (navigator.geolocation) {
     navigator.geolocation.getCurrentPosition(
-      (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "📍 GPS Location"),
-      () => alert("GPS Permission Denied.")
+      (pos) => fetchWeather(pos.coords.latitude, pos.coords.longitude, "📍 當前 GPS 定位"),
+      () => alert("無法取得定位權限。")
     );
   }
 };
 
-// Paint
-let paintCanvas, ctx, painting = false, paintColor = 'black';
-function initPaint() {
-  paintCanvas = document.getElementById('paint-canvas'); ctx = paintCanvas.getContext('2d'); ctx.lineCap = 'round'; ctx.lineWidth = 5;
-  paintCanvas.onmousedown = (e) => { painting = true; draw(e); };
-  paintCanvas.onmouseup = () => { painting = false; ctx.beginPath(); };
-  paintCanvas.onmousemove = draw;
-}
-function draw(e) {
-  if(!painting) return; const rect = paintCanvas.getBoundingClientRect();
-  ctx.strokeStyle = paintColor; ctx.lineTo(e.clientX - rect.left, e.clientY - rect.top); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(e.clientX - rect.left, e.clientY - rect.top);
-}
-document.getElementById('p-clear').onclick = () => ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
-// Bind color palette (dynamically assuming we have standard palette buttons in HTML)
-const colors = ['black','red','blue','green','yellow','purple'];
-const tb = document.getElementById('paint-toolbar');
-colors.forEach(c => {
-  let div = document.createElement('div');
-  div.style.cssText = `width:28px;height:28px;background:${c};cursor:pointer;border-radius:50%;border:2px solid #000;`;
-  div.onclick = () => paintColor = c;
-  tb.appendChild(div);
-});
-
-// Calculator
+// Calc
 let calcV = "";
 window.calcIn = (k) => {
   const d = document.getElementById('calc-display');
@@ -393,26 +704,7 @@ function initCalc() {
   });
 }
 
-// Terminal
-document.getElementById('term-input').onkeydown = (e) => {
-  if(e.key === 'Enter') {
-    const input = document.getElementById('term-input'); const output = document.getElementById('term-output');
-    const cmdStr = input.value.trim(); const args = cmdStr.split(' '); const cmd = args[0].toLowerCase();
-    if(cmdStr) {
-      output.innerHTML += `<div><span style="color:#0f0;">admin@webos:~$</span> ${cmdStr}</div>`;
-      if(cmd === 'ls' || cmd === 'dir') { output.innerHTML += `<div style="color:#ccc;">${Object.keys(vfs).join('   ')}</div>`; }
-      else if(cmd === 'clear' || cmd === 'cls') { output.innerHTML = ''; }
-      else if(cmd === 'help') { output.innerHTML += `<div style="color:#ccc;">Commands: help, ls, clear, echo, date, whoami</div>`; }
-      else if(cmd === 'echo') { output.innerHTML += `<div style="color:#ccc;">${args.slice(1).join(' ')}</div>`; }
-      else if(cmd === 'date') { output.innerHTML += `<div style="color:#ccc;">${new Date().toString()}</div>`; }
-      else if(cmd === 'whoami') { output.innerHTML += `<div style="color:#ccc;">${sysUser} (Admin)</div>`; }
-      else { output.innerHTML += `<div style="color:#ff4444;">Command not found: ${cmd}</div>`; }
-    }
-    input.value = ''; document.getElementById('term-container').scrollTop = document.getElementById('term-container').scrollHeight;
-  }
-};
-
-// Time updates
+// Clock
 function updateTime() {
   const now = new Date();
   const tStr = now.toLocaleTimeString(curLang==='zh'?'zh-HK':'en-US', { hour: '2-digit', minute: '2-digit', hour12: false });
@@ -421,5 +713,5 @@ function updateTime() {
   document.getElementById('lock-huge-time').innerText = tStr; document.getElementById('lock-huge-date').innerText = dStr;
 }
 
-// 啟動 OS
+// Bootstrap
 window.addEventListener('DOMContentLoaded', initOS);
