@@ -31,9 +31,15 @@ body.theme-ubuntu {
   --set-item-hover: #444; --set-item-act: #E95420;
 }
 
-body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family: '-apple-system', 'Segoe UI', sans-serif; user-select: none; background: #000; color: #fff; }
+body, html { 
+  margin: 0; padding: 0; height: 100%; overflow: hidden; 
+  font-family: '-apple-system', 'Segoe UI', sans-serif; 
+  user-select: none; -webkit-user-select: none;
+  background: #000; color: #fff; 
+  touch-action: none; /* 關鍵：防止 iPad 手勢滑動與拖曳衝突 */
+}
 
-.sys-screen { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10000; display: none; }
+.sys-screen { position: absolute; top:0; left:0; width:100%; height:100%; z-index: 10000; background: #000; display: none; }
 #bios-screen { display: flex; flex-direction: column; padding: 25px; font-family: 'Consolas', monospace; font-size: 14px; color: #ccc; }
 .bios-line { margin-bottom: 6px; }
 
@@ -47,16 +53,15 @@ body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family:
 #lock-help-btn {
   position: absolute; top: 25px; right: 25px; z-index: 10010;
   background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(10px);
-  color: #fff; padding: 8px 16px; border-radius: 20px;
+  color: #fff; padding: 10px 18px; border-radius: 20px;
   border: 1px solid rgba(255, 255, 255, 0.4); font-size: 14px; font-weight: bold;
   cursor: pointer; transition: 0.2s; box-shadow: 0 4px 10px rgba(0,0,0,0.3);
 }
-#lock-help-btn:hover { background: var(--win-blue); border-color: var(--win-blue); transform: scale(1.05); }
+#lock-help-btn:hover { background: var(--win-blue); border-color: var(--win-blue); }
 
-/* Help Modal Box */
 #lock-help-modal {
   display: none; position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-  width: 500px; max-width: 90%; background: rgba(25, 25, 25, 0.9); backdrop-filter: blur(25px);
+  width: 500px; max-width: 90%; background: rgba(25, 25, 25, 0.95); backdrop-filter: blur(25px);
   border-radius: 12px; border: 1px solid rgba(255,255,255,0.2); box-shadow: 0 10px 30px rgba(0,0,0,0.7);
   z-index: 10020; color: #fff; overflow: hidden;
 }
@@ -74,13 +79,13 @@ body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family:
 .login-box img { width: 120px; height: 120px; border-radius: 50%; margin-bottom: 20px; border: 2px solid rgba(255,255,255,0.3); object-fit: cover; }
 .login-input-group { display: flex; background: #fff; border-radius: 4px; overflow: hidden; box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
 .login-input-group input { border: none; padding: 12px 15px; width: 220px; outline:none; font-size: 14px; }
-.login-input-group button { background: #e0e0e0; border: none; padding: 12px 20px; cursor: pointer; font-weight: bold; transition: 0.2s; color: black; }
+.login-input-group button { background: #e0e0e0; border: none; padding: 12px 20px; cursor: pointer; font-weight: bold; color: black; }
 .login-input-group button:hover { background: var(--win-blue); color: white; }
 #login-err { color: #ff4444; font-weight: bold; margin-top: 15px; display: none; }
 #login-cancel { margin-top: 20px; background: transparent; border: none; color: white; cursor: pointer; font-size: 15px; }
 
 #user-switch-bar { margin-top: 15px; display: flex; align-items: center; justify-content: center; }
-#user-switch-bar select { padding: 6px 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.5); color: white; outline: none; cursor: pointer; }
+#user-switch-bar select { padding: 8px 12px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.7); color: white; outline: none; cursor: pointer; }
 
 /* Modal Overlay (Onboarding) */
 .modal-overlay {
@@ -99,26 +104,25 @@ body, html { margin: 0; padding: 0; height: 100%; overflow: hidden; font-family:
 #desktop { position: absolute; top:0; left:0; width: 100%; height: 100%; background: center/cover no-repeat; display: none; }
 .desktop-icons { padding: 10px; display: grid; grid-template-rows: repeat(8, 90px); grid-auto-columns: 80px; grid-auto-flow: column; gap: 5px; }
 body.theme-ubuntu .desktop-icons { margin-top: 40px; }
-.icon { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 90px; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); cursor: pointer; font-size: 12px; text-align: center; transition: 0.1s; border-radius: 5px; }
+.icon { display: flex; flex-direction: column; align-items: center; justify-content: center; width: 80px; height: 90px; color: white; text-shadow: 1px 1px 3px rgba(0,0,0,0.9); cursor: pointer; font-size: 12px; text-align: center; border-radius: 5px; }
 .icon:hover { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); }
 .icon img { width: 44px; height: 44px; margin-bottom: 8px; filter: drop-shadow(0px 2px 4px rgba(0,0,0,0.5)); }
 
 #context-menu { display: none; position: absolute; background: #eeeeee; border: 1px solid #aaa; box-shadow: 3px 3px 10px rgba(0,0,0,0.3); z-index: 10000; color: black; font-size: 13px; width: 220px; padding: 5px 0; border-radius: 4px; }
-.cm-item { padding: 8px 20px; cursor: pointer; transition: 0.1s; }
+.cm-item { padding: 8px 20px; cursor: pointer; }
 .cm-item:hover { background: var(--win-blue); color: white; }
 .cm-divider { height: 1px; background: #ccc; margin: 5px 0; }
 
-#taskbar { position: absolute; bottom: var(--taskbar-bottom); top: var(--taskbar-top); left: var(--taskbar-left); width: var(--taskbar-width); height: var(--taskbar-height); background: var(--taskbar-bg); display: flex; align-items: center; z-index: 9000; backdrop-filter: blur(20px); border-radius: var(--win-radius); transform: translateX(calc(var(--taskbar-left) * -1)); box-sizing: border-box; padding: 0 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); transition: 0.3s; }
-.start-btn { width: 44px; height: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; transition: 0.2s; }
+#taskbar { position: absolute; bottom: var(--taskbar-bottom); top: var(--taskbar-top); left: var(--taskbar-left); width: var(--taskbar-width); height: var(--taskbar-height); background: var(--taskbar-bg); display: flex; align-items: center; z-index: 9000; backdrop-filter: blur(20px); border-radius: var(--win-radius); transform: translateX(calc(var(--taskbar-left) * -1)); box-sizing: border-box; padding: 0 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.5); }
+.start-btn { width: 44px; height: 100%; display: flex; justify-content: center; align-items: center; cursor: pointer; }
 .start-btn:hover { background: rgba(255,255,255,0.15); }
 body.theme-macos .start-btn { display: none; }
 .taskbar-apps { display: flex; flex: 1; height: 100%; gap: 5px; align-items: center; margin-left: 10px; }
 body.theme-macos .taskbar-apps { justify-content: center; margin-left: 0; }
-.taskbar-icon { width: 44px; height: 80%; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 4px; transition: 0.2s; border-bottom: 3px solid transparent; }
+.taskbar-icon { width: 44px; height: 80%; display: flex; justify-content: center; align-items: center; cursor: pointer; border-radius: 4px; border-bottom: 3px solid transparent; }
 body.theme-macos .taskbar-icon { width: 50px; height: 50px; border-bottom: none; position: relative; }
 .taskbar-icon img { width: 24px; height: 24px; }
-body.theme-macos .taskbar-icon img { width: 44px; height: 44px; transition: 0.2s; }
-body.theme-macos .taskbar-icon:hover img { transform: scale(1.15) translateY(-5px); }
+body.theme-macos .taskbar-icon img { width: 44px; height: 44px; }
 .taskbar-icon:hover { background: rgba(255,255,255,0.15); }
 body.theme-macos .taskbar-icon:hover { background: transparent; }
 .taskbar-icon.active { background: rgba(255,255,255,0.1); border-bottom: 3px solid var(--win-blue); }
@@ -131,26 +135,37 @@ body.theme-macos .system-tray { display: none; }
 body.theme-ubuntu #start-menu { top: 35px; bottom: auto; border-radius: 0 0 12px 0;}
 body.theme-macos #start-menu { left: 50%; transform: translateX(-50%); border-radius: 12px; bottom: 80px;}
 .start-sidebar { width: 48px; display: flex; flex-direction: column; justify-content: flex-end; align-items: center; padding-bottom: 10px; background: rgba(0,0,0,0.2); }
-.start-sidebar-icon { width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; transition: 0.1s; }
+.start-sidebar-icon { width: 48px; height: 48px; display: flex; justify-content: center; align-items: center; font-size: 18px; cursor: pointer; }
 .start-sidebar-icon:hover { background: rgba(255,255,255,0.2); }
 #power-menu { display: none; position: absolute; bottom: 50px; left: 48px; background: #2b2b2b; width: 220px; flex-direction: column; box-shadow: 2px 2px 15px rgba(0,0,0,0.6); border: 1px solid #444; }
 body.theme-ubuntu #power-menu { top: 50px; bottom: auto; }
-.power-item { padding: 12px 20px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; transition: 0.1s; }
+.power-item { padding: 12px 20px; cursor: pointer; font-size: 13px; display: flex; align-items: center; gap: 10px; }
 .power-item:hover { background: #444; }
 .start-app-list { width: 250px; padding: 15px; overflow-y: auto; background: rgba(0,0,0,0.1); }
-.start-app-item { padding: 10px; display: flex; align-items: center; cursor: pointer; font-size: 13px; border-radius: 4px; transition: 0.1s; }
+.start-app-item { padding: 10px; display: flex; align-items: center; cursor: pointer; font-size: 13px; border-radius: 4px; }
 .start-app-item img { width: 24px; height: 24px; margin-right: 12px; }
 .start-app-item:hover { background: rgba(255,255,255,0.15); border-left: 4px solid var(--win-blue); border-radius: 0 4px 4px 0; }
 .start-tiles { flex: 1; padding: 20px; display: grid; grid-template-columns: repeat(3, 1fr); grid-auto-rows: 95px; gap: 8px; overflow-y: auto; align-content: start; }
-.tile { background: var(--win-blue); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; border: 2px solid transparent; transition: 0.1s; }
+.tile { background: var(--win-blue); display: flex; flex-direction: column; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; border: 2px solid transparent; }
 .tile img { width: 32px; height: 32px; margin-bottom: 8px; }
 .tile:hover { border: 2px solid rgba(255,255,255,0.4); transform: scale(0.98); }
 
-.window { position: absolute; top: 10%; left: 15%; width: 750px; height: 500px; background: var(--window-bg); color: var(--text-dark); border-radius: var(--win-radius); box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; z-index: 100; overflow: hidden; border: 1px solid rgba(150,150,150,0.3); }
-.title-bar { height: 35px; display: flex; align-items: center; background: #f0f0f0; cursor: default; position: relative; border-bottom: 1px solid #ddd; flex-shrink: 0; }
+/* Window Manager & Resizers */
+.window { 
+  position: absolute; top: 10%; left: 15%; width: 750px; height: 500px; 
+  background: var(--window-bg); color: var(--text-dark); border-radius: var(--win-radius); 
+  box-shadow: 0 15px 40px rgba(0,0,0,0.5); display: none; flex-direction: column; 
+  z-index: 100; border: 1px solid rgba(150,150,150,0.3); 
+  min-width: 320px; min-height: 240px; box-sizing: border-box;
+}
+.title-bar { 
+  height: 38px; display: flex; align-items: center; background: #f0f0f0; 
+  cursor: move; position: relative; border-bottom: 1px solid #ddd; flex-shrink: 0; 
+  touch-action: none; /* 關鍵：讓 iPad 手指拖曳標題列生效 */
+}
 .title-text { flex: 1; text-align: center; font-size: 13px; font-weight: 600; pointer-events: none; }
 .window-controls { display: flex; position: absolute; right: var(--ctrl-pos-right); left: var(--ctrl-pos-left); height: 100%; flex-direction: var(--ctrl-dir); align-items: center; gap: 8px; padding: 0 8px; }
-.ctrl-btn { width: var(--mac-btn-size); height: var(--mac-btn-size); border-radius: var(--mac-btn-radius); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; font-family: 'Segoe UI Symbol'; transition: 0.1s; background: var(--mac-btn-color); color: transparent; border: 1px solid transparent; }
+.ctrl-btn { width: var(--mac-btn-size); height: var(--mac-btn-size); border-radius: var(--mac-btn-radius); display: flex; justify-content: center; align-items: center; cursor: pointer; font-size: 12px; font-family: 'Segoe UI Symbol'; background: var(--mac-btn-color); color: transparent; border: 1px solid transparent; }
 
 body.theme-win10 .ctrl-btn { height: 100%; color: #333; }
 body.theme-win10 .ctrl-btn:hover { background: #e5e5e5; }
@@ -164,16 +179,16 @@ body.theme-ubuntu .ctrl-btn.close { background: #333; }
 
 .window-content { flex: 1; position: relative; display: flex; flex-direction: column; background: #fff; overflow: hidden; }
 
-/* Dynamic Resizing Handles */
-.resizer { position: absolute; z-index: 10; }
-.resizer-r { right: 0; top: 0; width: 5px; height: 100%; cursor: e-resize; }
-.resizer-b { bottom: 0; left: 0; width: 100%; height: 5px; cursor: s-resize; }
-.resizer-br { right: 0; bottom: 0; width: 10px; height: 10px; cursor: se-resize; z-index: 11; }
+/* 視窗縮放拉桿 (加大感應區方便 iPad 觸控) */
+.resizer { position: absolute; z-index: 99; touch-action: none; }
+.resizer-r { right: 0; top: 0; width: 14px; height: 100%; cursor: ew-resize; }
+.resizer-b { bottom: 0; left: 0; width: 100%; height: 14px; cursor: ns-resize; }
+.resizer-br { right: 0; bottom: 0; width: 22px; height: 22px; cursor: nwse-resize; z-index: 100; background: radial-gradient(circle at bottom right, rgba(0,0,0,0.2) 0%, transparent 70%); }
 
 /* Settings App */
-.settings-layout { display: flex; height: 100%; background: var(--set-body-bg); color: var(--set-text); transition: 0.3s; }
-.settings-nav { width: 220px; background: var(--set-sidebar-bg); padding-top: 20px; transition: 0.3s; }
-.set-nav-item { padding: 15px 25px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; transition: 0.2s; }
+.settings-layout { display: flex; height: 100%; background: var(--set-body-bg); color: var(--set-text); }
+.settings-nav { width: 220px; background: var(--set-sidebar-bg); padding-top: 20px; }
+.set-nav-item { padding: 15px 25px; font-size: 14px; cursor: pointer; border-left: 4px solid transparent; }
 .set-nav-item:hover { background: var(--set-item-hover); }
 body.theme-win10 .set-nav-item.active { background: var(--set-item-act); border-left: 4px solid var(--win-blue); font-weight: bold; }
 body.theme-macos .set-nav-item { border-radius: 8px; margin: 0 10px 5px 10px; padding: 10px 15px; border-left: none; }
@@ -181,7 +196,7 @@ body.theme-macos .set-nav-item.active { background: var(--set-item-act); color: 
 body.theme-ubuntu .set-nav-item.active { background: var(--set-item-act); color: white; font-weight: bold; }
 .settings-main { flex: 1; padding: 40px; overflow-y: auto; }
 
-body.theme-win10 .set-group input, body.theme-win10 .set-group select { border: 2px solid #ccc; border-radius: 0; box-shadow: none; }
+body.theme-win10 .set-group input, body.theme-win10 .set-group select { border: 2px solid #ccc; border-radius: 0; }
 body.theme-macos .set-group { background: #fff; padding: 15px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); margin-bottom: 20px; border: 1px solid #e1e1e1; }
 body.theme-macos .set-group label { font-weight: bold; margin-bottom: 10px; }
 body.theme-macos .set-group input, body.theme-macos .set-group select { border-radius: 6px; border: 1px solid #d1d1d1; }
@@ -189,16 +204,15 @@ body.theme-ubuntu .set-group input, body.theme-ubuntu .set-group select { backgr
 
 .set-group { margin-bottom: 25px; }
 .set-group label { display: block; font-size: 14px; margin-bottom: 8px; font-weight: 500; }
-.set-group input, .set-group select { width: 100%; padding: 10px; border: 1px solid #ccc; outline: none; border-radius: 4px; background: rgba(255,255,255,0.9); color: #333; box-sizing: border-box; transition: 0.2s; }
-.set-btn { padding: 10px 25px; background: #ccc; border: none; cursor: pointer; border-radius: 4px; transition: 0.2s; font-weight: bold; color: #333; }
+.set-group input, .set-group select { width: 100%; padding: 10px; border: 1px solid #ccc; outline: none; border-radius: 4px; background: rgba(255,255,255,0.9); color: #333; box-sizing: border-box; }
+.set-btn { padding: 10px 25px; background: #ccc; border: none; cursor: pointer; border-radius: 4px; font-weight: bold; color: #333; }
 .set-btn.primary { background: var(--win-blue); color: white; }
 .license-box { font-size:11px; white-space: pre-wrap; background:rgba(150,150,150,0.1); padding:15px; border-radius:6px; border: 1px solid rgba(150,150,150,0.3); }
 
 /* App Store */
 .store-header { padding: 25px; font-size: 22px; font-weight: bold; border-bottom: 1px solid rgba(150,150,150,0.2); }
 .store-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; padding: 20px; background: inherit; overflow-y: auto; }
-.store-card { background: rgba(150,150,150,0.05); border: 1px solid rgba(150,150,150,0.2); padding: 20px; border-radius: 8px; display: flex; align-items: center; transition: 0.2s; }
-.store-card:hover { box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+.store-card { background: rgba(150,150,150,0.05); border: 1px solid rgba(150,150,150,0.2); padding: 20px; border-radius: 8px; display: flex; align-items: center; }
 .store-card img { width: 60px; height: 60px; margin-right: 15px; border-radius: 12px; }
 .store-btn { padding: 8px 20px; border: none; background: var(--win-blue); color: white; cursor: pointer; border-radius: 4px; font-weight: bold; }
 .store-btn.installed { background: #dc3545; }
@@ -214,10 +228,9 @@ body.theme-ubuntu .set-group input, body.theme-ubuntu .set-group select { backgr
 
 /* File Explorer */
 .fs-toolbar { padding: 10px 15px; background: rgba(150,150,150,0.1); border-bottom: 1px solid rgba(150,150,150,0.2); display: flex; gap: 10px; align-items: center; }
-.fs-btn { padding: 6px 15px; background: var(--win-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; transition: 0.2s; }
-.fs-btn:hover { filter: brightness(1.1); }
+.fs-btn { padding: 6px 15px; background: var(--win-blue); color: white; border: none; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold; }
 .fs-grid { display: flex; flex-wrap: wrap; gap: 20px; padding: 20px; align-content: flex-start; overflow-y: auto; flex: 1; }
-.fs-item { width: 90px; text-align: center; cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid transparent; transition: 0.2s; }
+.fs-item { width: 90px; text-align: center; cursor: pointer; padding: 10px; border-radius: 6px; border: 1px solid transparent; }
 .fs-item:hover { background: rgba(0, 120, 215, 0.1); border: 1px solid var(--win-blue); }
 .fs-item img { width: 50px; height: 50px; margin-bottom: 8px; }
 .fs-item-name { font-size: 12px; word-break: break-all; color: var(--set-text); }
@@ -232,7 +245,7 @@ body.theme-ubuntu .set-group input, body.theme-ubuntu .set-group select { backgr
 /* Browser */
 .browser-bar { padding: 8px 12px; background: #f1f1f1; display: flex; gap: 10px; align-items: center; border-bottom: 1px solid #ddd; }
 .browser-bar input { flex: 1; padding: 8px 15px; border-radius: 20px; border: 1px solid #ccc; outline: none; font-size: 13px; color: black; }
-.mdm-toggle { font-size: 12px; background: #ff4444; color: white; padding: 6px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; transition: 0.2s; }
+.mdm-toggle { font-size: 12px; background: #ff4444; color: white; padding: 6px 12px; border-radius: 12px; cursor: pointer; font-weight: bold; }
 .mdm-toggle.active { background: #00C851; }
 .browser { width: 100%; height: 100%; border: none; background: white; }
 
