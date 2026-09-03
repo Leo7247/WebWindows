@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>WebOS - Project Horizon</title>
   <link rel="stylesheet" href="style.css">
-  <!-- 引入 Brython 引擎執行真實 Python -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.js"></script>
 </head>
@@ -43,21 +42,75 @@
 
   <!-- 鎖定與登入畫面 -->
   <div id="lock-screen" class="sys-screen" style="display:none;">
+    <!-- 右上角 Help 按鈕 -->
+    <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
+    
+    <!-- Help 彈出說明框 -->
+    <div id="lock-help-modal">
+      <div class="help-header">
+        <span>📖 WebOS 新手快速指南 (Help)</span>
+        <span id="close-help-btn" style="cursor:pointer; font-weight:bold;">✕</span>
+      </div>
+      <div class="help-content">
+        <h4>1. 如何開始使用及建立帳號？</h4>
+        <p>• 預設擁有一個名為 <strong>「User」</strong> 的訪客帳戶，<strong>無需密碼</strong>。<br>
+           • 點擊畫面任意處進入登入頁，選擇「User」並直接點擊箭頭 ➔ 登入。<br>
+           • 系統會自動彈出註冊視窗，填寫你的自訂名稱與密碼（必填），系統便會為你建立專屬帳戶並自動同步至雲端，所有造訪本站的人都能看到！</p>
+        <h4>2. 現有帳戶</h4>
+        <p>• <strong>Admin</strong>: 預設管理員（預設密碼為 <code>J45F</code>）。</p>
+        <h4>3. 系統特色</h4>
+        <p>• 支援視窗邊緣拖曳自由縮放大小 (Resizing)。<br>
+           • 內建 Python IDE、真實小畫家、檔案總管與 WebKit MDM Bypass 瀏覽器。<br>
+           • 可在「設定」中即時更換 Windows 10、macOS 15 及 Ubuntu 22 介面風格！</p>
+      </div>
+    </div>
+
     <div id="lock-time-view">
       <div class="lock-time" id="lock-huge-time">00:00</div>
       <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
     </div>
+    
     <div id="login-view">
       <div class="login-box">
         <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
-        <h2 id="login-user-name">Admin</h2>
-        <div class="login-input-group">
-          <input type="password" id="login-pw" data-i18n-ph="login_pw_ph" placeholder="請輸入密碼">
+        <h2 id="login-user-name">User</h2>
+        <div class="login-input-group" id="login-input-box">
+          <input type="password" id="login-pw" placeholder="請輸入密碼 (User 無需密碼)">
           <button id="login-btn">➔</button>
         </div>
-        <div id="login-err" data-i18n="login_err">密碼錯誤。</div>
-        <button id="login-cancel" data-i18n="cancel">取消</button>
+        <div id="login-err">密碼錯誤。</div>
+        
+        <!-- 切換使用者清單 -->
+        <div id="user-switch-bar">
+          <label style="font-size:12px; color:#ddd; margin-right:5px;">切換使用者:</label>
+          <select id="user-select-list"></select>
+        </div>
+
+        <button id="login-cancel">返回</button>
       </div>
+    </div>
+  </div>
+
+  <!-- 強制建立新帳號彈窗 (專供 User 帳戶首次登入) -->
+  <div id="onboarding-modal" class="modal-overlay" style="display:none;">
+    <div class="modal-box">
+      <h2 style="margin-top:0; color:#0078D7;">👋 歡迎使用 WebOS！</h2>
+      <p style="color:#555; font-size:14px;">你目前正以訪客 <strong>「User」</strong> 身份登入。請先建立你專屬的個人帳戶，完成後將自動同步至伺服器供所有訪客查看！</p>
+      <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+      <div class="form-group">
+        <label>新使用者名稱 (Username) *</label>
+        <input type="text" id="ob-username" placeholder="例如: Alex / Developer">
+      </div>
+      <div class="form-group">
+        <label>登入密碼 (Password) * [必填]</label>
+        <input type="password" id="ob-password" placeholder="請設定個人密碼">
+      </div>
+      <div class="form-group">
+        <label>頭像圖片 URL (可選)</label>
+        <input type="text" id="ob-avatar" placeholder="https://...">
+      </div>
+      <div id="ob-error" style="color:red; font-size:13px; margin-bottom:10px; display:none;">請完整填寫名稱及密碼！</div>
+      <button class="set-btn primary" id="ob-submit-btn" style="width:100%; padding:12px; font-size:15px;">建立帳戶並登出 ➔</button>
     </div>
   </div>
 
@@ -143,11 +196,34 @@
           </div>
           <div id="set-account" style="display:none;">
             <h2 data-i18n="acc_title">安全性與帳戶</h2>
-            <div class="set-group"><label data-i18n="acc_name">顯示名稱</label><input type="text" id="set-username"></div>
-            <div class="set-group"><label data-i18n="acc_pw">登入密碼 (留白關閉保護)</label><input type="password" id="set-password"></div>
-            <div class="set-group"><label data-i18n="acc_avatar">頭像 URL</label><input type="text" id="set-avatar"></div>
-            <button class="set-btn primary" id="btn-save-acc" data-i18n="save">更新帳戶資料</button>
-            <button class="set-btn" style="background:#dc3545; color:white; margin-top:30px; display:block;" id="btn-reset" data-i18n="reset">還原原廠設定 (危險)</button>
+            
+            <!-- 目前登入帳號修改 -->
+            <div class="set-group">
+              <label>目前登入使用者名稱</label>
+              <input type="text" id="set-username">
+            </div>
+            <div class="set-group">
+              <label>修改密碼 (留白代表不設密碼)</label>
+              <input type="password" id="set-password">
+            </div>
+            <div class="set-group">
+              <label>頭像 URL</label>
+              <input type="text" id="set-avatar">
+            </div>
+            <button class="set-btn primary" id="btn-save-acc">更新目前帳戶資料</button>
+
+            <!-- ★ 新增帳號 (所有訪客可見) ★ -->
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
+            <div class="set-group" style="border: 2px dashed var(--win-blue); padding: 15px; border-radius: 8px;">
+              <h3 style="margin-top:0; color:var(--win-blue);">➕ 新增使用者帳號 (雲端公開同步)</h3>
+              <p style="font-size:13px; color:#666;">喺呢度建立嘅新帳號會即時同步到雲端數據庫，所有瀏覽呢個網頁嘅用戶均可在登入頁面看見及登入！</p>
+              <input type="text" id="new-u-name" placeholder="新帳戶名稱 *" style="margin-bottom:8px;">
+              <input type="password" id="new-u-pw" placeholder="新帳戶密碼 * [必填]" style="margin-bottom:8px;">
+              <input type="text" id="new-u-av" placeholder="頭像圖片網址 (可留空)">
+              <button class="set-btn primary" id="btn-create-acc" style="margin-top:10px; width:100%;">確認建立新帳戶並同步</button>
+            </div>
+
+            <button class="set-btn" style="background:#dc3545; color:white; margin-top:20px; display:block;" id="btn-reset" data-i18n="reset">還原原廠設定 (危險)</button>
           </div>
           <div id="set-lang" style="display:none;">
             <h2>Language</h2>
@@ -159,7 +235,7 @@
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-                <p>Version: Project Horizon v8.0<br>Engine: HTML5 DOM / Brython</p>
+                <p>Version: Project Horizon v9.0<br>Engine: HTML5 DOM / Brython / Firebase Sync</p>
                 <pre class="license-box">MIT License
 Copyright (c) 2026 iAnyFeature
 
@@ -282,7 +358,7 @@ print("Pi =", math.pi)</textarea>
       </div>
     </div>
 
-    <!-- APP: Browser (MDM Bypass Enabled) -->
+    <!-- APP: Browser -->
     <div class="window" id="app-browser" style="width: 850px; height: 600px;" onmousedown="bringToFront('app-browser')">
       <div class="title-bar" data-win="app-browser">
         <div class="title-text">Edge Browser</div>
