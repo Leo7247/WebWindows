@@ -30,7 +30,8 @@ const dict = {
 
 let curLang = localStorage.getItem('os_lang') || 'zh';
 let sysUser = localStorage.getItem('os_user') || 'Admin';
-let sysPw = localStorage.getItem('os_pw') || '';
+// 預設登入密碼設為 J45F
+let sysPw = localStorage.getItem('os_pw') !== null ? localStorage.getItem('os_pw') : 'J45F';
 let sysBg = localStorage.getItem('os_bg') || 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500';
 let sysTheme = localStorage.getItem('os_theme') || 'theme-win10';
 let sysAvatar = localStorage.getItem('os_avatar') || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
@@ -66,6 +67,7 @@ function initOS() {
   document.getElementById('login-avatar').src = sysAvatar;
   
   document.getElementById('set-username').value = sysUser;
+  document.getElementById('set-password').value = sysPw;
   document.getElementById('set-bg-url').value = sysBg;
   document.getElementById('set-avatar').value = sysAvatar;
   document.getElementById('np-text').value = localStorage.getItem('os_np') || '';
@@ -153,7 +155,7 @@ document.getElementById('login-btn').onclick = attemptLogin;
 
 function attemptLogin() {
   const input = document.getElementById('login-pw').value;
-  if(sysPw === '' || input === sysPw) {
+  if(input === sysPw) {
     document.getElementById('lock-screen').style.display = 'none';
     document.getElementById('desktop').style.display = 'block';
   } else { 
@@ -262,7 +264,7 @@ document.addEventListener('mousemove', (e) => {
   if(isDrag && curWin && curWin.dataset.max !== '1') { 
     let newX = e.clientX - oX; 
     let newY = e.clientY - oY;
-    if(newY < 0) newY = 0; // Prevent dragging out of screen top
+    if(newY < 0) newY = 0;
     curWin.style.left = newX + 'px'; 
     curWin.style.top = newY + 'px'; 
   } 
@@ -511,7 +513,6 @@ function executeCommand(cmdStr, rawLine) {
   cmdOutput.innerHTML += `<div>${currentPath}&gt; ${rawLine}</div>`;
   if (!cmdStr) return;
 
-  // Output Redirection: echo text > filename
   if (cmdStr.includes('>')) {
     const parts = cmdStr.split('>'); 
     const left = parts[0].trim(); 
@@ -702,6 +703,7 @@ document.getElementById('btn-save-acc').onclick = () => {
   localStorage.setItem('os_user', document.getElementById('set-username').value); 
   localStorage.setItem('os_pw', document.getElementById('set-password').value); 
   localStorage.setItem('os_avatar', document.getElementById('set-avatar').value); 
+  sysPw = document.getElementById('set-password').value;
   alert("帳戶資料已儲存！下次登入生效。"); 
 };
 
