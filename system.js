@@ -1,6 +1,9 @@
 /* ==========================================
-   WebOS Project Horizon - Complete System Engine (Full Version)
+   WebOS Project Horizon - Engine with Cloud Multi-User Sync
    ========================================== */
+
+/* --- 免費開源雲端數據庫端點 (供所有訪客跨設備實時共享帳號) --- */
+const CLOUD_DB_URL = "https://webos-horizon-default-rtdb.firebaseio.com/users.json";
 
 /* ==========================================
    1. System Configuration & I18N
@@ -29,12 +32,22 @@ const dict = {
 };
 
 let curLang = localStorage.getItem('os_lang') || 'zh';
-let sysUser = localStorage.getItem('os_user') || 'Admin';
-// 預設登入密碼設為 J45F
-let sysPw = localStorage.getItem('os_pw') !== null ? localStorage.getItem('os_pw') : 'J45F';
+
+/* --- 多帳戶資料庫結構 (本地備份 + 雲端同步) --- */
+const DEFAULT_USERS = {
+  "User": { pw: "", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", isGuest: true },
+  "Admin": { pw: "J45F", avatar: "https://cdn-icons-png.flaticon.com/512/3135/3135768.png", isGuest: false }
+};
+
+let usersDB = JSON.parse(localStorage.getItem('os_users_db')) || DEFAULT_USERS;
+// 確保預設 User 帳號存在且無密碼
+if (!usersDB["User"]) usersDB["User"] = DEFAULT_USERS["User"];
+if (!usersDB["Admin"]) usersDB["Admin"] = DEFAULT_USERS["Admin"];
+
+let currentLoginUser = "User"; // 預設選中 User
+let sysUser = "User";
 let sysBg = localStorage.getItem('os_bg') || 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500';
 let sysTheme = localStorage.getItem('os_theme') || 'theme-win10';
-let sysAvatar = localStorage.getItem('os_avatar') || 'https://cdn-icons-png.flaticon.com/512/3135/3135715.png';
 
 const coreApps = [
   { id: 'app-settings', name: 'Settings', icon: 'https://cdn-icons-png.flaticon.com/512/3132/3132084.png' },
@@ -53,39 +66,91 @@ const storeRegistry = [
   { id: 'app-notepad', nameEn: 'Notepad', nameZh: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' }
 ];
 
-let installedApps = JSON.parse(localStorage.getItem('os_apps')) || ['app-guide', 'app-browser', 'app-python', 'app-cmd', 'app-paint', 'app-weather', 'app-calc', 'app-notepad'];
+let installedApps = JSON.parse(localStorage.getItem('os_apps')) || ['app-guide', 'app-browser', 'app-python', 'app-cmd', 'app-paint'];
 
 /* ==========================================
-   2. Initialization & Boot Logic
+   2. Cloud Synchronization (Firebase API)
+   ========================================== */
+// 從雲端抓取最新建立的使用者名單（讓所有人看見）
+async function syncUsersFromCloud() {
+  try {
+    const res = await fetch(CLOUD_DB_URL);
+    if (res.ok) {
+      const cloudData = await res.json();
+      if (cloudData && typeof cloudData === 'object') {
+        usersDB = { ...usersDB, ...cloudData };
+        // 確保核心帳戶不被惡意修改
+        usersDB["User"] = DEFAULT_USERS["User"];
+        localStorage.setItem('os_users_db', JSON.stringify(usersDB));
+        updateUserSelectDropdown();
+      }
+    }
+  } catch (err) {
+    console.log("Cloud sync offline, using local database.");
+  }
+}
+
+// 將新帳戶推送至公開雲端
+async function pushUserToCloud(username, password, avatar) {
+  const newAccount = {
+    pw: password,
+    avatar: avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png",
+    isGuest: false
+  };
+
+  usersDB[username] = newAccount;
+  localStorage.setItem('os_users_db', JSON.stringify(usersDB));
+  updateUserSelectDropdown();
+
+  try {
+    await fetch(`https://webos-horizon-default-rtdb.firebaseio.com/users/${encodeURIComponent(username)}.json`, {
+      method: 'PUT',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(newAccount)
+    });
+  } catch (e) {
+    console.log("Failed to push to cloud, stored locally.");
+  }
+}
+
+/* ==========================================
+   3. Initialization & Boot Logic
    ========================================== */
 function initOS() {
   document.body.className = sysTheme;
   document.getElementById('theme-select').value = sysTheme;
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`;
-  document.getElementById('login-user-name').innerText = sysUser;
-  document.getElementById('login-avatar').src = sysAvatar;
-  
-  document.getElementById('set-username').value = sysUser;
-  document.getElementById('set-password').value = sysPw;
   document.getElementById('set-bg-url').value = sysBg;
-  document.getElementById('set-avatar').value = sysAvatar;
   document.getElementById('np-text').value = localStorage.getItem('os_np') || '';
   
   updateStartIcon(); 
   setLang(curLang); 
   injectResizers();
-  
+  updateUserSelectDropdown();
+  syncUsersFromCloud();
+
+  // Help 按鈕事件
+  document.getElementById('lock-help-btn').onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById('lock-help-modal').style.display = 'block';
+  };
+  document.getElementById('close-help-btn').onclick = (e) => {
+    e.stopPropagation();
+    document.getElementById('lock-help-modal').style.display = 'none';
+  };
+
   // BIOS POST Sequence
   document.getElementById('bios-screen').style.display = 'flex';
   const biosText = document.getElementById('bios-text');
   const biosLines = [
-    "Project Horizon BIOS v8.0.0",
+    "Project Horizon BIOS v9.0.0",
     "Checking Central Processor Core... OK",
     "Checking System Memory: 16384MB OK",
+    "Connecting Cloud User Database... OK",
+    "Loading User Onboarding Engine... OK",
     "Mounting Virtual File System (VFS)... OK",
     "Restricting In-App Purchases (IAP)... OK",
-    "Loading Paint Engine & Brython Python... OK",
     "Starting Graphical User Interface..."
   ];
   let lineIdx = 0;
@@ -93,7 +158,7 @@ function initOS() {
     if(lineIdx < biosLines.length) {
       biosText.innerHTML += `<div class="bios-line">${biosLines[lineIdx]}</div>`;
       lineIdx++;
-      setTimeout(printBIOS, 120 + Math.random() * 150);
+      setTimeout(printBIOS, 100 + Math.random() * 150);
     } else {
       setTimeout(() => {
         document.getElementById('bios-screen').style.display = 'none';
@@ -138,7 +203,39 @@ function setLang(lang) {
   renderDesktop();
 }
 
-// Lock & Login
+/* --- 切換使用者下拉選單邏輯 --- */
+function updateUserSelectDropdown() {
+  const select = document.getElementById('user-select-list');
+  select.innerHTML = '';
+  for (let u in usersDB) {
+    let opt = document.createElement('option');
+    opt.value = u;
+    opt.innerText = u + (usersDB[u].isGuest ? " (訪客 - 無密碼)" : "");
+    if (u === currentLoginUser) opt.selected = true;
+    select.appendChild(opt);
+  }
+  updateLoginUIForUser(currentLoginUser);
+}
+
+function updateLoginUIForUser(userName) {
+  currentLoginUser = userName;
+  document.getElementById('login-user-name').innerText = userName;
+  document.getElementById('login-avatar').src = usersDB[userName]?.avatar || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png";
+  document.getElementById('login-pw').value = '';
+  document.getElementById('login-err').style.display = 'none';
+
+  if (userName === "User") {
+    document.getElementById('login-pw').placeholder = "User 無需密碼，直接點擊 ➔";
+  } else {
+    document.getElementById('login-pw').placeholder = "請輸入密碼";
+  }
+}
+
+document.getElementById('user-select-list').onchange = (e) => {
+  updateLoginUIForUser(e.target.value);
+};
+
+// Lock & Login Actions
 document.getElementById('lock-time-view').onclick = () => {
   document.getElementById('lock-time-view').style.transform = 'translateY(-100%)';
   document.getElementById('login-view').style.transform = 'translateY(0)';
@@ -154,14 +251,70 @@ document.getElementById('login-cancel').onclick = () => {
 document.getElementById('login-btn').onclick = attemptLogin;
 
 function attemptLogin() {
-  const input = document.getElementById('login-pw').value;
-  if(input === sysPw) {
+  const inputPw = document.getElementById('login-pw').value;
+  const userObj = usersDB[currentLoginUser];
+
+  // User 帳號直接放行，其他帳號檢查密碼
+  if (currentLoginUser === "User" || (userObj && inputPw === userObj.pw)) {
+    sysUser = currentLoginUser;
     document.getElementById('lock-screen').style.display = 'none';
     document.getElementById('desktop').style.display = 'block';
+
+    // 更新設定頁資訊
+    document.getElementById('set-username').value = sysUser;
+    document.getElementById('set-password').value = userObj.pw;
+    document.getElementById('set-avatar').value = userObj.avatar;
+
+    // ★ 如果是預設 "User" 帳戶，立即彈出強制註冊新帳號表單，限制操作其他功能 ★
+    if (sysUser === "User") {
+      document.getElementById('onboarding-modal').style.display = 'flex';
+    } else {
+      document.getElementById('onboarding-modal').style.display = 'none';
+    }
   } else { 
     document.getElementById('login-err').style.display = 'block'; 
   }
 }
+
+// ★ "User" 建立新帳號邏輯 (送出後自動登出) ★
+document.getElementById('ob-submit-btn').onclick = async () => {
+  const newName = document.getElementById('ob-username').value.trim();
+  const newPw = document.getElementById('ob-password').value.trim();
+  const newAv = document.getElementById('ob-avatar').value.trim();
+  const errBox = document.getElementById('ob-error');
+
+  if (!newName || !newPw) {
+    errBox.innerText = "❌ 帳號名稱與密碼均為必填項目！";
+    errBox.style.display = 'block';
+    return;
+  }
+  if (newName.toLowerCase() === "user") {
+    errBox.innerText = "❌ 不能使用保留名稱 User！";
+    errBox.style.display = 'block';
+    return;
+  }
+
+  errBox.style.display = 'none';
+  document.getElementById('ob-submit-btn').innerText = "正在推送到雲端...";
+
+  await pushUserToCloud(newName, newPw, newAv);
+
+  alert(`🎉 帳戶「${newName}」已成功建立並同步至伺服器！\n系統現在將自動為你登出，請使用新帳號登入。`);
+  
+  // 清空表單並關閉引導窗
+  document.getElementById('ob-username').value = '';
+  document.getElementById('ob-password').value = '';
+  document.getElementById('ob-avatar').value = '';
+  document.getElementById('ob-submit-btn').innerText = "建立帳戶並登出 ➔";
+  document.getElementById('onboarding-modal').style.display = 'none';
+
+  // 自動登出並切換至新帳號
+  currentLoginUser = newName;
+  document.getElementById('desktop').style.display = 'none';
+  document.getElementById('login-cancel').click();
+  document.getElementById('lock-screen').style.display = 'block';
+  updateUserSelectDropdown();
+};
 
 // Power Management
 document.getElementById('pwr-logout').onclick = () => { 
@@ -169,6 +322,7 @@ document.getElementById('pwr-logout').onclick = () => {
   document.getElementById('login-cancel').click(); 
   document.getElementById('lock-screen').style.display = 'block'; 
   document.getElementById('login-pw').value = ''; 
+  syncUsersFromCloud();
 };
 document.getElementById('pwr-reboot').onclick = () => { 
   document.getElementById('desktop').style.display = 'none'; 
@@ -181,11 +335,17 @@ document.getElementById('pwr-shutdown').onclick = () => {
 };
 
 /* ==========================================
-   3. Window Manager (Drag & Dynamic Resize)
+   4. Window Manager (Drag & Dynamic Resize)
    ========================================== */
 let zIndex = 100;
 
 function openApp(id) {
+  // 如果處於 User 引導註冊階段，禁止開啟其他視窗
+  if (sysUser === "User" && document.getElementById('onboarding-modal').style.display === 'flex') {
+    alert("請先完成新帳號註冊！");
+    return;
+  }
+
   const win = document.getElementById(id); 
   win.style.display = 'flex'; 
   document.getElementById('start-menu').style.display = 'none';
@@ -264,7 +424,7 @@ document.addEventListener('mousemove', (e) => {
   if(isDrag && curWin && curWin.dataset.max !== '1') { 
     let newX = e.clientX - oX; 
     let newY = e.clientY - oY;
-    if(newY < 0) newY = 0;
+    if(newY < 0) newY = 0; 
     curWin.style.left = newX + 'px'; 
     curWin.style.top = newY + 'px'; 
   } 
@@ -275,7 +435,7 @@ document.addEventListener('mouseup', () => {
   curWin = null; 
 });
 
-// Dynamic Resizing Injection
+// Dynamic Resizing Handles
 function injectResizers() {
   document.querySelectorAll('.window').forEach(win => {
     ['r', 'b', 'br'].forEach(dir => {
@@ -348,7 +508,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================
-   4. Render Desktop & App Store
+   5. Render Desktop & App Store
    ========================================== */
 function getAppName(app) { return (app.name) ? app.name : (curLang === 'zh' ? app.nameZh : app.nameEn); }
 function getAllApps() { return [...coreApps, ...storeRegistry.filter(a => installedApps.includes(a.id))]; }
@@ -399,7 +559,7 @@ function uninstallApp(id) {
 }
 
 /* ==========================================
-   5. Virtual File System (VFS)
+   6. Virtual File System (VFS)
    ========================================== */
 let vfs = JSON.parse(localStorage.getItem('os_vfs')) || { 
   'README.txt': 'WebOS Virtual File System.\nAll files and scripts are persistent in your browser LocalStorage.' 
@@ -463,7 +623,7 @@ window.delFile = (name) => {
 };
 
 /* ==========================================
-   6. Command Prompt (Functional)
+   7. Command Prompt (Functional)
    ========================================== */
 let cmdHistory = []; 
 let historyIndex = -1; 
@@ -663,7 +823,7 @@ VER            顯示 Windows 作業系統版本。<br>
 }
 
 /* ==========================================
-   7. Specific Apps (Settings, Weather, Paint, Calc, Guide, Browser)
+   8. Specific Apps (Settings, Weather, Paint, Calc, Guide, Browser)
    ========================================== */
 function initGuide() {
   document.querySelectorAll('.guide-nav-item').forEach(item => {
@@ -699,12 +859,40 @@ window.changeWallpaper = () => {
   document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`; 
 };
 
+// 更新目前帳戶
 document.getElementById('btn-save-acc').onclick = () => { 
-  localStorage.setItem('os_user', document.getElementById('set-username').value); 
-  localStorage.setItem('os_pw', document.getElementById('set-password').value); 
-  localStorage.setItem('os_avatar', document.getElementById('set-avatar').value); 
-  sysPw = document.getElementById('set-password').value;
-  alert("帳戶資料已儲存！下次登入生效。"); 
+  const u = document.getElementById('set-username').value.trim();
+  const p = document.getElementById('set-password').value.trim();
+  const av = document.getElementById('set-avatar').value.trim();
+
+  if (!u) { alert("名稱不能為空！"); return; }
+  
+  usersDB[u] = { pw: p, avatar: av || "https://cdn-icons-png.flaticon.com/512/3135/3135715.png", isGuest: false };
+  localStorage.setItem('os_users_db', JSON.stringify(usersDB));
+  updateUserSelectDropdown();
+  alert("帳戶資料已成功更新！"); 
+};
+
+// ★ 在 Settings App 裡面隨時新增帳戶 (同步至所有訪客可見) ★
+document.getElementById('btn-create-acc').onclick = async () => {
+  const n = document.getElementById('new-u-name').value.trim();
+  const p = document.getElementById('new-u-pw').value.trim();
+  const a = document.getElementById('new-u-av').value.trim();
+
+  if (!n || !p) {
+    alert("❌ 建立新帳號時，帳戶名稱與密碼為必填項目！");
+    return;
+  }
+
+  document.getElementById('btn-create-acc').innerText = "同步至雲端中...";
+  await pushUserToCloud(n, p, a);
+
+  document.getElementById('new-u-name').value = '';
+  document.getElementById('new-u-pw').value = '';
+  document.getElementById('new-u-av').value = '';
+  document.getElementById('btn-create-acc').innerText = "確認建立新帳戶並同步";
+
+  alert(`✅ 帳號「${n}」已成功建立並同步！所有造訪本網頁的用戶皆可於登入介面選擇並使用。`);
 };
 
 document.getElementById('btn-reset').onclick = () => { 
@@ -869,8 +1057,6 @@ function initPaint() {
   const sizeInput = document.getElementById('p-brush-size'); 
   sizeInput.oninput = () => { 
     brushSize = sizeInput.value; 
-    const valDisplay = document.getElementById('p-brush-val');
-    if (valDisplay) valDisplay.innerText = brushSize + 'px';
   };
 
   const colorInput = document.getElementById('p-color-picker'); 
@@ -921,7 +1107,7 @@ function initCalc() {
   grid.innerHTML = '';
   ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'].forEach(b => {
     let style = "font-size:22px; border:none; border-radius:6px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.1);";
-    if(b === '=' || b === '/' || b === '*' || b === '-' || b === '+') style += "background:#e0e0e0; font-weight:bold;"; 
+    if(b === '=' || b === '/' || b === '*' || b === '-' || b === '+') style += "background:#e0e0e0;"; 
     else if(b === '=') style += "background:var(--win-blue); color:white;"; 
     else style += "background:#fff;";
     grid.innerHTML += `<button style="${style}" onclick="calcIn('${b}')">${b}</button>`;
