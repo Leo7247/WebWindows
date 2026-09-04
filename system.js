@@ -1,5 +1,5 @@
 /* ==========================================================================
-   WebOS Project Horizon - Unified Touch, Windows 10 Explorer & Cloud Engine
+   WebOS Project Horizon - Complete Guaranteed Kernel & Touch Engine
    ========================================================================== */
 
 const CLOUD_API = "https://api.restful-api.dev/objects/ff808181932badb40193309a47320000";
@@ -137,7 +137,7 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
 ];
 
 /* ==========================================================================
-   2. CLOUD DATA SYNCHRONIZATION
+   2. CLOUD USER DATA SYNCHRONIZATION
    ========================================================================== */
 
 async function syncUsersFromCloud() {
@@ -180,7 +180,7 @@ async function pushUserToCloud(username, password, avatar) {
 }
 
 /* ==========================================================================
-   3. MULTI-STAGE SYSTEM BOOTSTRAP (保證滾動顯示 KERNEL 日誌)
+   3. GUARANTEED KERNEL & SYSTEM BOOTSTRAP PIPELINE
    ========================================================================== */
 
 const kernelLines = [
@@ -199,7 +199,9 @@ const kernelLines = [
   "[    0.280918] Brython 3.12 Dynamic Compiler engine registered [OK]",
   "[    0.312891] EXT4-fs (vda1): mounted filesystem with ordered data mode",
   "[    0.354012] systemd[1]: Starting GUI Window Compositor & Session Daemon...",
-  "[    0.410291] [  OK  ] Started Graphical Window Manager.",
+  "[    0.389102] systemd[1]: Started WebOS D-Bus System Message Bus.",
+  "[    0.410291] [  OK  ] Started Graphical Window Manager Compositor.",
+  "[    0.435190] [  OK  ] Mounted Windows 10 Virtual File System Hierarchy.",
   "[    0.450119] Switching runlevel: entering multi-user target GUI"
 ];
 
@@ -237,13 +239,13 @@ function initOS() {
     };
   }
 
-  // --- Stage 1: BIOS 自檢 ---
+  // --- Stage 1: BIOS 自檢階段 ---
   const biosScreen = document.getElementById('bios-screen');
   const biosText = document.getElementById('bios-text');
   biosScreen.style.display = 'flex';
 
   const biosLines = [
-    "Project Horizon BIOS v12.0.0",
+    "Project Horizon BIOS v13.0.0",
     "Checking Central Processor Core... OK",
     "Initializing Touch, Pointer & Gesture Subsystem... OK",
     "Connecting Cloud User Database Endpoint... OK",
@@ -259,30 +261,36 @@ function initOS() {
       newLine.innerText = biosLines[biosIdx];
       biosText.appendChild(newLine);
       biosIdx++;
-      setTimeout(printBIOS, 80 + Math.random() * 70);
+      setTimeout(printBIOS, 70 + Math.random() * 60);
     } else {
       setTimeout(startKernelBoot, 200);
     }
   }
 
-  // --- Stage 2: 內核啟動滾動日誌 (清晰可見) ---
+  // --- Stage 2: Linux-like Kernel Boot 核心滾動文字階段 (確保平滑滾動) ---
   function startKernelBoot() {
     biosScreen.style.display = 'none';
     const kernelScreen = document.getElementById('kernel-screen');
     const kernelText = document.getElementById('kernel-text');
+    
+    // 強制設定為可視狀態
     kernelScreen.style.display = 'block';
+    kernelText.innerHTML = '';
 
     let kIdx = 0;
     function printKernel() {
       if (kIdx < kernelLines.length) {
         const line = document.createElement('div');
+        line.className = 'kernel-log-line';
         line.innerText = kernelLines[kIdx];
         kernelText.appendChild(line);
+
+        // 強制捲動到底部
         kernelScreen.scrollTop = kernelScreen.scrollHeight;
         kIdx++;
-        setTimeout(printKernel, 40 + Math.random() * 45);
+        setTimeout(printKernel, 40 + Math.random() * 35);
       } else {
-        setTimeout(startGUIBoot, 450);
+        setTimeout(startGUIBoot, 500);
       }
     }
     printKernel();
@@ -299,7 +307,7 @@ function initOS() {
     setTimeout(() => {
       bootScreen.style.display = 'none';
       document.getElementById('lock-screen').style.display = 'block';
-    }, 1400);
+    }, 1500);
   }
 
   printBIOS();
@@ -749,7 +757,6 @@ function getAllApps() {
   return [...coreApps, ...custom];
 }
 
-/* 觸控與滑鼠雙重支援：輕觸即開 */
 function renderDesktop() {
   const desktopBox = document.getElementById('desktop-icons');
   const startList = document.getElementById('start-app-list');
@@ -767,7 +774,6 @@ function renderDesktop() {
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
 
-    // 觸控螢幕與滑鼠一律輕觸即開啟
     iconItem.addEventListener('click', () => {
       openApp(app.id);
     });
@@ -923,7 +929,6 @@ function renderFS() {
   fsGrid.innerHTML = '';
   pathLabel.innerText = currentVFSPath.join('\\') + "\\";
 
-  // 更新左側導覽欄高亮
   document.querySelectorAll('.win10-sidebar .side-item').forEach(item => {
     item.classList.remove('active');
   });
@@ -972,7 +977,6 @@ function renderFS() {
   statusCount.innerText = `${count} 個項目`;
 }
 
-// 導覽按鈕
 document.getElementById('fs-btn-back').onclick = () => {
   if (currentVFSPath.length > 1) {
     currentVFSPath.pop();
@@ -987,7 +991,6 @@ document.getElementById('fs-btn-up-dir').onclick = () => {
   }
 };
 
-// Ribbon 按鈕
 document.getElementById('fs-btn-new').onclick = () => {
   const name = prompt("文字檔案名稱:", "NewFile.txt");
   if (name) {
@@ -1040,7 +1043,6 @@ document.getElementById('fs-btn-clear').onclick = () => {
   }
 };
 
-// 檔案搜尋
 document.getElementById('fs-search-input').oninput = (e) => {
   const query = e.target.value.toLowerCase().trim();
   document.querySelectorAll('.win10-content-pane .fs-item').forEach(item => {
@@ -1583,7 +1585,7 @@ function initStopwatch() {
   };
 }
 
-// Audio Synth App (Web Audio API)
+// Audio Synth App
 let audioCtx = null;
 window.playTone = (freq) => {
   if (!audioCtx) {
@@ -1659,5 +1661,4 @@ function updateTime() {
   document.getElementById('lock-huge-date').innerText = dateStr;
 }
 
-// 系統啟動進入點
 window.addEventListener('DOMContentLoaded', initOS);
