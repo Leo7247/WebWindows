@@ -133,10 +133,9 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
   'app-paint'
 ];
 
-/* ==========================================================================
-   2. CLOUD DATA SYNCHRONIZATION
-   ========================================================================== */
-
+/* ==========================================
+   2. 跨裝置雲端資料同步 (Cloud Sync)
+   ========================================== */
 async function syncUsersFromCloud() {
   try {
     const response = await fetch(CLOUD_API);
@@ -176,9 +175,29 @@ async function pushUserToCloud(username, password, avatar) {
   }
 }
 
-/* ==========================================================================
-   3. SYSTEM BOOTSTRAP & LOGIN ROUTINES
-   ========================================================================== */
+/* ==========================================
+   3. Initialization & Multi-Stage Boot Logic
+   ========================================== */
+
+const kernelLines = [
+  "[    0.000000] Linux version 6.6.0-webos-generic (gcc version 13.2.0) #1 SMP PREEMPT",
+  "[    0.001204] Command line: BOOT_IMAGE=/vmlinuz-webos root=/dev/vda1 ro quiet splash",
+  "[    0.015234] x86/fpu: Supporting XSAVE feature 0x001: 'x87 floating point registers'",
+  "[    0.032110] ACPI: Core revision 20260401",
+  "[    0.045091] Memory: 16777216K/17179869K available (14336K kernel code, 2048K data)",
+  "[    0.061240] Dentry cache hash table entries: 2097152 (order: 12, 16777216 bytes)",
+  "[    0.089431] Inode-cache hash table entries: 1048576 (order: 11, 8388608 bytes)",
+  "[    0.112048] Mount-cache hash table entries: 32768 (order: 6, 262144 bytes)",
+  "[    0.140812] Initializing cgroup subsys cpu, memory, devices, freezer",
+  "[    0.180291] VFS: Disk quotas dquot_6.6.0 mounted",
+  "[    0.210482] NetLabel: Initializing",
+  "[    0.245012] WebKit MDM Bypass tunnel driver initialized [OK]",
+  "[    0.280918] Brython 3.12 Dynamic Compiler engine registered [OK]",
+  "[    0.312891] EXT4-fs (vda1): mounted filesystem with ordered data mode",
+  "[    0.354012] systemd[1]: Starting GUI Window Compositor & Session Daemon...",
+  "[    0.410291] [  OK  ] Started Graphical Window Manager.",
+  "[    0.450119] Switching runlevel: entering multi-user target GUI"
+];
 
 function initOS() {
   document.body.className = sysTheme;
@@ -188,32 +207,32 @@ function initOS() {
   document.getElementById('set-bg-url').value = sysBg;
   document.getElementById('np-text').value = localStorage.getItem('os_np') || '';
   
-  updateStartIcon();
-  setLang(curLang);
+  updateStartIcon(); 
+  setLang(curLang); 
   updateUserSelectDropdown();
   syncUsersFromCloud();
 
-  // 確保在 DOM 完全呈現後綁定 Resizer 把手
-  setTimeout(() => {
-    injectResizers();
-  }, 250);
+  setTimeout(injectResizers, 250);
 
-  // 說明視窗綁定
+  // 說明視窗按鈕綁定
   const helpBtn = document.getElementById('lock-help-btn');
   const helpModal = document.getElementById('lock-help-modal');
   const closeHelpBtn = document.getElementById('close-help-btn');
 
-  helpBtn.onclick = (e) => {
-    e.stopPropagation();
-    helpModal.style.display = 'block';
-  };
+  if (helpBtn) {
+    helpBtn.onclick = (e) => {
+      e.stopPropagation();
+      helpModal.style.display = 'block';
+    };
+  }
+  if (closeHelpBtn) {
+    closeHelpBtn.onclick = (e) => {
+      e.stopPropagation();
+      helpModal.style.display = 'none';
+    };
+  }
 
-  closeHelpBtn.onclick = (e) => {
-    e.stopPropagation();
-    helpModal.style.display = 'none';
-  };
-
-  // BIOS POST Sequence
+  // --- Stage 1: BIOS POST 階段 ---
   const biosScreen = document.getElementById('bios-screen');
   const biosText = document.getElementById('bios-text');
   biosScreen.style.display = 'flex';
@@ -221,33 +240,64 @@ function initOS() {
   const biosLines = [
     "Project Horizon BIOS v9.8.0",
     "Checking Central Processor Core... OK",
-    "Initializing Touch, Pointer & Gesture Driver Subsystem... OK",
+    "Initializing Touch, Pointer & Gesture Subsystem... OK",
     "Connecting Cloud User Database Endpoint... OK",
     "Mounting Virtual File System (VFS)... OK",
-    "Starting Graphical User Interface Environment..."
+    "Passing control to OS Kernel..."
   ];
 
-  let lineIdx = 0;
+  let biosIdx = 0;
   function printBIOS() {
-    if (lineIdx < biosLines.length) {
+    if (biosIdx < biosLines.length) {
       const newLine = document.createElement('div');
       newLine.className = 'bios-line';
-      newLine.innerText = biosLines[lineIdx];
+      newLine.innerText = biosLines[biosIdx];
       biosText.appendChild(newLine);
-      lineIdx++;
-      setTimeout(printBIOS, 90 + Math.random() * 80);
+      biosIdx++;
+      setTimeout(printBIOS, 80 + Math.random() * 80);
     } else {
-      setTimeout(() => {
-        biosScreen.style.display = 'none';
-        const bootScreen = document.getElementById('boot-screen');
-        bootScreen.style.display = 'flex';
-        setTimeout(() => {
-          bootScreen.style.display = 'none';
-          document.getElementById('lock-screen').style.display = 'block';
-        }, 750);
-      }, 200);
+      setTimeout(startKernelBoot, 200);
     }
   }
+
+  // --- Stage 2: Kernel Boot 核心文字滾動階段 ---
+  function startKernelBoot() {
+    biosScreen.style.display = 'none';
+    const kernelScreen = document.getElementById('kernel-screen');
+    const kernelText = document.getElementById('kernel-text');
+    kernelScreen.style.display = 'block';
+
+    let kIdx = 0;
+    function printKernel() {
+      if (kIdx < kernelLines.length) {
+        const line = document.createElement('div');
+        line.innerText = kernelLines[kIdx];
+        kernelText.appendChild(line);
+        kernelScreen.scrollTop = kernelScreen.scrollHeight;
+        kIdx++;
+        setTimeout(printKernel, 35 + Math.random() * 40);
+      } else {
+        setTimeout(startGUIBoot, 300);
+      }
+    }
+    printKernel();
+  }
+
+  // --- Stage 3: GUI 圖形開機載入畫面 ---
+  function startGUIBoot() {
+    const kernelScreen = document.getElementById('kernel-screen');
+    kernelScreen.style.display = 'none';
+    
+    const bootScreen = document.getElementById('boot-screen');
+    bootScreen.style.display = 'flex';
+
+    setTimeout(() => {
+      bootScreen.style.display = 'none';
+      document.getElementById('lock-screen').style.display = 'block';
+    }, 1200);
+  }
+
+  // 開始開機流程
   printBIOS();
   
   renderDesktop();
@@ -566,7 +616,6 @@ document.querySelectorAll('.title-bar').forEach(bar => {
   bar.addEventListener('pointerup', stopDragHandler);
   bar.addEventListener('pointercancel', stopDragHandler);
 
-  // 綁定右上/左上視窗按鈕
   const closeBtn = bar.querySelector('.close');
   if (closeBtn) closeBtn.onclick = () => closeApp(winId);
 
@@ -577,7 +626,7 @@ document.querySelectorAll('.title-bar').forEach(bar => {
   if (minBtn) minBtn.onclick = () => minApp(winId);
 });
 
-/* --- 視窗縮放核心引擎 (加大 iPad 觸控感應邊界) --- */
+/* --- 視窗縮放核心引擎 --- */
 function injectResizers() {
   document.querySelectorAll('.window').forEach(win => {
     if (win.querySelector('.resizer')) return;
@@ -640,7 +689,7 @@ function injectResizers() {
   });
 }
 
-// 開始功能表按鈕
+// 開始按鈕
 document.getElementById('start-btn').onclick = (e) => {
   e.stopPropagation();
   const startMenu = document.getElementById('start-menu');
@@ -672,7 +721,7 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// 桌面右鍵選單
+// 桌面右鍵快顯
 document.addEventListener('contextmenu', (e) => {
   if (e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('#start-menu')) return;
   const contextMenu = document.getElementById('context-menu');
@@ -691,7 +740,7 @@ document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
    5. DESKTOP, APP STORE & VIRTUAL FILE SYSTEM (VFS)
-   ========================================================================= */
+   ========================================================================== */
 
 function getAppName(app) {
   return app.name ? app.name : (curLang === 'zh' ? app.nameZh : app.nameEn);
@@ -702,6 +751,7 @@ function getAllApps() {
   return [...coreApps, ...custom];
 }
 
+/* --- 修復核心：桌面圖示支援單擊直接開啟（專門針對 iPad/手機優化） --- */
 function renderDesktop() {
   const desktopBox = document.getElementById('desktop-icons');
   const startList = document.getElementById('start-app-list');
@@ -713,17 +763,30 @@ function renderDesktop() {
   startTiles.innerHTML = '';
   taskbarApps.innerHTML = '';
 
+  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
+
   getAllApps().forEach(app => {
     const displayName = getAppName(app);
 
-    // 桌面圖示
+    // 桌面圖示建立
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
-    iconItem.ondblclick = () => openApp(app.id);
+
+    // 觸控設備單擊即開，滑鼠設備雙擊開啟
+    if (isTouchDevice) {
+      iconItem.onclick = () => openApp(app.id);
+    } else {
+      iconItem.ondblclick = () => openApp(app.id);
+      iconItem.onclick = () => {
+        document.querySelectorAll('.desktop-icons .icon').forEach(i => i.style.background = 'transparent');
+        iconItem.style.background = 'rgba(255, 255, 255, 0.25)';
+      };
+    }
+
     iconItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     desktopBox.appendChild(iconItem);
 
-    // 開始功能表項目
+    // 開始功能表列表
     const listItem = document.createElement('div');
     listItem.className = 'start-app-item';
     listItem.onclick = () => openApp(app.id);
@@ -737,7 +800,7 @@ function renderDesktop() {
     tileItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     startTiles.appendChild(tileItem);
 
-    // 工作列圖示
+    // 工作列按鈕
     const tbItem = document.createElement('div');
     tbItem.className = 'taskbar-icon';
     tbItem.id = 'tb-' + app.id;
@@ -927,7 +990,6 @@ function executeCommand(cmdStr, rawLine) {
   cmdOutput.innerHTML += `<div>${currentPath}&gt; ${rawLine}</div>`;
   if (!cmdStr) return;
 
-  // 處理輸出重定向符號：echo Hello > output.txt
   if (cmdStr.includes('>')) {
     const parts = cmdStr.split('>');
     const leftText = parts[0].trim();
