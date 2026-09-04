@@ -5,15 +5,13 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WebOS - Project Horizon</title>
   <link rel="stylesheet" href="style.css">
-  <!-- 引入 Brython 引擎以在瀏覽器本地執行真實 Python -->
+  <!-- Brython Python 3.12 本地執行引擎 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.js"></script>
 </head>
 <body class="theme-win10" onload="brython()" oncontextmenu="return false;">
 
-  <!-- ==========================================================================
-       1. PYTHON ENGINE BRIDGE (BRYTHON)
-       ========================================================================== -->
+  <!-- Python 引擎橋接邏輯 -->
   <script type="text/python">
     import sys
     from browser import document
@@ -28,7 +26,7 @@
     sys.stderr = MyOutput()
 
     def run_python_code(ev):
-        document["py-output"].text = ">>> Executing script...\n"
+        document["py-output"].text = ">>> Executing Python script...\n"
         try:
             exec(document["py-code"].value, {})
         except Exception as e:
@@ -43,26 +41,33 @@
   </script>
 
   <!-- ==========================================================================
-       2. SYSTEM OVERLAYS (BOOT, LOCK, LOGIN, ONBOARDING)
+       1. 系統開機流程 (BIOS POST -> Kernel Log -> GUI Boot -> Lock Screen)
        ========================================================================== -->
-
-  <!-- 黑屏遮罩 (供關機/重新開機使用) -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- BIOS POST 開機自檢畫面 -->
+  <!-- Stage 1: BIOS POST -->
   <div id="bios-screen" class="sys-screen" style="background: black;">
     <div id="bios-text"></div>
   </div>
 
-  <!-- 作業系統載入畫面 -->
+  <!-- Stage 2: Kernel Boot Text -->
+  <div id="kernel-screen" class="sys-screen" style="background: black; overflow: hidden;">
+    <div id="kernel-text" style="padding: 20px; font-family: 'Consolas', monospace; font-size: 13px; color: #00ff66; line-height: 1.45;"></div>
+  </div>
+
+  <!-- Stage 3: GUI Boot Screen -->
   <div id="boot-screen" class="sys-screen" style="background: black;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" id="boot-logo" width="80" alt="OS Logo">
+    <img src="https://banner2.cleanpng.com/20180623/xyq/kisspng-windows-update-windows-driver-frameworks-logo-application-security-5b2ef0e6ec0194.7357299815298029829667.jpg" 
+         id="boot-logo" 
+         width="110" 
+         referrerpolicy="no-referrer"
+         onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg';" 
+         alt="Windows Logo">
     <div class="spinner"></div>
   </div>
 
-  <!-- 鎖定與登入畫面 -->
+  <!-- Stage 4: 鎖定與登入畫面 -->
   <div id="lock-screen" class="sys-screen" style="display:none;">
-    <!-- 鎖定畫面右上角說明按鈕 -->
     <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
     
     <!-- 說明彈出視窗 -->
@@ -73,20 +78,20 @@
       </div>
       <div class="help-content">
         <h4>1. 如何開始使用及建立帳號？</h4>
-        <p>• 預設提供名為 <strong>「User」</strong> 的訪客帳戶，<strong>無需密碼</strong>。<br>
+        <p>• 預設提供訪客帳戶 <strong>「User」</strong>，<strong>無需密碼</strong>。<br>
            • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
-           • 登入後系統會自動彈出註冊介面，輸入新名稱與密碼（必填），系統便會為你建立專屬帳戶並同步至雲端，其他 iPad 或電腦瀏覽本站皆可看見！</p>
+           • 登入後系統會自動彈出註冊引導視窗，輸入新名稱與密碼（必填），系統會建立帳戶並即時同步至雲端，其他 iPad 或電腦皆可見！</p>
         <h4>2. 現有預設帳戶</h4>
-        <p>• <strong>User</strong>: 訪客專用帳號（無密碼，僅供註冊新帳號）。<br>
-           • <strong>Admin</strong>: 預設系統管理員（預設密碼為 <code>J45F</code>）。</p>
+        <p>• <strong>User</strong>: 訪客專用（無密碼，專門引導註冊新帳戶）。<br>
+           • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
         <h4>3. 系統核心功能</h4>
-        <p>• 支援 iPad 觸控或滑鼠拖曳視窗邊框進行自由縮放 (Resizing)。<br>
+        <p>• 支援滑鼠或 iPad 觸控螢幕拖曳視窗邊緣進行自由縮放 (Resizing)。<br>
            • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD) 及 WebKit MDM Bypass 瀏覽器。<br>
-           • 在「設定」中可即時切換 Windows 10、macOS 15 及 Ubuntu 22 介面風格！</p>
+           • 可在「設定」中即時切換 Windows 10、macOS 15 及 Ubuntu 22 三大介面風格！</p>
       </div>
     </div>
 
-    <!-- 鎖定畫面大時鐘 (點擊向上滑動) -->
+    <!-- 鎖定畫面大時鐘 -->
     <div id="lock-time-view">
       <div class="lock-time" id="lock-huge-time">00:00</div>
       <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
@@ -114,11 +119,11 @@
     </div>
   </div>
 
-  <!-- User 帳號首次登入強制引導彈窗 (完成後自動登出並同步到雲端) -->
+  <!-- User 帳號登入後強制註冊引導彈窗 -->
   <div id="onboarding-modal" class="modal-overlay" style="display:none;">
     <div class="modal-box">
       <h2 style="margin-top:0; color:#0078D7;">👋 歡迎使用 WebOS！</h2>
-      <p style="color:#555555; font-size:14px; line-height:1.5;">你目前正以訪客 <strong>「User」</strong> 身份登入。請先建立你專屬的個人帳戶，完成後將自動同步至伺服器，讓你在其他裝置上也能隨時登入！</p>
+      <p style="color:#555555; font-size:14px; line-height:1.5;">你目前正以訪客 <strong>「User」</strong> 身份登入。請先建立你專屬的個人帳戶，完成後將自動同步至伺服器供所有設備檢視！</p>
       <hr style="border:0; border-top:1px solid #eeeeee; margin:15px 0;">
       <div class="form-group">
         <label>新使用者名稱 (Username) * [必填]</label>
@@ -138,13 +143,13 @@
   </div>
 
   <!-- ==========================================================================
-       3. DESKTOP WORKSPACE & TASKBAR
+       2. 桌面環境與工具列
        ========================================================================== -->
   <div id="desktop">
     <!-- 桌面圖示容器 -->
     <div class="desktop-icons" id="desktop-icons"></div>
 
-    <!-- 桌面右鍵快顯選單 -->
+    <!-- 右鍵快顯選單 -->
     <div id="context-menu">
       <div class="cm-item" id="cm-refresh" data-i18n="refresh">重新整理</div>
       <div class="cm-divider"></div>
@@ -152,7 +157,7 @@
       <div class="cm-item" id="cm-fs" data-i18n="file_explorer">檔案總管</div>
     </div>
 
-    <!-- 底部/懸浮工作列 -->
+    <!-- 工作列 -->
     <div id="taskbar">
       <div class="start-btn" id="start-btn">
         <img id="start-icon" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="22" style="filter: brightness(0) invert(1);" alt="Start">
@@ -175,7 +180,6 @@
         <div class="start-sidebar-icon" id="start-acc" title="帳戶設定">👤</div>
         <div class="start-sidebar-icon" id="start-set" title="系統設定">⚙️</div>
         <div class="start-sidebar-icon" id="start-pwr" title="電源選項">⏻</div>
-        <!-- 電源選項子選單 -->
         <div id="power-menu">
           <div class="power-item" id="pwr-logout">👤 登出 / 切換使用者</div>
           <div class="power-item" id="pwr-reboot">🔄 重新啟動</div>
@@ -187,7 +191,7 @@
     </div>
 
     <!-- ==========================================================================
-         4. WINDOWS APPS COLLECTION
+         3. 應用程式視窗集合
          ========================================================================== -->
     
     <!-- APP: Settings (系統設定) -->
@@ -274,7 +278,7 @@
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v9.8.0 (Touch & Cloud Optimized)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12</p>
+              <p>Version: Project Horizon v10.0 (Full Kernel & Interactive Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12</p>
               <pre class="license-box">MIT License
 Copyright (c) 2026 iAnyFeature
 
@@ -312,7 +316,7 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
       </div>
     </div>
 
-    <!-- APP: User Guide (使用手冊) -->
+    <!-- APP: User Guide (100% 完整收錄使用手冊) -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
@@ -327,43 +331,99 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
           <div class="guide-nav-item active" data-tab="guide-intro">📌 系統介紹</div>
           <div class="guide-nav-item" data-tab="guide-cmd">🖥️ CMD 指令大全</div>
           <div class="guide-nav-item" data-tab="guide-mdm">🛡️ WebKit MDM Bypass</div>
+          <div class="guide-nav-item" data-tab="guide-apps">🎨 內建應用特色</div>
+          <div class="guide-nav-item" data-tab="guide-license">📜 版權與授權條款</div>
         </div>
         <div class="guide-main">
+          <!-- 1. 系統介紹 -->
           <div id="guide-intro" class="guide-section" style="display:block;">
             <h2>歡迎使用 WebOS Project Horizon</h2>
-            <p>這是一個具備真實視窗管理、縮放拖曳、檔案管理與純淨應用的系統。全系統完全開源無商城內購。</p>
+            <p>這是一個基於純瀏覽器環境構建的高效仿真實作業系統，完全兼容於 GitHub Pages。本系統支援 Windows 10、macOS 15 及 Ubuntu 22 三大桌面環境風格隨時切換，全系統徹底封鎖商業內購與商城付費行為。</p>
             <div class="guide-card">
-              <h3>核心特色</h3>
+              <h3>核心架構亮點</h3>
               <ul>
-                <li><strong>iPad 觸控螢幕原生支援</strong>：完整整合 Pointer Events，支援手指順滑拖曳視窗與拖動右下角放大縮小。</li>
+                <li><strong>雙階段真實開機</strong>：模擬 BIOS POST 自檢程序與 Linux/NT 核心日誌急速載入。</li>
+                <li><strong>觸控螢幕原生支援</strong>：完整重構視窗驅動，支援 iPad / iPhone 手指單擊開啟圖示、順滑拖曳視窗與右下角放大縮小。</li>
                 <li><strong>跨裝置雲端同步</strong>：新註冊帳戶自動同步至雲端，任何其他造訪此網站的裝置皆能即時讀取。</li>
-                <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 伺服器代理隧道繞過 MDM 限制。</li>
+                <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 代理隧道繞過 MDM 限制。</li>
               </ul>
             </div>
           </div>
+
+          <!-- 2. CMD 指令大全 -->
           <div id="guide-cmd" class="guide-section" style="display:none;">
-            <h2>命令提示字元 (CMD) 手冊</h2>
-            <p>本系統之命令提示字元具備目錄結構、指令歷史紀錄 (↑ / ↓ 鍵) 與重定向輸出功能：</p>
+            <h2>命令提示字元 (Command Prompt) 完全手冊</h2>
+            <p>本系統之命令提示字元具備真實虛擬目錄樹狀結構、指令歷史紀錄 (鍵盤 ↑ / ↓ 鍵回顧) 與輸出重定向功能：</p>
             <table class="guide-table">
               <thead><tr><th>指令</th><th>用法說明</th><th>範例</th></tr></thead>
               <tbody>
-                <tr><td><code>help</code></td><td>列出所有內建支援之指令清單</td><td><code>help</code></td></tr>
-                <tr><td><code>dir</code> / <code>ls</code></td><td>顯示當前工作目錄的檔案清單與大小</td><td><code>dir</code></td></tr>
+                <tr><td><code>help</code></td><td>列出所有內建支援之指令清單與語法</td><td><code>help</code></td></tr>
+                <tr><td><code>dir</code> / <code>ls</code></td><td>顯示當前工作目錄的檔案清單與佔用容量</td><td><code>dir</code></td></tr>
                 <tr><td><code>cd [路徑]</code></td><td>變更當前工作目錄 (支援 <code>..</code> 與 <code>\</code>)</td><td><code>cd Documents</code></td></tr>
                 <tr><td><code>md [名稱]</code></td><td>在虛擬檔案系統建立新目錄</td><td><code>mkdir Projects</code></td></tr>
-                <tr><td><code>echo [內容] &gt; [檔名]</code></td><td>建立檔案或重定向文字輸出至檔案</td><td><code>echo WebOS &gt; test.txt</code></td></tr>
+                <tr><td><code>echo [內容] &gt; [檔名]</code></td><td>建立檔案或將文字輸出重定向至指定檔案</td><td><code>echo WebOS &gt; test.txt</code></td></tr>
                 <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type README.txt</code></td></tr>
-                <tr><td><code>del [檔案名]</code></td><td>刪除虛擬檔案系統中的檔案</td><td><code>del test.txt</code></td></tr>
-                <tr><td><code>color [代碼]</code></td><td>設定色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
-                <tr><td><code>cls</code> / <code>clear</code></td><td>清除螢幕所有文字</td><td><code>cls</code></td></tr>
-                <tr><td><code>ver</code> / <code>date</code> / <code>time</code></td><td>檢視系統版本、日期或時間</td><td><code>ver</code></td></tr>
+                <tr><td><code>del [檔案名]</code></td><td>刪除虛擬檔案系統中的指定檔案</td><td><code>del test.txt</code></td></tr>
+                <tr><td><code>color [代碼]</code></td><td>變更色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
+                <tr><td><code>cls</code> / <code>clear</code></td><td>清除終端機螢幕上所有文字紀錄</td><td><code>cls</code></td></tr>
+                <tr><td><code>ver</code></td><td>顯示當前 Windows 作業系統核心版本號</td><td><code>ver</code></td></tr>
+                <tr><td><code>date</code> / <code>time</code></td><td>檢視當前系統日期或時間</td><td><code>date</code></td></tr>
+                <tr><td><code>exit</code></td><td>安全關閉命令提示字元視窗</td><td><code>exit</code></td></tr>
               </tbody>
             </table>
           </div>
+
+          <!-- 3. MDM Bypass -->
           <div id="guide-mdm" class="guide-section" style="display:none;">
-            <h2>MDM Bypass 運作原理</h2>
-            <p>在學校或企業設備（配置有 MDM 限制設定檔）上，部分網站可能遭到 WebKit 層級攔截。</p>
-            <p>點擊瀏覽器右上方之 <strong>「MDM Proxy: OFF」</strong> 使其變為綠色 ON 狀態。系統會將目標網址重定向至 Google Web Translation 代理伺服器（<code>translate.google.com</code>）。由於大部分校園防火牆不會封鎖 Google 服務，連線請求會由 Google 伺服器代理抓取目標網頁並轉譯返回，從而繞過設備端的連線限制。</p>
+            <h2>WebKit MDM Bypass 運作原理解析</h2>
+            <div class="guide-callout">
+              <strong>功能背景：</strong>在學校或企業設備（如配置有 MDM 限制設定檔的 iPad、Mac 或特定防火牆）上，部分外部網站可能遭到 WebKit 層級攔截封鎖。
+            </div>
+            <h3>操作流程</h3>
+            <ol>
+              <li>開啟系統內建之 <strong>Edge Browser</strong>。</li>
+              <li>點擊網址列右上方之 <strong>「MDM Proxy: OFF」</strong> 使其變為綠色 ON 狀態。</li>
+              <li>在網址列輸入目標網址（例如 <code>wikipedia.org</code>）並按下 Enter。</li>
+            </ol>
+            <h3>代理通道機制：</h3>
+            <p>系統會自動將目標網址打包並重定向至 Google Web Translation 代理伺服器（<code>translate.google.com/translate?...</code>）。由於校園或企業網絡通常將 Google 網域列入安全白名單，連線請求會由 Google 伺服器代理抓取目標網頁並轉譯返回，從而繞過設備端的直接連線限制。</p>
+          </div>
+
+          <!-- 4. 內建應用特色 -->
+          <div id="guide-apps" class="guide-section" style="display:none;">
+            <h2>內建應用程式特色</h2>
+            <ul>
+              <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、完整調色盤以及匯出 PNG 圖檔功能。</li>
+              <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需後端伺服器即可直接在瀏覽器本地直譯執行標準 Python 3 語法與演算法。</li>
+              <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
+              <li><strong>檔案總管 (VFS)</strong>：支援本地文字檔案建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
+            </ul>
+          </div>
+
+          <!-- 5. 版權與授權條款 -->
+          <div id="guide-license" class="guide-section" style="display:none;">
+            <h2>版權條款 (License)</h2>
+            <pre class="license-box">MIT License
+
+Copyright (c) 2026 iAnyFeature
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
           </div>
         </div>
       </div>
@@ -557,7 +617,6 @@ engine.simulate(30)
 
   </div>
 
-  <!-- 引入全系統邏輯腳本 -->
   <script src="system.js"></script>
 </body>
 </html>
