@@ -3,15 +3,15 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>WebOS - Project Horizon</title>
+  <title>WebOS - Project Horizon Ultimate</title>
   <link rel="stylesheet" href="style.css">
-  <!-- Brython Python 3.12 本地執行引擎 -->
+  <!-- 引入 Brython 引擎以在瀏覽器本地執行真實 Python 3.12 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.js"></script>
 </head>
 <body class="theme-win10" onload="brython()" oncontextmenu="return false;">
 
-  <!-- Python 引擎橋接邏輯 -->
+  <!-- Python 引擎橋接代碼 (完全保留) -->
   <script type="text/python">
     import sys
     from browser import document
@@ -40,34 +40,35 @@
     document["clear-py-btn"].bind("click", clear_output)
   </script>
 
-  <!-- ==========================================================================
-       1. 系統開機流程 (BIOS POST -> Kernel Log -> GUI Boot -> Lock Screen)
-       ========================================================================== -->
+  <!-- ==========================================
+       1. 系統開機層 (BIOS -> Kernel Logs -> Red Windows GUI -> Lock Screen)
+       ========================================== -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- Stage 1: BIOS POST -->
+  <!-- Stage 1: BIOS 自檢畫面 -->
   <div id="bios-screen" class="sys-screen" style="background: black;">
     <div id="bios-text"></div>
   </div>
 
-  <!-- Stage 2: Kernel Boot Text -->
+  <!-- Stage 2: 內核啟動滾動日誌 (Kernel Boot Text) -->
   <div id="kernel-screen" class="sys-screen" style="background: black; overflow: hidden;">
     <div id="kernel-text" style="padding: 20px; font-family: 'Consolas', monospace; font-size: 13px; color: #00ff66; line-height: 1.45;"></div>
   </div>
 
-  <!-- Stage 3: GUI Boot Screen -->
+  <!-- Stage 3: GUI 開機載入 (指定紅色 Windows Logo) -->
   <div id="boot-screen" class="sys-screen" style="background: black;">
-    <img src="https://banner2.cleanpng.com/20180623/xyq/kisspng-windows-update-windows-driver-frameworks-logo-application-security-5b2ef0e6ec0194.7357299815298029829667.jpg" 
+    <img src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" 
          id="boot-logo" 
-         width="110" 
+         width="120" 
          referrerpolicy="no-referrer"
          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg';" 
-         alt="Windows Logo">
+         alt="Windows Red Logo">
     <div class="spinner"></div>
   </div>
 
-  <!-- Stage 4: 鎖定與登入畫面 -->
+  <!-- Stage 4: 鎖定與登入介面 -->
   <div id="lock-screen" class="sys-screen" style="display:none;">
+    <!-- 鎖定畫面右上角說明按鈕 -->
     <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
     
     <!-- 說明彈出視窗 -->
@@ -85,8 +86,9 @@
         <p>• <strong>User</strong>: 訪客專用（無密碼，專門引導註冊新帳戶）。<br>
            • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
         <h4>3. 系統核心功能</h4>
-        <p>• 支援滑鼠或 iPad 觸控螢幕拖曳視窗邊緣進行自由縮放 (Resizing)。<br>
-           • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD) 及 WebKit MDM Bypass 瀏覽器。<br>
+        <p>• <strong>原生觸控螢幕支援</strong>：支援 iPad 點擊圖示開啟 App、拖曳標題列及拖曳右下角自由縮放視窗。<br>
+           • <strong>真實檔案系統架構</strong>：內建 <code>C:\System</code>、<code>C:\Apps</code>，可檢視原始代碼及 MIT 版權聲明。<br>
+           • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD)、音樂合成器、碼錶及 WebKit MDM Bypass 瀏覽器。<br>
            • 可在「設定」中即時切換 Windows 10、macOS 15 及 Ubuntu 22 三大介面風格！</p>
       </div>
     </div>
@@ -108,7 +110,7 @@
         </div>
         <div id="login-err">密碼錯誤。</div>
         
-        <!-- 切換使用者下拉選單 -->
+        <!-- 切換使用者選單 -->
         <div id="user-switch-bar">
           <label style="font-size:13px; color:#ffffff; margin-right:8px; text-shadow:1px 1px 3px rgba(0,0,0,0.8);">切換帳戶:</label>
           <select id="user-select-list"></select>
@@ -119,10 +121,10 @@
     </div>
   </div>
 
-  <!-- User 帳號登入後強制註冊引導彈窗 -->
+  <!-- User 帳號首次登入強制引導彈窗 -->
   <div id="onboarding-modal" class="modal-overlay" style="display:none;">
     <div class="modal-box">
-      <h2 style="margin-top:0; color:#0078D7;">👋 歡迎使用 WebOS！</h2>
+      <h2 style="margin-top:0; color:#E81123;">👋 歡迎使用 WebOS！</h2>
       <p style="color:#555555; font-size:14px; line-height:1.5;">你目前正以訪客 <strong>「User」</strong> 身份登入。請先建立你專屬的個人帳戶，完成後將自動同步至伺服器供所有設備檢視！</p>
       <hr style="border:0; border-top:1px solid #eeeeee; margin:15px 0;">
       <div class="form-group">
@@ -142,14 +144,13 @@
     </div>
   </div>
 
-  <!-- ==========================================================================
-       2. 桌面環境與工具列
-       ========================================================================== -->
+  <!-- ==========================================
+       2. 桌面工作區與工作列
+       ========================================== -->
   <div id="desktop">
-    <!-- 桌面圖示容器 -->
     <div class="desktop-icons" id="desktop-icons"></div>
 
-    <!-- 右鍵快顯選單 -->
+    <!-- 桌面右鍵快顯選單 -->
     <div id="context-menu">
       <div class="cm-item" id="cm-refresh" data-i18n="refresh">重新整理</div>
       <div class="cm-divider"></div>
@@ -160,7 +161,7 @@
     <!-- 工作列 -->
     <div id="taskbar">
       <div class="start-btn" id="start-btn">
-        <img id="start-icon" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="22" style="filter: brightness(0) invert(1);" alt="Start">
+        <img id="start-icon" src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" width="22" alt="Start">
       </div>
       <div class="taskbar-apps" id="taskbar-apps"></div>
       <div class="system-tray">
@@ -190,9 +191,9 @@
       <div class="start-tiles" id="start-tiles"></div>
     </div>
 
-    <!-- ==========================================================================
-         3. 應用程式視窗集合
-         ========================================================================== -->
+    <!-- ==========================================
+         3. 應用程式視窗集合 (全部原生運作)
+         ========================================== -->
     
     <!-- APP: Settings (系統設定) -->
     <div class="window" id="app-settings" style="width: 820px; height: 560px;">
@@ -212,7 +213,7 @@
           <div class="set-nav-item" data-tab="set-about" data-i18n="tab_about">ℹ️ 系統資訊</div>
         </div>
         <div class="settings-main">
-          <!-- 佈景主題分頁 -->
+          <!-- 佈景主題 -->
           <div id="set-theme" style="display:block;">
             <h2 data-i18n="theme_title">外觀與個人化</h2>
             <div class="set-group">
@@ -233,7 +234,7 @@
             </div>
           </div>
 
-          <!-- 帳戶管理分頁 -->
+          <!-- 帳戶管理 -->
           <div id="set-account" style="display:none;">
             <h2 data-i18n="acc_title">安全性與帳戶</h2>
             
@@ -265,7 +266,7 @@
             <button class="set-btn" style="background:#dc3545; color:white; margin-top:20px; display:block;" id="btn-reset" data-i18n="reset">還原原廠設定 (危險)</button>
           </div>
 
-          <!-- 語言切換分頁 -->
+          <!-- 語言切換 -->
           <div id="set-lang" style="display:none;">
             <h2>System Language / 語言設定</h2>
             <div class="set-group">
@@ -274,12 +275,13 @@
             </div>
           </div>
 
-          <!-- 系統資訊與版權宣告 -->
+          <!-- 關於與版權 -->
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v10.0 (Full Kernel & Interactive Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12</p>
+              <p>Version: Project Horizon v11.0 (Full Kernel & Interactive Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
+
 Copyright (c) 2026 iAnyFeature
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -293,14 +295,19 @@ The above copyright notice and this permission notice shall be included in all
 copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.</pre>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- APP: App Store (開源應用程式社群) -->
+    <!-- APP: App Store -->
     <div class="window" id="app-store" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-store">
         <div class="title-text" data-i18n="store">App Store</div>
@@ -316,7 +323,7 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
       </div>
     </div>
 
-    <!-- APP: User Guide (100% 完整收錄使用手冊) -->
+    <!-- APP: User Guide (100% 完整收錄) -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
@@ -335,7 +342,6 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
           <div class="guide-nav-item" data-tab="guide-license">📜 版權與授權條款</div>
         </div>
         <div class="guide-main">
-          <!-- 1. 系統介紹 -->
           <div id="guide-intro" class="guide-section" style="display:block;">
             <h2>歡迎使用 WebOS Project Horizon</h2>
             <p>這是一個基於純瀏覽器環境構建的高效仿真實作業系統，完全兼容於 GitHub Pages。本系統支援 Windows 10、macOS 15 及 Ubuntu 22 三大桌面環境風格隨時切換，全系統徹底封鎖商業內購與商城付費行為。</p>
@@ -344,13 +350,13 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
               <ul>
                 <li><strong>雙階段真實開機</strong>：模擬 BIOS POST 自檢程序與 Linux/NT 核心日誌急速載入。</li>
                 <li><strong>觸控螢幕原生支援</strong>：完整重構視窗驅動，支援 iPad / iPhone 手指單擊開啟圖示、順滑拖曳視窗與右下角放大縮小。</li>
+                <li><strong>真實樹狀檔案系統 (VFS)</strong>：具備完整的 <code>C:\System</code>、<code>C:\Apps</code> 資料夾架構，包含系統代碼與版權檔案。</li>
                 <li><strong>跨裝置雲端同步</strong>：新註冊帳戶自動同步至雲端，任何其他造訪此網站的裝置皆能即時讀取。</li>
                 <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 代理隧道繞過 MDM 限制。</li>
               </ul>
             </div>
           </div>
 
-          <!-- 2. CMD 指令大全 -->
           <div id="guide-cmd" class="guide-section" style="display:none;">
             <h2>命令提示字元 (Command Prompt) 完全手冊</h2>
             <p>本系統之命令提示字元具備真實虛擬目錄樹狀結構、指令歷史紀錄 (鍵盤 ↑ / ↓ 鍵回顧) 與輸出重定向功能：</p>
@@ -359,10 +365,10 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
               <tbody>
                 <tr><td><code>help</code></td><td>列出所有內建支援之指令清單與語法</td><td><code>help</code></td></tr>
                 <tr><td><code>dir</code> / <code>ls</code></td><td>顯示當前工作目錄的檔案清單與佔用容量</td><td><code>dir</code></td></tr>
-                <tr><td><code>cd [路徑]</code></td><td>變更當前工作目錄 (支援 <code>..</code> 與 <code>\</code>)</td><td><code>cd Documents</code></td></tr>
+                <tr><td><code>cd [路徑]</code></td><td>變更當前工作目錄 (支援 <code>..</code> 與 <code>\</code>)</td><td><code>cd System</code></td></tr>
                 <tr><td><code>md [名稱]</code></td><td>在虛擬檔案系統建立新目錄</td><td><code>mkdir Projects</code></td></tr>
                 <tr><td><code>echo [內容] &gt; [檔名]</code></td><td>建立檔案或將文字輸出重定向至指定檔案</td><td><code>echo WebOS &gt; test.txt</code></td></tr>
-                <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type README.txt</code></td></tr>
+                <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type copyright.txt</code></td></tr>
                 <tr><td><code>del [檔案名]</code></td><td>刪除虛擬檔案系統中的指定檔案</td><td><code>del test.txt</code></td></tr>
                 <tr><td><code>color [代碼]</code></td><td>變更色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
                 <tr><td><code>cls</code> / <code>clear</code></td><td>清除終端機螢幕上所有文字紀錄</td><td><code>cls</code></td></tr>
@@ -373,7 +379,6 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
             </table>
           </div>
 
-          <!-- 3. MDM Bypass -->
           <div id="guide-mdm" class="guide-section" style="display:none;">
             <h2>WebKit MDM Bypass 運作原理解析</h2>
             <div class="guide-callout">
@@ -389,18 +394,18 @@ IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
             <p>系統會自動將目標網址打包並重定向至 Google Web Translation 代理伺服器（<code>translate.google.com/translate?...</code>）。由於校園或企業網絡通常將 Google 網域列入安全白名單，連線請求會由 Google 伺服器代理抓取目標網頁並轉譯返回，從而繞過設備端的直接連線限制。</p>
           </div>
 
-          <!-- 4. 內建應用特色 -->
           <div id="guide-apps" class="guide-section" style="display:none;">
             <h2>內建應用程式特色</h2>
             <ul>
               <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、完整調色盤以及匯出 PNG 圖檔功能。</li>
               <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需後端伺服器即可直接在瀏覽器本地直譯執行標準 Python 3 語法與演算法。</li>
               <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
-              <li><strong>檔案總管 (VFS)</strong>：支援本地文字檔案建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
+              <li><strong>音效合成器 (Audio Synth)</strong>：利用 HTML5 Web Audio API 本地即時產生電子音階。</li>
+              <li><strong>碼錶計時器 (Stopwatch)</strong>：精準毫秒計時、支援計圈 (Laps)。</li>
+              <li><strong>檔案總管 (VFS)</strong>：支援樹狀目錄瀏覽、文字建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
             </ul>
           </div>
 
-          <!-- 5. 版權與授權條款 -->
           <div id="guide-license" class="guide-section" style="display:none;">
             <h2>版權條款 (License)</h2>
             <pre class="license-box">MIT License
@@ -429,7 +434,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: File Explorer (虛擬檔案系統 VFS) -->
+    <!-- APP: File Explorer (真實樹狀檔案總管) -->
     <div class="window" id="app-explorer" style="width: 800px; height: 550px;">
       <div class="title-bar" data-win="app-explorer">
         <div class="title-text" data-i18n="file_explorer">檔案總管</div>
@@ -441,7 +446,10 @@ SOFTWARE.</pre>
       </div>
       <div class="window-content" style="background: var(--set-body-bg);">
         <div class="fs-toolbar">
+          <button class="fs-btn" id="fs-btn-back">⬆ 上一層</button>
+          <span id="fs-current-path" style="font-size:13px; font-weight:bold; color:var(--set-text); margin:0 10px;">C:\</span>
           <button class="fs-btn" id="fs-btn-new" data-i18n="fs_new">新增文字檔</button>
+          <button class="fs-btn" id="fs-btn-new-dir">新增資料夾</button>
           <button class="fs-btn" id="fs-btn-up" data-i18n="fs_upload">上傳檔案</button>
           <button class="fs-btn" style="background:#dc3545;" id="fs-btn-clear" data-i18n="fs_clear">格式化</button>
           <input type="file" id="fs-upload" style="display:none;">
@@ -450,7 +458,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: Python IDE (Brython 本地直譯器) -->
+    <!-- APP: Python IDE -->
     <div class="window" id="app-python" style="width: 900px; height: 650px;">
       <div class="title-bar" data-win="app-python">
         <div class="title-text">Python IDE (Brython Engine)</div>
@@ -500,7 +508,7 @@ engine.simulate(30)
         Microsoft Windows [版本 10.0.19045.3086]<br>(c) Microsoft Corporation. 著作權所有，並保留一切權利。<br><br>
         <div id="term-output"></div>
         <div class="term-input-row">
-          <span id="term-prompt" style="color:#ffffff; margin-right:6px; white-space:nowrap;">C:\Users\Admin&gt;</span>
+          <span id="term-prompt" style="color:#ffffff; margin-right:6px; white-space:nowrap;">C:\&gt;</span>
           <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false">
         </div>
       </div>
@@ -536,7 +544,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Edge Browser (預設 Google + MDM Proxy) -->
+    <!-- APP: Edge Browser -->
     <div class="window" id="app-browser" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-browser">
         <div class="title-text">Edge Browser</div>
@@ -560,7 +568,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Paint (支援觸控繪圖的小畫家) -->
+    <!-- APP: Paint (觸控極致強化小畫家) -->
     <div class="window" id="app-paint" style="width: 800px; height: 580px;">
       <div class="title-bar" data-win="app-paint">
         <div class="title-text" data-i18n="paint">小畫家 (Paint)</div>
@@ -586,7 +594,7 @@ engine.simulate(30)
       </div>
     </div>
     
-    <!-- APP: Calculator (計算機) -->
+    <!-- APP: Calculator -->
     <div class="window" id="app-calc" style="width: 320px; height: 480px;">
       <div class="title-bar" data-win="app-calc">
         <div class="title-text" data-i18n="calc">計算機</div>
@@ -600,7 +608,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Notepad (記事本) -->
+    <!-- APP: Notepad -->
     <div class="window" id="app-notepad" style="width: 600px; height: 450px;">
       <div class="title-bar" data-win="app-notepad">
         <div class="title-text" data-i18n="notepad">記事本 (Auto-Save)</div>
@@ -612,6 +620,48 @@ engine.simulate(30)
       </div>
       <div class="window-content">
         <textarea id="np-text" spellcheck="false"></textarea>
+      </div>
+    </div>
+
+    <!-- APP: Stopwatch (新增碼錶應用) -->
+    <div class="window" id="app-clock" style="width: 400px; height: 450px;">
+      <div class="title-bar" data-win="app-clock">
+        <div class="title-text">碼錶計時器 (Stopwatch)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+        </div>
+      </div>
+      <div class="window-content" style="background:#1e1e1e; color:white; display:flex; flex-direction:column; align-items:center; padding:20px;">
+        <div id="sw-display" style="font-size:52px; font-family:'Consolas', monospace; margin:20px 0;">00:00.00</div>
+        <div style="display:flex; gap:10px;">
+          <button class="set-btn primary" id="sw-start-btn">開始 (Start)</button>
+          <button class="set-btn" id="sw-lap-btn">計圈 (Lap)</button>
+          <button class="set-btn" id="sw-reset-btn">重設 (Reset)</button>
+        </div>
+        <div id="sw-laps" style="flex:1; width:100%; overflow-y:auto; margin-top:20px; font-size:13px; border-top:1px solid #333; padding-top:10px;"></div>
+      </div>
+    </div>
+
+    <!-- APP: Audio Synth (新增音效合成器) -->
+    <div class="window" id="app-synth" style="width: 450px; height: 350px;">
+      <div class="title-bar" data-win="app-synth">
+        <div class="title-text">音效播放器 (Audio Synth)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+        </div>
+      </div>
+      <div class="window-content" style="background:#2d2d2d; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
+        <h3 style="margin-top:0;">Web Audio 琴鍵合成器</h3>
+        <p style="font-size:13px; color:#aaa;">點擊琴鍵以即時產生純電子正弦音階：</p>
+        <div style="display:flex; gap:8px; margin-top:10px;">
+          <button class="set-btn" onclick="playTone(261.63)">Do (C4)</button>
+          <button class="set-btn" onclick="playTone(293.66)">Re (D4)</button>
+          <button class="set-btn" onclick="playTone(329.63)">Mi (E4)</button>
+          <button class="set-btn" onclick="playTone(349.23)">Fa (F4)</button>
+          <button class="set-btn" onclick="playTone(392.00)">So (G4)</button>
+          <button class="set-btn" onclick="playTone(440.00)">La (A4)</button>
+          <button class="set-btn" onclick="playTone(493.88)">Ti (B4)</button>
+        </div>
       </div>
     </div>
 
