@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WebOS - Project Horizon Ultimate</title>
   <link rel="stylesheet" href="style.css">
-  <!-- 引入 Brython 引擎以在瀏覽器本地執行真實 Python 3.12 -->
+  <!-- Brython Python 3.12 執行引擎 -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.js"></script>
 </head>
@@ -41,16 +41,16 @@
   </script>
 
   <!-- ==========================================
-       1. 系統開機流程 (BIOS -> Linux Kernel -> Red GUI -> Lock)
+       1. 系統開機流程 (BIOS -> Kernel -> Red GUI -> Lock)
        ========================================== -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- Stage 1: BIOS POST -->
-  <div id="bios-screen" class="sys-screen">
+  <!-- Stage 1: BIOS 自檢畫面 -->
+  <div id="bios-screen" class="sys-screen" style="display:flex;">
     <div id="bios-text"></div>
   </div>
 
-  <!-- Stage 2: Linux-like Kernel Boot Text (保證滾動顯示) -->
+  <!-- Stage 2: Linux-like 內核啟動滾動畫面 (優先預備在 DOM) -->
   <div id="kernel-screen" class="sys-screen">
     <div id="kernel-text"></div>
   </div>
@@ -67,10 +67,9 @@
   </div>
 
   <!-- Stage 4: 鎖定與登入介面 -->
-  <div id="lock-screen" class="sys-screen" style="display:none;">
+  <div id="lock-screen" class="sys-screen">
     <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
     
-    <!-- 說明彈出視窗 -->
     <div id="lock-help-modal">
       <div class="help-header">
         <span>📖 WebOS 新手快速指南 (Help)</span>
@@ -92,13 +91,11 @@
       </div>
     </div>
 
-    <!-- 鎖定畫面大時鐘 -->
     <div id="lock-time-view">
       <div class="lock-time" id="lock-huge-time">00:00</div>
       <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
     </div>
     
-    <!-- 登入卡片容器 -->
     <div id="login-view">
       <div class="login-box">
         <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
@@ -109,7 +106,6 @@
         </div>
         <div id="login-err">密碼錯誤。</div>
         
-        <!-- 切換使用者選單 -->
         <div id="user-switch-bar">
           <label style="font-size:13px; color:#ffffff; margin-right:8px; text-shadow:1px 1px 3px rgba(0,0,0,0.8);">切換帳戶:</label>
           <select id="user-select-list"></select>
@@ -269,7 +265,7 @@
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v12.0 (Windows 10 Explorer & Kernel Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
+              <p>Version: Project Horizon v13.0 (Windows 10 Explorer & Real Kernel Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -435,7 +431,6 @@ SOFTWARE.</pre>
         </div>
       </div>
       <div class="window-content win10-explorer">
-        <!-- Win10 Ribbon 工具列 -->
         <div class="win10-ribbon">
           <div class="ribbon-tabs">
             <span class="ribbon-tab active">常用 (Home)</span>
@@ -451,7 +446,6 @@ SOFTWARE.</pre>
           </div>
         </div>
 
-        <!-- Win10 地址列與導航列 -->
         <div class="win10-nav-bar">
           <button class="nav-arrow-btn" id="fs-btn-back" title="上一頁">⬅</button>
           <button class="nav-arrow-btn" id="fs-btn-up-dir" title="往上一層">⬆</button>
@@ -464,9 +458,7 @@ SOFTWARE.</pre>
           </div>
         </div>
 
-        <!-- 檔案總管主畫面 (左側導覽欄 + 右側檔案區) -->
         <div class="win10-exp-body">
-          <!-- 左側導覽窗格 (Navigation Pane) -->
           <div class="win10-sidebar">
             <div class="side-group-title">⭐ 快速存取</div>
             <div class="side-item" onclick="navigateVFS(['C:', 'Users', 'Admin', 'Documents'])">📄 文件 (Documents)</div>
@@ -478,13 +470,11 @@ SOFTWARE.</pre>
             <div class="side-item sub" onclick="navigateVFS(['C:', 'Users'])">📁 Users</div>
           </div>
 
-          <!-- 右側檔案列表 -->
           <div class="win10-content-pane">
             <div class="fs-grid" id="fs-grid"></div>
           </div>
         </div>
 
-        <!-- 底部狀態列 -->
         <div class="win10-status-bar">
           <span id="fs-status-count">0 個項目</span>
           <span style="float:right;">狀態: 虛擬檔案系統運作正常</span>
