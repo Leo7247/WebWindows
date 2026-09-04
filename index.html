@@ -11,7 +11,7 @@
 </head>
 <body class="theme-win10" onload="brython()" oncontextmenu="return false;">
 
-  <!-- Python 引擎橋接代碼 (完全保留) -->
+  <!-- Python 引擎橋接代碼 -->
   <script type="text/python">
     import sys
     from browser import document
@@ -41,22 +41,22 @@
   </script>
 
   <!-- ==========================================
-       1. 系統開機層 (BIOS -> Kernel Logs -> Red Windows GUI -> Lock Screen)
+       1. 系統開機流程 (BIOS -> Linux Kernel -> Red GUI -> Lock)
        ========================================== -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- Stage 1: BIOS 自檢畫面 -->
-  <div id="bios-screen" class="sys-screen" style="background: black;">
+  <!-- Stage 1: BIOS POST -->
+  <div id="bios-screen" class="sys-screen">
     <div id="bios-text"></div>
   </div>
 
-  <!-- Stage 2: 內核啟動滾動日誌 (Kernel Boot Text) -->
-  <div id="kernel-screen" class="sys-screen" style="background: black; overflow: hidden;">
-    <div id="kernel-text" style="padding: 20px; font-family: 'Consolas', monospace; font-size: 13px; color: #00ff66; line-height: 1.45;"></div>
+  <!-- Stage 2: Linux-like Kernel Boot Text (保證滾動顯示) -->
+  <div id="kernel-screen" class="sys-screen">
+    <div id="kernel-text"></div>
   </div>
 
   <!-- Stage 3: GUI 開機載入 (指定紅色 Windows Logo) -->
-  <div id="boot-screen" class="sys-screen" style="background: black;">
+  <div id="boot-screen" class="sys-screen">
     <img src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" 
          id="boot-logo" 
          width="120" 
@@ -68,7 +68,6 @@
 
   <!-- Stage 4: 鎖定與登入介面 -->
   <div id="lock-screen" class="sys-screen" style="display:none;">
-    <!-- 鎖定畫面右上角說明按鈕 -->
     <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
     
     <!-- 說明彈出視窗 -->
@@ -87,7 +86,7 @@
            • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
         <h4>3. 系統核心功能</h4>
         <p>• <strong>原生觸控螢幕支援</strong>：支援 iPad 點擊圖示開啟 App、拖曳標題列及拖曳右下角自由縮放視窗。<br>
-           • <strong>真實檔案系統架構</strong>：內建 <code>C:\System</code>、<code>C:\Apps</code>，可檢視原始代碼及 MIT 版權聲明。<br>
+           • <strong>Windows 10 風格檔案總管</strong>：具備 Ribbon 工具列、左側本機樹狀導覽欄、階層路徑列及即時檔案操作。<br>
            • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD)、音樂合成器、碼錶及 WebKit MDM Bypass 瀏覽器。<br>
            • 可在「設定」中即時切換 Windows 10、macOS 15 及 Ubuntu 22 三大介面風格！</p>
       </div>
@@ -145,12 +144,11 @@
   </div>
 
   <!-- ==========================================
-       2. 桌面工作區與工作列
+       2. 桌面環境與工作列
        ========================================== -->
   <div id="desktop">
     <div class="desktop-icons" id="desktop-icons"></div>
 
-    <!-- 桌面右鍵快顯選單 -->
     <div id="context-menu">
       <div class="cm-item" id="cm-refresh" data-i18n="refresh">重新整理</div>
       <div class="cm-divider"></div>
@@ -158,7 +156,6 @@
       <div class="cm-item" id="cm-fs" data-i18n="file_explorer">檔案總管</div>
     </div>
 
-    <!-- 工作列 -->
     <div id="taskbar">
       <div class="start-btn" id="start-btn">
         <img id="start-icon" src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" width="22" alt="Start">
@@ -173,7 +170,6 @@
       </div>
     </div>
     
-    <!-- 開始功能表 -->
     <div id="start-menu">
       <div class="start-sidebar">
         <div class="start-sidebar-icon" title="展開">≡</div>
@@ -192,10 +188,10 @@
     </div>
 
     <!-- ==========================================
-         3. 應用程式視窗集合 (全部原生運作)
+         3. 應用程式視窗集合
          ========================================== -->
     
-    <!-- APP: Settings (系統設定) -->
+    <!-- APP: Settings -->
     <div class="window" id="app-settings" style="width: 820px; height: 560px;">
       <div class="title-bar" data-win="app-settings">
         <div class="title-text" data-i18n="settings">系統設定 (Settings)</div>
@@ -213,7 +209,6 @@
           <div class="set-nav-item" data-tab="set-about" data-i18n="tab_about">ℹ️ 系統資訊</div>
         </div>
         <div class="settings-main">
-          <!-- 佈景主題 -->
           <div id="set-theme" style="display:block;">
             <h2 data-i18n="theme_title">外觀與個人化</h2>
             <div class="set-group">
@@ -234,10 +229,8 @@
             </div>
           </div>
 
-          <!-- 帳戶管理 -->
           <div id="set-account" style="display:none;">
             <h2 data-i18n="acc_title">安全性與帳戶</h2>
-            
             <div class="set-group">
               <label>目前登入名稱</label>
               <input type="text" id="set-username">
@@ -252,7 +245,6 @@
             </div>
             <button class="set-btn primary" id="btn-save-acc">更新目前帳戶資料</button>
 
-            <!-- 跨裝置雲端建立帳號區塊 -->
             <hr style="margin: 30px 0; border: 0; border-top: 1px solid #dddddd;">
             <div class="set-group" style="border: 2px dashed var(--win-blue); padding: 18px; border-radius: 8px;">
               <h3 style="margin-top:0; color:var(--win-blue);">➕ 新增使用者帳號 (雲端即時同步)</h3>
@@ -266,7 +258,6 @@
             <button class="set-btn" style="background:#dc3545; color:white; margin-top:20px; display:block;" id="btn-reset" data-i18n="reset">還原原廠設定 (危險)</button>
           </div>
 
-          <!-- 語言切換 -->
           <div id="set-lang" style="display:none;">
             <h2>System Language / 語言設定</h2>
             <div class="set-group">
@@ -275,11 +266,10 @@
             </div>
           </div>
 
-          <!-- 關於與版權 -->
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v11.0 (Full Kernel & Interactive Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
+              <p>Version: Project Horizon v12.0 (Windows 10 Explorer & Kernel Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -323,7 +313,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: User Guide (100% 完整收錄) -->
+    <!-- APP: User Guide -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
@@ -350,7 +340,7 @@ SOFTWARE.</pre>
               <ul>
                 <li><strong>雙階段真實開機</strong>：模擬 BIOS POST 自檢程序與 Linux/NT 核心日誌急速載入。</li>
                 <li><strong>觸控螢幕原生支援</strong>：完整重構視窗驅動，支援 iPad / iPhone 手指單擊開啟圖示、順滑拖曳視窗與右下角放大縮小。</li>
-                <li><strong>真實樹狀檔案系統 (VFS)</strong>：具備完整的 <code>C:\System</code>、<code>C:\Apps</code> 資料夾架構，包含系統代碼與版權檔案。</li>
+                <li><strong>真實 Windows 10 檔案總管</strong>：配備 Ribbon 選單、左側導覽欄、路徑階層列與真實目錄架構。</li>
                 <li><strong>跨裝置雲端同步</strong>：新註冊帳戶自動同步至雲端，任何其他造訪此網站的裝置皆能即時讀取。</li>
                 <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 代理隧道繞過 MDM 限制。</li>
               </ul>
@@ -402,7 +392,7 @@ SOFTWARE.</pre>
               <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
               <li><strong>音效合成器 (Audio Synth)</strong>：利用 HTML5 Web Audio API 本地即時產生電子音階。</li>
               <li><strong>碼錶計時器 (Stopwatch)</strong>：精準毫秒計時、支援計圈 (Laps)。</li>
-              <li><strong>檔案總管 (VFS)</strong>：支援樹狀目錄瀏覽、文字建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
+              <li><strong>檔案總管 (VFS)</strong>：Windows 10 介面、樹狀目錄瀏覽、文字建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
             </ul>
           </div>
 
@@ -434,27 +424,71 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: File Explorer (真實樹狀檔案總管) -->
-    <div class="window" id="app-explorer" style="width: 800px; height: 550px;">
+    <!-- APP: File Explorer (Windows 10 風格檔案總管) -->
+    <div class="window" id="app-explorer" style="width: 860px; height: 580px;">
       <div class="title-bar" data-win="app-explorer">
-        <div class="title-text" data-i18n="file_explorer">檔案總管</div>
+        <div class="title-text" data-i18n="file_explorer">檔案總管 (File Explorer)</div>
         <div class="window-controls">
           <div class="ctrl-btn close">✕</div>
           <div class="ctrl-btn max">□</div>
           <div class="ctrl-btn min">─</div>
         </div>
       </div>
-      <div class="window-content" style="background: var(--set-body-bg);">
-        <div class="fs-toolbar">
-          <button class="fs-btn" id="fs-btn-back">⬆ 上一層</button>
-          <span id="fs-current-path" style="font-size:13px; font-weight:bold; color:var(--set-text); margin:0 10px;">C:\</span>
-          <button class="fs-btn" id="fs-btn-new" data-i18n="fs_new">新增文字檔</button>
-          <button class="fs-btn" id="fs-btn-new-dir">新增資料夾</button>
-          <button class="fs-btn" id="fs-btn-up" data-i18n="fs_upload">上傳檔案</button>
-          <button class="fs-btn" style="background:#dc3545;" id="fs-btn-clear" data-i18n="fs_clear">格式化</button>
-          <input type="file" id="fs-upload" style="display:none;">
+      <div class="window-content win10-explorer">
+        <!-- Win10 Ribbon 工具列 -->
+        <div class="win10-ribbon">
+          <div class="ribbon-tabs">
+            <span class="ribbon-tab active">常用 (Home)</span>
+            <span class="ribbon-tab">共用 (Share)</span>
+            <span class="ribbon-tab">檢視 (View)</span>
+          </div>
+          <div class="ribbon-actions">
+            <button class="ribbon-btn" id="fs-btn-new">📄 新增檔案</button>
+            <button class="ribbon-btn" id="fs-btn-new-dir">📁 新增資料夾</button>
+            <button class="ribbon-btn" id="fs-btn-up">⬆️ 上傳檔案</button>
+            <button class="ribbon-btn" id="fs-btn-clear" style="color:#d9534f;">🗑️ 格式化磁碟</button>
+            <input type="file" id="fs-upload" style="display:none;">
+          </div>
         </div>
-        <div class="fs-grid" id="fs-grid"></div>
+
+        <!-- Win10 地址列與導航列 -->
+        <div class="win10-nav-bar">
+          <button class="nav-arrow-btn" id="fs-btn-back" title="上一頁">⬅</button>
+          <button class="nav-arrow-btn" id="fs-btn-up-dir" title="往上一層">⬆</button>
+          <div class="address-bar">
+            <span style="margin-right:6px;">🖥️ 本機 &gt;</span>
+            <span id="fs-current-path">C:\</span>
+          </div>
+          <div class="search-box">
+            <input type="text" id="fs-search-input" placeholder="搜尋檔案...">
+          </div>
+        </div>
+
+        <!-- 檔案總管主畫面 (左側導覽欄 + 右側檔案區) -->
+        <div class="win10-exp-body">
+          <!-- 左側導覽窗格 (Navigation Pane) -->
+          <div class="win10-sidebar">
+            <div class="side-group-title">⭐ 快速存取</div>
+            <div class="side-item" onclick="navigateVFS(['C:', 'Users', 'Admin', 'Documents'])">📄 文件 (Documents)</div>
+            <div class="side-item" onclick="navigateVFS(['C:', 'Apps'])">📦 應用程式 (Apps)</div>
+            <div class="side-group-title" style="margin-top:12px;">🖥️ 此電腦 (This PC)</div>
+            <div class="side-item active" onclick="navigateVFS(['C:'])">💽 本機磁碟 (C:)</div>
+            <div class="side-item sub" onclick="navigateVFS(['C:', 'System'])">📁 System (系統檔)</div>
+            <div class="side-item sub" onclick="navigateVFS(['C:', 'Apps'])">📁 Apps</div>
+            <div class="side-item sub" onclick="navigateVFS(['C:', 'Users'])">📁 Users</div>
+          </div>
+
+          <!-- 右側檔案列表 -->
+          <div class="win10-content-pane">
+            <div class="fs-grid" id="fs-grid"></div>
+          </div>
+        </div>
+
+        <!-- 底部狀態列 -->
+        <div class="win10-status-bar">
+          <span id="fs-status-count">0 個項目</span>
+          <span style="float:right;">狀態: 虛擬檔案系統運作正常</span>
+        </div>
       </div>
     </div>
 
@@ -494,7 +528,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Command Prompt (命令提示字元) -->
+    <!-- APP: Command Prompt -->
     <div class="window" id="app-cmd" style="width: 700px; height: 480px;">
       <div class="title-bar" data-win="app-cmd">
         <div class="title-text">命令提示字元 (Command Prompt)</div>
@@ -514,7 +548,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Weather (氣象中心) -->
+    <!-- APP: Weather -->
     <div class="window" id="app-weather" style="width: 450px; height: 550px;">
       <div class="title-bar" data-win="app-weather">
         <div class="title-text" data-i18n="weather">氣象中心</div>
@@ -568,7 +602,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Paint (觸控極致強化小畫家) -->
+    <!-- APP: Paint -->
     <div class="window" id="app-paint" style="width: 800px; height: 580px;">
       <div class="title-bar" data-win="app-paint">
         <div class="title-text" data-i18n="paint">小畫家 (Paint)</div>
@@ -623,7 +657,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Stopwatch (新增碼錶應用) -->
+    <!-- APP: Stopwatch -->
     <div class="window" id="app-clock" style="width: 400px; height: 450px;">
       <div class="title-bar" data-win="app-clock">
         <div class="title-text">碼錶計時器 (Stopwatch)</div>
@@ -642,7 +676,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Audio Synth (新增音效合成器) -->
+    <!-- APP: Audio Synth -->
     <div class="window" id="app-synth" style="width: 450px; height: 350px;">
       <div class="title-bar" data-win="app-synth">
         <div class="title-text">音效播放器 (Audio Synth)</div>
@@ -653,7 +687,7 @@ engine.simulate(30)
       <div class="window-content" style="background:#2d2d2d; color:white; display:flex; flex-direction:column; align-items:center; justify-content:center; padding:20px;">
         <h3 style="margin-top:0;">Web Audio 琴鍵合成器</h3>
         <p style="font-size:13px; color:#aaa;">點擊琴鍵以即時產生純電子正弦音階：</p>
-        <div style="display:flex; gap:8px; margin-top:10px;">
+        <div style="display:flex; gap:8px; margin-top:10px; flex-wrap:wrap; justify-content:center;">
           <button class="set-btn" onclick="playTone(261.63)">Do (C4)</button>
           <button class="set-btn" onclick="playTone(293.66)">Re (D4)</button>
           <button class="set-btn" onclick="playTone(329.63)">Mi (E4)</button>
