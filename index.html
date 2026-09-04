@@ -2,77 +2,100 @@
 <html lang="zh-HK">
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
   <title>WebOS - Project Horizon</title>
   <link rel="stylesheet" href="style.css">
+  <!-- 引入 Brython 引擎以在瀏覽器本地執行真實 Python -->
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/brython/3.12.0/brython_stdlib.js"></script>
 </head>
 <body class="theme-win10" onload="brython()" oncontextmenu="return false;">
 
-  <!-- Python 引擎橋接代碼 -->
+  <!-- ==========================================================================
+       1. PYTHON ENGINE BRIDGE (BRYTHON)
+       ========================================================================== -->
   <script type="text/python">
     import sys
     from browser import document
+
     class MyOutput:
         def write(self, data):
             document["py-output"].text += data
-        def flush(self): pass
+        def flush(self):
+            pass
+
     sys.stdout = MyOutput()
     sys.stderr = MyOutput()
 
     def run_python_code(ev):
         document["py-output"].text = ">>> Executing script...\n"
-        try: exec(document["py-code"].value, {})
-        except Exception as e: document["py-output"].text += f"\n[Error] {e}"
+        try:
+            exec(document["py-code"].value, {})
+        except Exception as e:
+            document["py-output"].text += f"\n[Error] {e}"
         document["py-output"].text += "\n\n>>> Process finished."
 
-    def clear_output(ev): document["py-output"].text = ">>> Output cleared."
+    def clear_output(ev):
+        document["py-output"].text = ">>> Output cleared."
+
     document["run-py-btn"].bind("click", run_python_code)
     document["clear-py-btn"].bind("click", clear_output)
   </script>
 
-  <!-- 系統畫面 -->
+  <!-- ==========================================================================
+       2. SYSTEM OVERLAYS (BOOT, LOCK, LOGIN, ONBOARDING)
+       ========================================================================== -->
+
+  <!-- 黑屏遮罩 (供關機/重新開機使用) -->
   <div id="black-screen" class="sys-screen"></div>
-  <div id="bios-screen" class="sys-screen" style="background: black;"><div id="bios-text"></div></div>
+
+  <!-- BIOS POST 開機自檢畫面 -->
+  <div id="bios-screen" class="sys-screen" style="background: black;">
+    <div id="bios-text"></div>
+  </div>
+
+  <!-- 作業系統載入畫面 -->
   <div id="boot-screen" class="sys-screen" style="background: black;">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" id="boot-logo" width="80">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" id="boot-logo" width="80" alt="OS Logo">
     <div class="spinner"></div>
   </div>
 
   <!-- 鎖定與登入畫面 -->
   <div id="lock-screen" class="sys-screen" style="display:none;">
-    <!-- 右上角 Help 按鈕 -->
+    <!-- 鎖定畫面右上角說明按鈕 -->
     <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
     
-    <!-- Help 彈出說明框 -->
+    <!-- 說明彈出視窗 -->
     <div id="lock-help-modal">
       <div class="help-header">
         <span>📖 WebOS 新手快速指南 (Help)</span>
-        <span id="close-help-btn" style="cursor:pointer; font-weight:bold;">✕</span>
+        <span id="close-help-btn" style="cursor:pointer; font-weight:bold; font-size:18px;">✕</span>
       </div>
       <div class="help-content">
         <h4>1. 如何開始使用及建立帳號？</h4>
-        <p>• 預設擁有一個名為 <strong>「User」</strong> 的訪客帳戶，<strong>無需密碼</strong>。<br>
-           • 點擊畫面任意處進入登入頁，選擇「User」並直接點擊箭頭 ➔ 登入。<br>
-           • 系統會自動彈出註冊視窗，填寫你的自訂名稱與密碼（必填），系統便會為你建立專屬帳戶並自動同步至雲端，所有造訪本站的人都能看到！</p>
-        <h4>2. 現有帳戶</h4>
-        <p>• <strong>Admin</strong>: 預設管理員（預設密碼為 <code>J45F</code>）。</p>
-        <h4>3. 系統特色</h4>
-        <p>• 支援視窗邊緣拖曳自由縮放大小 (Resizing)。<br>
-           • 內建 Python IDE、真實小畫家、檔案總管與 WebKit MDM Bypass 瀏覽器。<br>
-           • 可在「設定」中即時更換 Windows 10、macOS 15 及 Ubuntu 22 介面風格！</p>
+        <p>• 預設提供名為 <strong>「User」</strong> 的訪客帳戶，<strong>無需密碼</strong>。<br>
+           • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
+           • 登入後系統會自動彈出註冊介面，輸入新名稱與密碼（必填），系統便會為你建立專屬帳戶並同步至雲端，其他 iPad 或電腦瀏覽本站皆可看見！</p>
+        <h4>2. 現有預設帳戶</h4>
+        <p>• <strong>User</strong>: 訪客專用帳號（無密碼，僅供註冊新帳號）。<br>
+           • <strong>Admin</strong>: 預設系統管理員（預設密碼為 <code>J45F</code>）。</p>
+        <h4>3. 系統核心功能</h4>
+        <p>• 支援 iPad 觸控或滑鼠拖曳視窗邊框進行自由縮放 (Resizing)。<br>
+           • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD) 及 WebKit MDM Bypass 瀏覽器。<br>
+           • 在「設定」中可即時切換 Windows 10、macOS 15 及 Ubuntu 22 介面風格！</p>
       </div>
     </div>
 
+    <!-- 鎖定畫面大時鐘 (點擊向上滑動) -->
     <div id="lock-time-view">
       <div class="lock-time" id="lock-huge-time">00:00</div>
       <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
     </div>
     
+    <!-- 登入卡片容器 -->
     <div id="login-view">
       <div class="login-box">
-        <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png">
+        <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
         <h2 id="login-user-name">User</h2>
         <div class="login-input-group" id="login-input-box">
           <input type="password" id="login-pw" placeholder="請輸入密碼 (User 無需密碼)">
@@ -80,25 +103,25 @@
         </div>
         <div id="login-err">密碼錯誤。</div>
         
-        <!-- 切換使用者清單 -->
+        <!-- 切換使用者下拉選單 -->
         <div id="user-switch-bar">
-          <label style="font-size:12px; color:#ddd; margin-right:5px;">切換使用者:</label>
+          <label style="font-size:13px; color:#ffffff; margin-right:8px; text-shadow:1px 1px 3px rgba(0,0,0,0.8);">切換帳戶:</label>
           <select id="user-select-list"></select>
         </div>
 
-        <button id="login-cancel">返回</button>
+        <button id="login-cancel">返回鎖定畫面</button>
       </div>
     </div>
   </div>
 
-  <!-- 強制建立新帳號彈窗 (專供 User 帳戶首次登入) -->
+  <!-- User 帳號首次登入強制引導彈窗 (完成後自動登出並同步到雲端) -->
   <div id="onboarding-modal" class="modal-overlay" style="display:none;">
     <div class="modal-box">
       <h2 style="margin-top:0; color:#0078D7;">👋 歡迎使用 WebOS！</h2>
-      <p style="color:#555; font-size:14px;">你目前正以訪客 <strong>「User」</strong> 身份登入。請先建立你專屬的個人帳戶，完成後將自動同步至伺服器供所有訪客查看！</p>
-      <hr style="border:0; border-top:1px solid #eee; margin:15px 0;">
+      <p style="color:#555555; font-size:14px; line-height:1.5;">你目前正以訪客 <strong>「User」</strong> 身份登入。請先建立你專屬的個人帳戶，完成後將自動同步至伺服器，讓你在其他裝置上也能隨時登入！</p>
+      <hr style="border:0; border-top:1px solid #eeeeee; margin:15px 0;">
       <div class="form-group">
-        <label>新使用者名稱 (Username) *</label>
+        <label>新使用者名稱 (Username) * [必填]</label>
         <input type="text" id="ob-username" placeholder="例如: Alex / Developer">
       </div>
       <div class="form-group">
@@ -106,19 +129,22 @@
         <input type="password" id="ob-password" placeholder="請設定個人密碼">
       </div>
       <div class="form-group">
-        <label>頭像圖片 URL (可選)</label>
+        <label>頭像圖片 URL (可留空)</label>
         <input type="text" id="ob-avatar" placeholder="https://...">
       </div>
-      <div id="ob-error" style="color:red; font-size:13px; margin-bottom:10px; display:none;">請完整填寫名稱及密碼！</div>
-      <button class="set-btn primary" id="ob-submit-btn" style="width:100%; padding:12px; font-size:15px;">建立帳戶並登出 ➔</button>
+      <div id="ob-error" style="color:#dc3545; font-size:13px; margin-bottom:12px; display:none; font-weight:bold;">請完整填寫名稱及密碼！</div>
+      <button class="set-btn primary" id="ob-submit-btn" style="width:100%; padding:12px; font-size:15px;">建立帳戶並自動登出 ➔</button>
     </div>
   </div>
 
-  <!-- 桌面環境 -->
+  <!-- ==========================================================================
+       3. DESKTOP WORKSPACE & TASKBAR
+       ========================================================================== -->
   <div id="desktop">
+    <!-- 桌面圖示容器 -->
     <div class="desktop-icons" id="desktop-icons"></div>
 
-    <!-- 右鍵選單 -->
+    <!-- 桌面右鍵快顯選單 -->
     <div id="context-menu">
       <div class="cm-item" id="cm-refresh" data-i18n="refresh">重新整理</div>
       <div class="cm-divider"></div>
@@ -126,10 +152,10 @@
       <div class="cm-item" id="cm-fs" data-i18n="file_explorer">檔案總管</div>
     </div>
 
-    <!-- 工作列 -->
+    <!-- 底部/懸浮工作列 -->
     <div id="taskbar">
       <div class="start-btn" id="start-btn">
-        <img id="start-icon" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="22" style="filter: brightness(0) invert(1);">
+        <img id="start-icon" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="22" style="filter: brightness(0) invert(1);" alt="Start">
       </div>
       <div class="taskbar-apps" id="taskbar-apps"></div>
       <div class="system-tray">
@@ -144,11 +170,12 @@
     <!-- 開始功能表 -->
     <div id="start-menu">
       <div class="start-sidebar">
-        <div class="start-sidebar-icon">≡</div>
+        <div class="start-sidebar-icon" title="展開">≡</div>
         <div style="flex:1;"></div>
-        <div class="start-sidebar-icon" id="start-acc">👤</div>
-        <div class="start-sidebar-icon" id="start-set">⚙️</div>
-        <div class="start-sidebar-icon" id="start-pwr">⏻</div>
+        <div class="start-sidebar-icon" id="start-acc" title="帳戶設定">👤</div>
+        <div class="start-sidebar-icon" id="start-set" title="系統設定">⚙️</div>
+        <div class="start-sidebar-icon" id="start-pwr" title="電源選項">⏻</div>
+        <!-- 電源選項子選單 -->
         <div id="power-menu">
           <div class="power-item" id="pwr-logout">👤 登出 / 切換使用者</div>
           <div class="power-item" id="pwr-reboot">🔄 重新啟動</div>
@@ -159,13 +186,19 @@
       <div class="start-tiles" id="start-tiles"></div>
     </div>
 
-    <!-- ================== 應用程式視窗 ================== -->
+    <!-- ==========================================================================
+         4. WINDOWS APPS COLLECTION
+         ========================================================================== -->
     
-    <!-- APP: Settings -->
-    <div class="window" id="app-settings" style="width: 800px; height: 550px;">
+    <!-- APP: Settings (系統設定) -->
+    <div class="window" id="app-settings" style="width: 820px; height: 560px;">
       <div class="title-bar" data-win="app-settings">
         <div class="title-text" data-i18n="settings">系統設定 (Settings)</div>
-        <div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
       </div>
       <div class="window-content settings-layout">
         <div class="settings-nav">
@@ -175,6 +208,7 @@
           <div class="set-nav-item" data-tab="set-about" data-i18n="tab_about">ℹ️ 系統資訊</div>
         </div>
         <div class="settings-main">
+          <!-- 佈景主題分頁 -->
           <div id="set-theme" style="display:block;">
             <h2 data-i18n="theme_title">外觀與個人化</h2>
             <div class="set-group">
@@ -194,12 +228,13 @@
               </div>
             </div>
           </div>
+
+          <!-- 帳戶管理分頁 -->
           <div id="set-account" style="display:none;">
             <h2 data-i18n="acc_title">安全性與帳戶</h2>
             
-            <!-- 目前登入帳號修改 -->
             <div class="set-group">
-              <label>目前登入使用者名稱</label>
+              <label>目前登入名稱</label>
               <input type="text" id="set-username">
             </div>
             <div class="set-group">
@@ -212,31 +247,35 @@
             </div>
             <button class="set-btn primary" id="btn-save-acc">更新目前帳戶資料</button>
 
-            <!-- ★ 新增帳號 (所有訪客可見) ★ -->
-            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #ddd;">
-            <div class="set-group" style="border: 2px dashed var(--win-blue); padding: 15px; border-radius: 8px;">
-              <h3 style="margin-top:0; color:var(--win-blue);">➕ 新增使用者帳號 (雲端公開同步)</h3>
-              <p style="font-size:13px; color:#666;">喺呢度建立嘅新帳號會即時同步到雲端數據庫，所有瀏覽呢個網頁嘅用戶均可在登入頁面看見及登入！</p>
-              <input type="text" id="new-u-name" placeholder="新帳戶名稱 *" style="margin-bottom:8px;">
-              <input type="password" id="new-u-pw" placeholder="新帳戶密碼 * [必填]" style="margin-bottom:8px;">
+            <!-- 跨裝置雲端建立帳號區塊 -->
+            <hr style="margin: 30px 0; border: 0; border-top: 1px solid #dddddd;">
+            <div class="set-group" style="border: 2px dashed var(--win-blue); padding: 18px; border-radius: 8px;">
+              <h3 style="margin-top:0; color:var(--win-blue);">➕ 新增使用者帳號 (雲端即時同步)</h3>
+              <p style="font-size:13px; color:#666666; line-height:1.5;">在此建立的新帳戶將直接推送到雲端資料庫，所有訪問本網頁的人（包括你的另一部 iPad）重新整理後皆可看見並使用該帳戶登入！</p>
+              <input type="text" id="new-u-name" placeholder="新帳戶名稱 *" style="margin-bottom:10px;">
+              <input type="password" id="new-u-pw" placeholder="新帳戶密碼 * [必填]" style="margin-bottom:10px;">
               <input type="text" id="new-u-av" placeholder="頭像圖片網址 (可留空)">
-              <button class="set-btn primary" id="btn-create-acc" style="margin-top:10px; width:100%;">確認建立新帳戶並同步</button>
+              <button class="set-btn primary" id="btn-create-acc" style="margin-top:12px; width:100%;">確認建立新帳戶並同步至雲端</button>
             </div>
 
             <button class="set-btn" style="background:#dc3545; color:white; margin-top:20px; display:block;" id="btn-reset" data-i18n="reset">還原原廠設定 (危險)</button>
           </div>
+
+          <!-- 語言切換分頁 -->
           <div id="set-lang" style="display:none;">
-            <h2>Language</h2>
+            <h2>System Language / 語言設定</h2>
             <div class="set-group">
-              <button class="set-btn primary" id="btn-lang-zh" style="margin-right:10px;">廣東話 (Cantonese)</button>
+              <button class="set-btn primary" id="btn-lang-zh" style="margin-right:12px;">廣東話 (Cantonese)</button>
               <button class="set-btn primary" id="btn-lang-en">English</button>
             </div>
           </div>
+
+          <!-- 系統資訊與版權宣告 -->
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-                <p>Version: Project Horizon v9.0<br>Engine: HTML5 DOM / Brython / Firebase Sync</p>
-                <pre class="license-box">MIT License
+              <p>Version: Project Horizon v9.8.0 (Touch & Cloud Optimized)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12</p>
+              <pre class="license-box">MIT License
 Copyright (c) 2026 iAnyFeature
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -247,27 +286,41 @@ copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
 The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.</pre>
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
             </div>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- APP: App Store -->
+    <!-- APP: App Store (開源應用程式社群) -->
     <div class="window" id="app-store" style="width: 850px; height: 600px;">
-      <div class="title-bar" data-win="app-store"><div class="title-text" data-i18n="store">App Store</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="title-bar" data-win="app-store">
+        <div class="title-text" data-i18n="store">App Store</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
       <div class="window-content" style="background: var(--set-body-bg); color: var(--set-text);">
-        <div class="store-header" data-i18n="store_desc">開源應用程式社群 (Free)</div>
+        <div class="store-header" data-i18n="store_desc">開源應用程式社群 (All Apps Free)</div>
         <div class="store-grid" id="store-grid"></div>
       </div>
     </div>
 
-    <!-- APP: User Guide -->
+    <!-- APP: User Guide (使用手冊) -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
-        <div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
       </div>
       <div class="window-content guide-layout">
         <div class="guide-nav">
@@ -278,23 +331,54 @@ copies or substantial portions of the Software.</pre>
         <div class="guide-main">
           <div id="guide-intro" class="guide-section" style="display:block;">
             <h2>歡迎使用 WebOS Project Horizon</h2>
-            <p>這是一個具備真實視窗管理、縮放拖曳、檔案管理與純淨應用的系統。不包含任何商城內購。</p>
+            <p>這是一個具備真實視窗管理、縮放拖曳、檔案管理與純淨應用的系統。全系統完全開源無商城內購。</p>
+            <div class="guide-card">
+              <h3>核心特色</h3>
+              <ul>
+                <li><strong>iPad 觸控螢幕原生支援</strong>：完整整合 Pointer Events，支援手指順滑拖曳視窗與拖動右下角放大縮小。</li>
+                <li><strong>跨裝置雲端同步</strong>：新註冊帳戶自動同步至雲端，任何其他造訪此網站的裝置皆能即時讀取。</li>
+                <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 伺服器代理隧道繞過 MDM 限制。</li>
+              </ul>
+            </div>
           </div>
           <div id="guide-cmd" class="guide-section" style="display:none;">
-            <h2>命令提示字元手冊</h2>
-            <p>支援：<code>help</code>, <code>dir</code>, <code>cd</code>, <code>mkdir</code>, <code>echo text > file.txt</code>, <code>type</code>, <code>color</code>, <code>del</code>, <code>cls</code>, <code>date</code>, <code>ver</code></p>
+            <h2>命令提示字元 (CMD) 手冊</h2>
+            <p>本系統之命令提示字元具備目錄結構、指令歷史紀錄 (↑ / ↓ 鍵) 與重定向輸出功能：</p>
+            <table class="guide-table">
+              <thead><tr><th>指令</th><th>用法說明</th><th>範例</th></tr></thead>
+              <tbody>
+                <tr><td><code>help</code></td><td>列出所有內建支援之指令清單</td><td><code>help</code></td></tr>
+                <tr><td><code>dir</code> / <code>ls</code></td><td>顯示當前工作目錄的檔案清單與大小</td><td><code>dir</code></td></tr>
+                <tr><td><code>cd [路徑]</code></td><td>變更當前工作目錄 (支援 <code>..</code> 與 <code>\</code>)</td><td><code>cd Documents</code></td></tr>
+                <tr><td><code>md [名稱]</code></td><td>在虛擬檔案系統建立新目錄</td><td><code>mkdir Projects</code></td></tr>
+                <tr><td><code>echo [內容] &gt; [檔名]</code></td><td>建立檔案或重定向文字輸出至檔案</td><td><code>echo WebOS &gt; test.txt</code></td></tr>
+                <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type README.txt</code></td></tr>
+                <tr><td><code>del [檔案名]</code></td><td>刪除虛擬檔案系統中的檔案</td><td><code>del test.txt</code></td></tr>
+                <tr><td><code>color [代碼]</code></td><td>設定色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
+                <tr><td><code>cls</code> / <code>clear</code></td><td>清除螢幕所有文字</td><td><code>cls</code></td></tr>
+                <tr><td><code>ver</code> / <code>date</code> / <code>time</code></td><td>檢視系統版本、日期或時間</td><td><code>ver</code></td></tr>
+              </tbody>
+            </table>
           </div>
           <div id="guide-mdm" class="guide-section" style="display:none;">
             <h2>MDM Bypass 運作原理</h2>
-            <p>啟用 Browser 內的 MDM Proxy，系統會透過 Google Web Translation 伺服器代理請求，繞過網域限制。</p>
+            <p>在學校或企業設備（配置有 MDM 限制設定檔）上，部分網站可能遭到 WebKit 層級攔截。</p>
+            <p>點擊瀏覽器右上方之 <strong>「MDM Proxy: OFF」</strong> 使其變為綠色 ON 狀態。系統會將目標網址重定向至 Google Web Translation 代理伺服器（<code>translate.google.com</code>）。由於大部分校園防火牆不會封鎖 Google 服務，連線請求會由 Google 伺服器代理抓取目標網頁並轉譯返回，從而繞過設備端的連線限制。</p>
           </div>
         </div>
       </div>
     </div>
 
-    <!-- APP: File Explorer (VFS) -->
+    <!-- APP: File Explorer (虛擬檔案系統 VFS) -->
     <div class="window" id="app-explorer" style="width: 800px; height: 550px;">
-      <div class="title-bar" data-win="app-explorer"><div class="title-text" data-i18n="file_explorer">檔案總管</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="title-bar" data-win="app-explorer">
+        <div class="title-text" data-i18n="file_explorer">檔案總管</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
       <div class="window-content" style="background: var(--set-body-bg);">
         <div class="fs-toolbar">
           <button class="fs-btn" id="fs-btn-new" data-i18n="fs_new">新增文字檔</button>
@@ -306,44 +390,76 @@ copies or substantial portions of the Software.</pre>
       </div>
     </div>
 
-    <!-- APP: Python IDE -->
+    <!-- APP: Python IDE (Brython 本地直譯器) -->
     <div class="window" id="app-python" style="width: 900px; height: 650px;">
-      <div class="title-bar" data-win="app-python"><div class="title-text">Python IDE (Brython)</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="title-bar" data-win="app-python">
+        <div class="title-text">Python IDE (Brython Engine)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
       <div class="window-content py-layout">
         <div class="py-toolbar">
-          <button id="run-py-btn" class="py-btn">▶ Run</button>
-          <button id="clear-py-btn" class="py-btn" style="background:#d9534f;">🗑️ Clear</button>
+          <button id="run-py-btn" class="py-btn">▶ 執行 (Run)</button>
+          <button id="clear-py-btn" class="py-btn" style="background:#d9534f;">🗑️ 清除輸出</button>
         </div>
         <div style="flex:1; display:flex;">
-          <textarea id="py-code" class="py-code" spellcheck="false">print("Welcome to Python in WebOS!")
-import math
-print("Pi =", math.pi)</textarea>
-          <pre id="py-output" class="py-output">>>> System Ready.</pre>
+          <textarea id="py-code" class="py-code" spellcheck="false"># 完全支援 Python 3 語法
+class PhysicsEngine:
+    def __init__(self, gravity):
+        self.gravity = gravity
+        print(f"物理引擎載入完成，重力係數: {self.gravity}")
+        
+    def simulate(self, frames):
+        print(f"開始運算 {frames} 個 frames...")
+        for i in range(1, frames + 1):
+            if i % 10 == 0:
+                print(f"Frame {i} 渲染完成.")
+
+engine = PhysicsEngine(9.81)
+engine.simulate(30)
+</textarea>
+          <pre id="py-output" class="py-output">>>> Python 引擎已就緒。</pre>
         </div>
       </div>
     </div>
 
-    <!-- APP: Terminal -->
+    <!-- APP: Command Prompt (命令提示字元) -->
     <div class="window" id="app-cmd" style="width: 700px; height: 480px;">
-      <div class="title-bar" data-win="app-cmd"><div class="title-text">命令提示字元 (CMD)</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="title-bar" data-win="app-cmd">
+        <div class="title-text">命令提示字元 (Command Prompt)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
       <div class="window-content term-content" id="term-container">
-        Microsoft Windows [版本 10.0.19045.3086]<br>(c) Microsoft Corporation.<br><br>
+        Microsoft Windows [版本 10.0.19045.3086]<br>(c) Microsoft Corporation. 著作權所有，並保留一切權利。<br><br>
         <div id="term-output"></div>
         <div class="term-input-row">
-          <span id="term-prompt" style="color:#fff; margin-right:5px;">C:\Users\Admin&gt;</span>
+          <span id="term-prompt" style="color:#ffffff; margin-right:6px; white-space:nowrap;">C:\Users\Admin&gt;</span>
           <input type="text" id="term-input" class="term-input" autocomplete="off" spellcheck="false">
         </div>
       </div>
     </div>
 
-    <!-- APP: Weather -->
+    <!-- APP: Weather (氣象中心) -->
     <div class="window" id="app-weather" style="width: 450px; height: 550px;">
-      <div class="title-bar" data-win="app-weather"><div class="title-text" data-i18n="weather">氣象中心</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="title-bar" data-win="app-weather">
+        <div class="title-text" data-i18n="weather">氣象中心</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
       <div class="window-content" style="background:#f5f5f5; color:black;">
         <div class="weather-bar">
           <select id="weather-city">
             <option value="22.31,114.17">香港 (Hong Kong)</option>
-            <option value="34.79,114.30">開封 (Kaifeng/Bianjing)</option>
+            <option value="34.79,114.30">開封/汴京 (Kaifeng/Bianjing)</option>
             <option value="51.50,-0.12">倫敦 (London)</option>
             <option value="35.68,139.69">東京 (Tokyo)</option>
           </select>
@@ -352,66 +468,96 @@ print("Pi =", math.pi)</textarea>
         <div class="weather-top">
           <div id="w-city" style="font-size:26px;">Region</div>
           <div class="temp-big" id="w-temp">--°</div>
-          <div id="w-desc">Fetching data...</div>
+          <div id="w-desc">衛星數據連線中...</div>
         </div>
-        <div style="padding: 20px;"><button id="w-gps" class="fs-btn" style="width:100%; padding:12px; font-size:16px;">📍 使用裝置 GPS 定位</button></div>
+        <div style="padding: 20px;">
+          <button id="w-gps" class="fs-btn" style="width:100%; padding:12px; font-size:15px;">📍 使用裝置 GPS 定位</button>
+        </div>
       </div>
     </div>
 
-    <!-- APP: Browser -->
-    <div class="window" id="app-browser" style="width: 850px; height: 600px;" onmousedown="bringToFront('app-browser')">
+    <!-- APP: Edge Browser (預設 Google + MDM Proxy) -->
+    <div class="window" id="app-browser" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-browser">
         <div class="title-text">Edge Browser</div>
-        <div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
       </div>
       <div class="window-content">
         <div class="browser-bar">
           <button id="b-back" style="border:none; background:transparent; cursor:pointer; font-size:16px;">⟵</button>
           <button id="b-reload" style="border:none; background:transparent; cursor:pointer; font-size:16px;">↻</button>
           <input type="text" id="url-input" placeholder="Search Google or type a URL..." onkeydown="if(event.key==='Enter') navBrowser()">
-          <div id="mdm-toggle-btn" class="mdm-toggle" onclick="toggleMDM()">MDM Proxy: OFF</div>
+          <div id="mdm-toggle-btn" class="mdm-toggle">MDM Proxy: OFF</div>
         </div>
         <div id="mdm-warning" style="display:none; background:#ffffcc; color:#333; font-size:12px; padding:8px; text-align:center; font-weight:bold;">
           💡 提示：如果網頁顯示「拒絕連線」，請開啟右上方之 MDM Proxy 以突破限制。
         </div>
-        <iframe class="browser" id="browser-frame" src="https://www.google.com/webhp?igu=1" style="width:100%; height:100%; border:none; background:white;"></iframe>
+        <iframe class="browser" id="browser-frame" src="https://www.google.com/webhp?igu=1"></iframe>
       </div>
     </div>
 
-    <!-- APP: Paint -->
+    <!-- APP: Paint (支援觸控繪圖的小畫家) -->
     <div class="window" id="app-paint" style="width: 800px; height: 580px;">
-      <div class="title-bar" data-win="app-paint"><div class="title-text" data-i18n="paint">小畫家 (Paint)</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
+      <div class="title-bar" data-win="app-paint">
+        <div class="title-text" data-i18n="paint">小畫家 (Paint)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
       <div class="window-content" style="display:flex; flex-direction:column; background:#f0f0f0;">
         <div class="paint-toolbar" id="paint-toolbar">
-          <button id="p-tool-pen" class="paint-tool-btn active">✏️</button>
-          <button id="p-tool-eraser" class="paint-tool-btn">🧽</button>
-          <input type="range" id="p-brush-size" min="1" max="40" value="4" style="width:60px;">
-          <input type="color" id="p-color-picker" value="#000000" style="cursor:pointer; width:30px; height:30px; padding:0; border:none;">
-          <button id="p-clear" class="paint-tool-btn">🗑️ Clear</button>
-          <button id="p-save" class="paint-tool-btn" style="background:#28a745; color:white;">💾 Save</button>
+          <button id="p-tool-pen" class="paint-tool-btn active">✏️ 畫筆</button>
+          <button id="p-tool-eraser" class="paint-tool-btn">🧽 橡皮擦</button>
+          <label style="font-size:12px; margin-left:6px;">粗幼:</label>
+          <input type="range" id="p-brush-size" min="1" max="40" value="4" style="width:70px;">
+          <input type="color" id="p-color-picker" value="#000000" style="cursor:pointer; width:32px; height:32px; padding:0; border:none;">
+          <button id="p-clear" class="paint-tool-btn">🗑️ 清除</button>
+          <button id="p-save" class="paint-tool-btn" style="background:#28a745; color:white;">💾 匯出 PNG</button>
         </div>
         <div style="flex:1; overflow:auto; display:flex; justify-content:center; align-items:center; padding:10px;">
-          <canvas id="paint-canvas" width="1200" height="800" style="background: white; box-shadow: 0 4px 10px rgba(0,0,0,0.3);"></canvas>
+          <canvas id="paint-canvas" width="1200" height="800" style="background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.25);"></canvas>
         </div>
       </div>
     </div>
     
-    <!-- APP: Calculator -->
+    <!-- APP: Calculator (計算機) -->
     <div class="window" id="app-calc" style="width: 320px; height: 480px;">
-      <div class="title-bar" data-win="app-calc"><div class="title-text" data-i18n="calc">計算機</div><div class="window-controls"><div class="ctrl-btn close">✕</div></div></div>
+      <div class="title-bar" data-win="app-calc">
+        <div class="title-text" data-i18n="calc">計算機</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+        </div>
+      </div>
       <div class="window-content" style="padding:15px; background:#f0f0f0;">
         <input type="text" id="calc-display" disabled value="0">
         <div class="calc-grid" id="calc-grid"></div>
       </div>
     </div>
 
-    <!-- APP: Notepad -->
+    <!-- APP: Notepad (記事本) -->
     <div class="window" id="app-notepad" style="width: 600px; height: 450px;">
-      <div class="title-bar" data-win="app-notepad"><div class="title-text" data-i18n="notepad">記事本</div><div class="window-controls"><div class="ctrl-btn close">✕</div><div class="ctrl-btn max">□</div><div class="ctrl-btn min">─</div></div></div>
-      <div class="window-content"><textarea id="np-text" spellcheck="false"></textarea></div>
+      <div class="title-bar" data-win="app-notepad">
+        <div class="title-text" data-i18n="notepad">記事本 (Auto-Save)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+          <div class="ctrl-btn max">□</div>
+          <div class="ctrl-btn min">─</div>
+        </div>
+      </div>
+      <div class="window-content">
+        <textarea id="np-text" spellcheck="false"></textarea>
+      </div>
     </div>
+
   </div>
 
+  <!-- 引入全系統邏輯腳本 -->
   <script src="system.js"></script>
 </body>
 </html>
