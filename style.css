@@ -119,7 +119,6 @@ html, body {
 
 /* --- BIOS POST --- */
 #bios-screen {
-  display: flex;
   flex-direction: column;
   padding: 30px;
   font-family: 'Consolas', 'Courier New', Courier, monospace;
@@ -132,20 +131,26 @@ html, body {
   margin-bottom: 4px;
 }
 
-/* --- Kernel Boot Screen (高對比黑底綠字) --- */
+/* --- Kernel Boot Screen (高對比黑底綠字，保證滾動) --- */
 #kernel-screen {
-  background: #000000;
-  color: #00ff66;
+  background: #000000 !important;
+  color: #00ff66 !important;
   font-family: 'Consolas', 'Courier New', monospace;
   font-size: 13.5px;
-  overflow-y: auto;
+  overflow-y: scroll !important;
+  -webkit-overflow-scrolling: touch;
   padding: 24px;
-  line-height: 1.45;
+  line-height: 1.5;
+}
+
+.kernel-log-line {
+  margin-bottom: 3px;
+  white-space: pre-wrap;
+  word-break: break-all;
 }
 
 /* --- GUI Boot Loader (紅色 Windows 環) --- */
 #boot-screen {
-  display: flex;
   flex-direction: column;
   justify-content: center;
   align-items: center;
@@ -877,7 +882,6 @@ body.theme-ubuntu #power-menu {
   transition: background-color 0.15s;
 }
 
-/* Win10 Buttons */
 body.theme-win10 .ctrl-btn {
   height: 100%;
   color: #333333;
@@ -892,7 +896,6 @@ body.theme-win10 .ctrl-btn.close:hover {
   color: #ffffff;
 }
 
-/* macOS Buttons */
 body.theme-macos .ctrl-btn.close {
   background: #ff5f56;
   border-color: #e0443e;
@@ -912,7 +915,6 @@ body.theme-macos .ctrl-btn:hover {
   color: rgba(0, 0, 0, 0.6);
 }
 
-/* Ubuntu Buttons */
 body.theme-ubuntu .ctrl-btn {
   background: #e95420;
   color: #ffffff;
@@ -1008,6 +1010,7 @@ body.theme-ubuntu .ctrl-btn.close {
   padding: 6px 12px;
   gap: 8px;
   align-items: center;
+  flex-wrap: wrap;
 }
 
 .ribbon-btn {
@@ -1027,7 +1030,6 @@ body.theme-ubuntu .ctrl-btn.close {
   border-color: #70c0e7;
 }
 
-/* 網址列與導覽列 */
 .win10-nav-bar {
   display: flex;
   padding: 6px 10px;
@@ -1074,7 +1076,6 @@ body.theme-ubuntu .ctrl-btn.close {
   height: 28px;
 }
 
-/* 檔案總管主畫面 */
 .win10-exp-body {
   flex: 1;
   display: flex;
