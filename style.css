@@ -105,7 +105,7 @@ html, body {
   -webkit-user-select: none;
   background-color: #000000;
   color: #ffffff;
-  touch-action: none; /* 關鍵：攔截 iPad Safari 預設頁面滑動手勢，讓視窗拖曳運作 */
+  touch-action: none; /* 關鍵：攔截 iPad Safari 手勢滑動以支援拖曳 */
 }
 
 /* ==========================================================================
@@ -1236,6 +1236,14 @@ body.theme-ubuntu .set-group select {
 
 .guide-table tr:nth-child(even) {
   background: #fafbfc;
+}
+
+.guide-callout {
+  background: #e7f3fe;
+  border-left: 4px solid var(--win-blue);
+  padding: 12px 15px;
+  margin: 15px 0;
+  border-radius: 2px;
 }
 
 /* --- File Explorer (VFS) --- */
