@@ -1,8 +1,7 @@
 /* ==========================================================================
-   WebOS Project Horizon - Extended System Core Engine
+   WebOS Project Horizon - Unified Touch, Folder VFS & Cloud Engine
    ========================================================================== */
 
-/* 雲端資料庫端點 (供所有訪客跨設備實時共享帳號) */
 const CLOUD_API = "https://api.restful-api.dev/objects/ff808181932badb40193309a47320000";
 
 /* ==========================================================================
@@ -122,7 +121,9 @@ const storeRegistry = [
   { id: 'app-paint', nameEn: 'Paint', nameZh: '小畫家', icon: 'https://cdn-icons-png.flaticon.com/512/3003/3003102.png' },
   { id: 'app-weather', nameEn: 'Weather', nameZh: '天氣', icon: 'https://cdn-icons-png.flaticon.com/512/1163/1163661.png' },
   { id: 'app-calc', nameEn: 'Calculator', nameZh: '計算機', icon: 'https://cdn-icons-png.flaticon.com/512/1055/1055685.png' },
-  { id: 'app-notepad', nameEn: 'Notepad', nameZh: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' }
+  { id: 'app-notepad', nameEn: 'Notepad', nameZh: '記事本', icon: 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' },
+  { id: 'app-clock', nameEn: 'Stopwatch', nameZh: '碼錶計時', icon: 'https://cdn-icons-png.flaticon.com/512/2972/2972531.png' },
+  { id: 'app-synth', nameEn: 'Audio Synth', nameZh: '音效播放', icon: 'https://cdn-icons-png.flaticon.com/512/3075/3075908.png' }
 ];
 
 let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
@@ -130,12 +131,15 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
   'app-browser',
   'app-python',
   'app-cmd',
-  'app-paint'
+  'app-paint',
+  'app-clock',
+  'app-synth'
 ];
 
-/* ==========================================
-   2. 跨裝置雲端資料同步 (Cloud Sync)
-   ========================================== */
+/* ==========================================================================
+   2. CLOUD USER DATA SYNCHRONIZATION
+   ========================================================================== */
+
 async function syncUsersFromCloud() {
   try {
     const response = await fetch(CLOUD_API);
@@ -175,9 +179,9 @@ async function pushUserToCloud(username, password, avatar) {
   }
 }
 
-/* ==========================================
-   3. Initialization & Multi-Stage Boot Logic
-   ========================================== */
+/* ==========================================================================
+   3. MULTI-STAGE SYSTEM BOOTSTRAP
+   ========================================================================== */
 
 const kernelLines = [
   "[    0.000000] Linux version 6.6.0-webos-generic (gcc version 13.2.0) #1 SMP PREEMPT",
@@ -207,14 +211,15 @@ function initOS() {
   document.getElementById('set-bg-url').value = sysBg;
   document.getElementById('np-text').value = localStorage.getItem('os_np') || '';
   
-  updateStartIcon(); 
-  setLang(curLang); 
+  updateStartIcon();
+  setLang(curLang);
   updateUserSelectDropdown();
   syncUsersFromCloud();
 
-  setTimeout(injectResizers, 250);
+  setTimeout(() => {
+    injectResizers();
+  }, 250);
 
-  // 說明視窗按鈕綁定
   const helpBtn = document.getElementById('lock-help-btn');
   const helpModal = document.getElementById('lock-help-modal');
   const closeHelpBtn = document.getElementById('close-help-btn');
@@ -232,13 +237,13 @@ function initOS() {
     };
   }
 
-  // --- Stage 1: BIOS POST 階段 ---
+  // --- Stage 1: BIOS 自檢 ---
   const biosScreen = document.getElementById('bios-screen');
   const biosText = document.getElementById('bios-text');
   biosScreen.style.display = 'flex';
 
   const biosLines = [
-    "Project Horizon BIOS v9.8.0",
+    "Project Horizon BIOS v11.0.0",
     "Checking Central Processor Core... OK",
     "Initializing Touch, Pointer & Gesture Subsystem... OK",
     "Connecting Cloud User Database Endpoint... OK",
@@ -260,7 +265,7 @@ function initOS() {
     }
   }
 
-  // --- Stage 2: Kernel Boot 核心文字滾動階段 ---
+  // --- Stage 2: 內核啟動滾動日誌 ---
   function startKernelBoot() {
     biosScreen.style.display = 'none';
     const kernelScreen = document.getElementById('kernel-screen');
@@ -283,7 +288,7 @@ function initOS() {
     printKernel();
   }
 
-  // --- Stage 3: GUI 圖形開機載入畫面 ---
+  // --- Stage 3: GUI 開機載入 (紅色 Windows Logo) ---
   function startGUIBoot() {
     const kernelScreen = document.getElementById('kernel-screen');
     kernelScreen.style.display = 'none';
@@ -297,7 +302,6 @@ function initOS() {
     }, 1200);
   }
 
-  // 開始開機流程
   printBIOS();
   
   renderDesktop();
@@ -305,6 +309,7 @@ function initOS() {
   initPaint();
   initCalc();
   initGuide();
+  initStopwatch();
   setInterval(updateTime, 1000);
   updateTime();
 }
@@ -312,7 +317,7 @@ function initOS() {
 function updateStartIcon() {
   const icon = document.getElementById('start-icon');
   if (sysTheme === 'theme-win10') {
-    icon.src = 'https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg';
+    icon.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
   } else if (sysTheme === 'theme-macos') {
     icon.src = 'https://cdn-icons-png.flaticon.com/512/732/732221.png';
   } else if (sysTheme === 'theme-ubuntu') {
@@ -379,7 +384,6 @@ document.getElementById('user-select-list').onchange = (e) => {
   updateLoginUIForUser(e.target.value);
 };
 
-// 鎖定畫面點擊切換進入登入框
 document.getElementById('lock-time-view').onclick = () => {
   document.getElementById('lock-time-view').style.transform = 'translateY(-100%)';
   document.getElementById('login-view').style.transform = 'translateY(0)';
@@ -419,7 +423,6 @@ function attemptLogin() {
   }
 }
 
-// "User" 新增帳號並自動登出
 document.getElementById('ob-submit-btn').onclick = async () => {
   const newName = document.getElementById('ob-username').value.trim();
   const newPw = document.getElementById('ob-password').value.trim();
@@ -458,7 +461,6 @@ document.getElementById('ob-submit-btn').onclick = async () => {
   updateUserSelectDropdown();
 };
 
-// Power Actions
 document.getElementById('pwr-logout').onclick = () => {
   document.getElementById('desktop').style.display = 'none';
   document.getElementById('login-cancel').click();
@@ -481,7 +483,7 @@ document.getElementById('pwr-shutdown').onclick = () => {
 };
 
 /* ==========================================================================
-   4. WINDOW MANAGER (POINTER EVENTS ENGINE FOR IPAD & MOUSE)
+   4. WINDOW MANAGER (TOUCH & RESIZE ENGINE)
    ========================================================================== */
 
 let zIndex = 100;
@@ -568,7 +570,6 @@ function bringToFront(id) {
   }
 }
 
-/* --- 視窗拖曳核心引擎 (Pointer Events 統整觸控與滑鼠) --- */
 let isDrag = false;
 let curWin = null;
 let oX = 0;
@@ -626,7 +627,6 @@ document.querySelectorAll('.title-bar').forEach(bar => {
   if (minBtn) minBtn.onclick = () => minApp(winId);
 });
 
-/* --- 視窗縮放核心引擎 --- */
 function injectResizers() {
   document.querySelectorAll('.window').forEach(win => {
     if (win.querySelector('.resizer')) return;
@@ -689,7 +689,6 @@ function injectResizers() {
   });
 }
 
-// 開始按鈕
 document.getElementById('start-btn').onclick = (e) => {
   e.stopPropagation();
   const startMenu = document.getElementById('start-menu');
@@ -721,7 +720,6 @@ document.addEventListener('click', (e) => {
   }
 });
 
-// 桌面右鍵快顯
 document.addEventListener('contextmenu', (e) => {
   if (e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('#start-menu')) return;
   const contextMenu = document.getElementById('context-menu');
@@ -739,7 +737,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
-   5. DESKTOP, APP STORE & VIRTUAL FILE SYSTEM (VFS)
+   5. DESKTOP & REAL FOLDER-BASED VFS ENGINE
    ========================================================================== */
 
 function getAppName(app) {
@@ -751,7 +749,7 @@ function getAllApps() {
   return [...coreApps, ...custom];
 }
 
-/* --- 修復核心：桌面圖示支援單擊直接開啟（專門針對 iPad/手機優化） --- */
+/* 觸控與滑鼠雙重支援：輕觸即開 */
 function renderDesktop() {
   const desktopBox = document.getElementById('desktop-icons');
   const startList = document.getElementById('start-app-list');
@@ -763,44 +761,32 @@ function renderDesktop() {
   startTiles.innerHTML = '';
   taskbarApps.innerHTML = '';
 
-  const isTouchDevice = ('ontouchstart' in window) || (navigator.maxTouchPoints > 0);
-
   getAllApps().forEach(app => {
     const displayName = getAppName(app);
 
-    // 桌面圖示建立
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
 
-    // 觸控設備單擊即開，滑鼠設備雙擊開啟
-    if (isTouchDevice) {
-      iconItem.onclick = () => openApp(app.id);
-    } else {
-      iconItem.ondblclick = () => openApp(app.id);
-      iconItem.onclick = () => {
-        document.querySelectorAll('.desktop-icons .icon').forEach(i => i.style.background = 'transparent');
-        iconItem.style.background = 'rgba(255, 255, 255, 0.25)';
-      };
-    }
+    // 觸控螢幕輕觸即開啟，滑鼠亦可點擊或雙擊
+    iconItem.addEventListener('click', () => {
+      openApp(app.id);
+    });
 
     iconItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     desktopBox.appendChild(iconItem);
 
-    // 開始功能表列表
     const listItem = document.createElement('div');
     listItem.className = 'start-app-item';
     listItem.onclick = () => openApp(app.id);
     listItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     startList.appendChild(listItem);
 
-    // 開始功能表磁貼
     const tileItem = document.createElement('div');
     tileItem.className = 'tile';
     tileItem.onclick = () => openApp(app.id);
     tileItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     startTiles.appendChild(tileItem);
 
-    // 工作列按鈕
     const tbItem = document.createElement('div');
     tbItem.className = 'taskbar-icon';
     tbItem.id = 'tb-' + app.id;
@@ -860,43 +846,145 @@ function uninstallApp(id) {
   renderStore();
 }
 
-// 虛擬檔案系統 (VFS)
-let vfs = JSON.parse(localStorage.getItem('os_vfs')) || {
-  'README.txt': 'WebOS Virtual File System persistent storage.\nAll changes remain intact in your browser LocalStorage.'
+/* ==========================================================================
+   6. REAL HIERARCHICAL VFS ENGINE (真實路徑資料夾系統)
+   ========================================================================== */
+
+const INITIAL_VFS = {
+  "README.txt": "歡迎來到 WebOS Project Horizon 虛擬檔案系統！\n所有建立的檔案皆即時保存在 LocalStorage 中。",
+  "System": {
+    "system.js": "// WebOS Core Logic Source Code Mounted\nconsole.log('Kernel Running');",
+    "style.css": "/* WebOS Dynamic Adaptive Theme Stylesheet */",
+    "copyright.txt": `MIT License
+
+Copyright (c) 2026 iAnyFeature
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`
+  },
+  "Apps": {
+    "Games": {
+      "info.txt": "HTML5 Canvas and SpriteKit projects are located here."
+    }
+  },
+  "Users": {
+    "Admin": {
+      "Documents": {
+        "Notes.txt": "會議記錄：系統已全面支援全觸控與資料夾導航。"
+      }
+    }
+  }
 };
 
+let vfs = JSON.parse(localStorage.getItem('os_vfs_v2')) || INITIAL_VFS;
+let currentVFSPath = ["C:"]; // 根目錄
+
 function saveVFS() {
-  localStorage.setItem('os_vfs', JSON.stringify(vfs));
+  localStorage.setItem('os_vfs_v2', JSON.stringify(vfs));
+}
+
+// 根據路徑取得目錄物件
+function getNodeByPath(pathArray) {
+  let curr = vfs;
+  for (let i = 1; i < pathArray.length; i++) {
+    if (curr[pathArray[i]] && typeof curr[pathArray[i]] === 'object') {
+      curr = curr[pathArray[i]];
+    } else {
+      return null;
+    }
+  }
+  return curr;
 }
 
 function renderFS() {
   const fsGrid = document.getElementById('fs-grid');
+  const pathLabel = document.getElementById('fs-current-path');
   fsGrid.innerHTML = '';
+  pathLabel.innerText = currentVFSPath.join('\\') + "\\";
 
-  for (let filename in vfs) {
-    const isTxt = filename.endsWith('.txt');
-    const iconSrc = isTxt 
-      ? 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png' 
-      : 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png';
+  const currentDir = getNodeByPath(currentVFSPath);
+  if (!currentDir) return;
 
-    const fileItem = document.createElement('div');
-    fileItem.className = 'fs-item';
-    fileItem.onclick = () => openFile(filename);
-    fileItem.oncontextmenu = (e) => {
+  for (let name in currentDir) {
+    const isFolder = typeof currentDir[name] === 'object';
+    const iconSrc = isFolder 
+      ? 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png'
+      : (name.endsWith('.txt') 
+          ? 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png'
+          : 'https://cdn-icons-png.flaticon.com/512/2965/2965335.png');
+
+    const item = document.createElement('div');
+    item.className = 'fs-item';
+
+    if (isFolder) {
+      item.onclick = () => {
+        currentVFSPath.push(name);
+        renderFS();
+      };
+    } else {
+      item.onclick = () => {
+        openApp('app-notepad');
+        document.getElementById('np-text').value = currentDir[name];
+      };
+    }
+
+    item.oncontextmenu = (e) => {
       e.preventDefault();
-      delFile(filename);
+      if (confirm(`確定刪除 ${name}？`)) {
+        delete currentDir[name];
+        saveVFS();
+        renderFS();
+      }
     };
-    fileItem.innerHTML = `<img src="${iconSrc}"><div class="fs-item-name">${filename}</div>`;
-    fsGrid.appendChild(fileItem);
+
+    item.innerHTML = `<img src="${iconSrc}"><div class="fs-item-name">${name}</div>`;
+    fsGrid.appendChild(item);
   }
 }
 
-document.getElementById('fs-btn-new').onclick = () => {
-  const name = prompt("File name:", "NewFile.txt");
-  if (name && !vfs[name]) {
-    vfs[name] = "";
-    saveVFS();
+document.getElementById('fs-btn-back').onclick = () => {
+  if (currentVFSPath.length > 1) {
+    currentVFSPath.pop();
     renderFS();
+  }
+};
+
+document.getElementById('fs-btn-new').onclick = () => {
+  const name = prompt("文字檔案名稱:", "NewFile.txt");
+  if (name) {
+    const dir = getNodeByPath(currentVFSPath);
+    if (dir && dir[name] === undefined) {
+      dir[name] = "";
+      saveVFS();
+      renderFS();
+    }
+  }
+};
+
+document.getElementById('fs-btn-new-dir').onclick = () => {
+  const name = prompt("資料夾名稱:", "NewFolder");
+  if (name) {
+    const dir = getNodeByPath(currentVFSPath);
+    if (dir && dir[name] === undefined) {
+      dir[name] = {};
+      saveVFS();
+      renderFS();
+    }
   }
 };
 
@@ -905,52 +993,39 @@ document.getElementById('fs-upload').onchange = (e) => {
   if (!file) return;
   const reader = new FileReader();
   reader.onload = (evt) => {
-    vfs[file.name] = evt.target.result;
-    saveVFS();
-    renderFS();
+    const dir = getNodeByPath(currentVFSPath);
+    if (dir) {
+      dir[file.name] = evt.target.result;
+      saveVFS();
+      renderFS();
+    }
   };
-  reader.readAsDataURL(file);
+  reader.readAsText(file);
 };
 
 document.getElementById('fs-btn-clear').onclick = () => {
-  if (confirm("Format VFS? All virtual disk data will be deleted.")) {
-    vfs = {};
-    saveVFS();
-    renderFS();
-  }
-};
-
-window.openFile = (name) => {
-  if (name.endsWith('.txt')) {
-    openApp('app-notepad');
-    document.getElementById('np-text').value = vfs[name];
-  } else {
-    alert("Preview format not directly supported. Size: " + vfs[name].length + " bytes.");
-  }
-};
-
-window.delFile = (name) => {
-  if (confirm(`Delete file: ${name}?`)) {
-    delete vfs[name];
+  if (confirm("格式化虛擬磁碟？將還原至初始狀態。")) {
+    vfs = INITIAL_VFS;
+    currentVFSPath = ["C:"];
     saveVFS();
     renderFS();
   }
 };
 
 /* ==========================================================================
-   6. COMMAND PROMPT (FULL WINDOWS CMD SIMULATOR)
+   7. COMMAND PROMPT (支援資料夾導航與重定向)
    ========================================================================== */
 
 let cmdHistory = [];
 let historyIndex = -1;
-let currentPath = "C:\\Users\\Admin";
+let cmdPathArray = ["C:"];
 
 const cmdInput = document.getElementById('term-input');
 const cmdOutput = document.getElementById('term-output');
 const cmdPromptLabel = document.getElementById('term-prompt');
 
 function updatePromptDisplay() {
-  cmdPromptLabel.innerText = currentPath + ">";
+  cmdPromptLabel.innerText = cmdPathArray.join('\\') + ">";
 }
 
 cmdInput.onkeydown = (e) => {
@@ -987,17 +1062,22 @@ cmdInput.onkeydown = (e) => {
 };
 
 function executeCommand(cmdStr, rawLine) {
-  cmdOutput.innerHTML += `<div>${currentPath}&gt; ${rawLine}</div>`;
+  cmdOutput.innerHTML += `<div>${cmdPathArray.join('\\')}&gt; ${rawLine}</div>`;
   if (!cmdStr) return;
 
+  const currentDir = getNodeByPath(cmdPathArray);
+
+  // 輸出重定向：echo text > file.txt
   if (cmdStr.includes('>')) {
     const parts = cmdStr.split('>');
     const leftText = parts[0].trim();
     const targetFileName = parts[1].trim();
     if (leftText.toLowerCase().startsWith('echo ') && targetFileName) {
-      vfs[targetFileName] = leftText.substring(5);
-      saveVFS();
-      renderFS();
+      if (currentDir) {
+        currentDir[targetFileName] = leftText.substring(5);
+        saveVFS();
+        renderFS();
+      }
       return;
     }
   }
@@ -1010,53 +1090,63 @@ function executeCommand(cmdStr, rawLine) {
     case 'help':
       cmdOutput.innerHTML += `
 <div style="color:#aaaaaa;">
-CD             顯示當前目錄的名稱或變更當前目錄。<br>
-CLS            清除螢幕文字記錄。<br>
-COLOR          設定終端機色彩 (0a, 0c, 0f, 0e)。<br>
+CD [路徑]      變更目錄或顯示當前路徑。<br>
+CLS            清除命令列所有文字。<br>
+COLOR [代碼]   設定終端機字體顏色 (0a, 0c, 0f, 0e)。<br>
 DATE           顯示當前系統日期。<br>
-DEL            刪除虛擬檔案系統中之檔案。<br>
-DIR            顯示目錄中的檔案與子目錄清單。<br>
-ECHO           顯示訊息，或將輸出重新定向到檔案。<br>
-EXIT           退出 CMD 命令列。<br>
-HELP           提供 Windows 命令的說明資訊。<br>
-MD / MKDIR     建立新目錄。<br>
+DEL [檔案]     刪除當前目錄中的檔案。<br>
+DIR            顯示當前目錄之檔案與子目錄清單。<br>
+ECHO [文字]    輸出訊息，或將輸出重定向至指定檔案。<br>
+EXIT           關閉終端機視窗。<br>
+HELP           列出所有命令支援清單。<br>
+MD [名稱]      在當前目錄建立新資料夾。<br>
 TIME           顯示當前系統時間。<br>
-TYPE           顯示文字檔案的內容。<br>
-VER            顯示 Windows 作業系統版本。<br>
+TYPE [檔案]    印出文字檔案之內容。<br>
+VER            顯示 Windows 版本號碼。<br>
 </div>`;
       break;
 
     case 'dir':
     case 'ls':
-      const files = Object.keys(vfs);
+      if (!currentDir) break;
       const dateStr = new Date().toLocaleDateString('zh-HK');
-      let dirHTML = `<div>Volume in drive C is WebOS_System</div><br><div> Directory of ${currentPath}</div><br>`;
-      let totalBytes = 0;
-      files.forEach(f => {
-        const len = vfs[f].length;
-        totalBytes += len;
-        dirHTML += `<div>${dateStr}     ${len.toString().padStart(6, ' ')} ${f}</div>`;
-      });
-      dirHTML += `<br><div>       ${files.length} File(s)    ${totalBytes} bytes</div><br>`;
+      let dirHTML = `<div>Volume in drive C is WebOS_System</div><br><div> Directory of ${cmdPathArray.join('\\')}</div><br>`;
+      dirHTML += `<div>${dateStr}  &lt;DIR&gt;          .</div><div>${dateStr}  &lt;DIR&gt;          ..</div>`;
+      let fileCount = 0;
+      let byteCount = 0;
+
+      for (let item in currentDir) {
+        if (typeof currentDir[item] === 'object') {
+          dirHTML += `<div>${dateStr}  &lt;DIR&gt;          ${item}</div>`;
+        } else {
+          fileCount++;
+          const len = currentDir[item].length;
+          byteCount += len;
+          dirHTML += `<div>${dateStr}               ${len.toString().padStart(6, ' ')} ${item}</div>`;
+        }
+      }
+      dirHTML += `<br><div>               ${fileCount} File(s)       ${byteCount} bytes</div><br>`;
       cmdOutput.innerHTML += dirHTML;
       break;
 
     case 'cd':
       if (!args[0]) {
-        cmdOutput.innerHTML += `<div>${currentPath}</div>`;
+        cmdOutput.innerHTML += `<div>${cmdPathArray.join('\\')}</div>`;
       } else if (args[0] === '..' || args[0] === '../') {
-        const segs = currentPath.split('\\');
-        if (segs.length > 1) {
-          segs.pop();
-          currentPath = segs.join('\\') || "C:\\";
+        if (cmdPathArray.length > 1) {
+          cmdPathArray.pop();
+          updatePromptDisplay();
         }
-        updatePromptDisplay();
       } else if (args[0] === '\\' || args[0] === '/') {
-        currentPath = "C:\\";
+        cmdPathArray = ["C:"];
         updatePromptDisplay();
       } else {
-        currentPath = `${currentPath}\\${args[0]}`;
-        updatePromptDisplay();
+        if (currentDir && typeof currentDir[args[0]] === 'object') {
+          cmdPathArray.push(args[0]);
+          updatePromptDisplay();
+        } else {
+          cmdOutput.innerHTML += `<div>系統找不到指定的路徑。</div>`;
+        }
       }
       break;
 
@@ -1083,33 +1173,33 @@ VER            顯示 Windows 作業系統版本。<br>
 
     case 'type':
       if (!args[0]) {
-        cmdOutput.innerHTML += `<div>The syntax of the command is incorrect.</div>`;
-      } else if (vfs[args[0]] !== undefined) {
-        cmdOutput.innerHTML += `<div>${vfs[args[0]]}</div>`;
+        cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
+      } else if (currentDir && typeof currentDir[args[0]] === 'string') {
+        cmdOutput.innerHTML += `<div style="white-space:pre-wrap;">${currentDir[args[0]]}</div>`;
       } else {
-        cmdOutput.innerHTML += `<div>The system cannot find the file specified.</div>`;
+        cmdOutput.innerHTML += `<div>系統找不到指定的檔案。</div>`;
       }
       break;
 
     case 'del':
       if (!args[0]) {
-        cmdOutput.innerHTML += `<div>The syntax of the command is incorrect.</div>`;
-      } else if (vfs[args[0]] !== undefined) {
-        delete vfs[args[0]];
+        cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
+      } else if (currentDir && currentDir[args[0]] !== undefined) {
+        delete currentDir[args[0]];
         saveVFS();
         renderFS();
-        cmdOutput.innerHTML += `<div>Deleted: ${args[0]}</div>`;
+        cmdOutput.innerHTML += `<div>已刪除: ${args[0]}</div>`;
       } else {
-        cmdOutput.innerHTML += `<div>Could not find ${args[0]}.</div>`;
+        cmdOutput.innerHTML += `<div>找不到指定檔案。</div>`;
       }
       break;
 
     case 'md':
     case 'mkdir':
       if (!args[0]) {
-        cmdOutput.innerHTML += `<div>The syntax of the command is incorrect.</div>`;
-      } else {
-        vfs[`[DIR]_${args[0]}`] = "";
+        cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
+      } else if (currentDir) {
+        currentDir[args[0]] = {};
         saveVFS();
         renderFS();
       }
@@ -1132,13 +1222,13 @@ VER            顯示 Windows 作業系統版本。<br>
       break;
 
     default:
-      cmdOutput.innerHTML += `<div>'${cmd}' is not recognized as an internal or external command.</div>`;
+      cmdOutput.innerHTML += `<div>'${cmd}' 不是內部或外部命令、可執行的程式或批次檔。</div>`;
       break;
   }
 }
 
 /* ==========================================================================
-   7. APPS LOGIC (SETTINGS, BROWSER, WEATHER, PAINT, CALC, GUIDE)
+   8. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
    ========================================================================== */
 
 function initGuide() {
@@ -1225,7 +1315,7 @@ document.getElementById('btn-reset').onclick = () => {
 document.getElementById('btn-lang-zh').onclick = () => setLang('zh');
 document.getElementById('btn-lang-en').onclick = () => setLang('en');
 
-// Browser (Smart Omnibox & MDM Tunnel)
+// Browser
 let mdmMode = false;
 document.getElementById('mdm-toggle-btn').onclick = () => {
   mdmMode = !mdmMode;
@@ -1307,7 +1397,7 @@ document.getElementById('w-gps').onclick = () => {
   }
 };
 
-// Paint (支援 iPad 觸控螢幕座標轉換)
+// Paint (觸控極致強化)
 let paintCanvas, ctx;
 let painting = false;
 let paintColor = '#000000';
@@ -1399,6 +1489,82 @@ function initPaint() {
   };
 }
 
+// Stopwatch App
+let swTimer = null;
+let swStartTime = 0;
+let swElapsedTime = 0;
+let swRunning = false;
+
+function initStopwatch() {
+  const display = document.getElementById('sw-display');
+  const startBtn = document.getElementById('sw-start-btn');
+  const lapBtn = document.getElementById('sw-lap-btn');
+  const resetBtn = document.getElementById('sw-reset-btn');
+  const lapsBox = document.getElementById('sw-laps');
+
+  function formatTime(ms) {
+    const m = Math.floor(ms / 60000);
+    const s = Math.floor((ms % 60000) / 1000);
+    const cs = Math.floor((ms % 1000) / 10);
+    return `${m.toString().padStart(2, '0')}:${s.toString().padStart(2, '0')}.${cs.toString().padStart(2, '0')}`;
+  }
+
+  startBtn.onclick = () => {
+    if (!swRunning) {
+      swRunning = true;
+      swStartTime = Date.now() - swElapsedTime;
+      swTimer = setInterval(() => {
+        swElapsedTime = Date.now() - swStartTime;
+        display.innerText = formatTime(swElapsedTime);
+      }, 10);
+      startBtn.innerText = "暫停 (Pause)";
+      startBtn.style.background = "#ff9800";
+    } else {
+      swRunning = false;
+      clearInterval(swTimer);
+      startBtn.innerText = "繼續 (Resume)";
+      startBtn.style.background = "var(--win-blue)";
+    }
+  };
+
+  lapBtn.onclick = () => {
+    if (swRunning) {
+      const p = document.createElement('div');
+      p.style.padding = "4px 0";
+      p.innerText = `Lap ${lapsBox.children.length + 1}: ${formatTime(swElapsedTime)}`;
+      lapsBox.prepend(p);
+    }
+  };
+
+  resetBtn.onclick = () => {
+    swRunning = false;
+    clearInterval(swTimer);
+    swElapsedTime = 0;
+    display.innerText = "00:00.00";
+    startBtn.innerText = "開始 (Start)";
+    startBtn.style.background = "var(--win-blue)";
+    lapsBox.innerHTML = '';
+  };
+}
+
+// Audio Synth App (Web Audio API)
+let audioCtx = null;
+window.playTone = (freq) => {
+  if (!audioCtx) {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
+  const osc = audioCtx.createOscillator();
+  const gain = audioCtx.createGain();
+  osc.type = "sine";
+  osc.frequency.value = freq;
+  gain.gain.setValueAtTime(0.3, audioCtx.currentTime);
+  gain.gain.exponentialRampToValueAtTime(0.001, audioCtx.currentTime + 0.5);
+  osc.connect(gain);
+  gain.connect(audioCtx.destination);
+  osc.start();
+  osc.stop(audioCtx.currentTime + 0.5);
+};
+
 // Calculator
 let calcV = "";
 window.calcIn = (k) => {
@@ -1437,7 +1603,7 @@ function initCalc() {
   });
 }
 
-// Clock & Time Loop
+// Clock Loop
 function updateTime() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString(curLang === 'zh' ? 'zh-HK' : 'en-US', {
@@ -1457,5 +1623,4 @@ function updateTime() {
   document.getElementById('lock-huge-date').innerText = dateStr;
 }
 
-// System Init Trigger
 window.addEventListener('DOMContentLoaded', initOS);
