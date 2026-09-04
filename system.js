@@ -1,5 +1,5 @@
 /* ==========================================================================
-   WebOS Project Horizon - Unified Touch, Folder VFS & Cloud Engine
+   WebOS Project Horizon - Unified Touch, Windows 10 Explorer & Cloud Engine
    ========================================================================== */
 
 const CLOUD_API = "https://api.restful-api.dev/objects/ff808181932badb40193309a47320000";
@@ -137,7 +137,7 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
 ];
 
 /* ==========================================================================
-   2. CLOUD USER DATA SYNCHRONIZATION
+   2. CLOUD DATA SYNCHRONIZATION
    ========================================================================== */
 
 async function syncUsersFromCloud() {
@@ -180,7 +180,7 @@ async function pushUserToCloud(username, password, avatar) {
 }
 
 /* ==========================================================================
-   3. MULTI-STAGE SYSTEM BOOTSTRAP
+   3. MULTI-STAGE SYSTEM BOOTSTRAP (保證滾動顯示 KERNEL 日誌)
    ========================================================================== */
 
 const kernelLines = [
@@ -218,7 +218,7 @@ function initOS() {
 
   setTimeout(() => {
     injectResizers();
-  }, 250);
+  }, 300);
 
   const helpBtn = document.getElementById('lock-help-btn');
   const helpModal = document.getElementById('lock-help-modal');
@@ -243,7 +243,7 @@ function initOS() {
   biosScreen.style.display = 'flex';
 
   const biosLines = [
-    "Project Horizon BIOS v11.0.0",
+    "Project Horizon BIOS v12.0.0",
     "Checking Central Processor Core... OK",
     "Initializing Touch, Pointer & Gesture Subsystem... OK",
     "Connecting Cloud User Database Endpoint... OK",
@@ -259,13 +259,13 @@ function initOS() {
       newLine.innerText = biosLines[biosIdx];
       biosText.appendChild(newLine);
       biosIdx++;
-      setTimeout(printBIOS, 80 + Math.random() * 80);
+      setTimeout(printBIOS, 80 + Math.random() * 70);
     } else {
       setTimeout(startKernelBoot, 200);
     }
   }
 
-  // --- Stage 2: 內核啟動滾動日誌 ---
+  // --- Stage 2: 內核啟動滾動日誌 (清晰可見) ---
   function startKernelBoot() {
     biosScreen.style.display = 'none';
     const kernelScreen = document.getElementById('kernel-screen');
@@ -280,9 +280,9 @@ function initOS() {
         kernelText.appendChild(line);
         kernelScreen.scrollTop = kernelScreen.scrollHeight;
         kIdx++;
-        setTimeout(printKernel, 35 + Math.random() * 40);
+        setTimeout(printKernel, 40 + Math.random() * 45);
       } else {
-        setTimeout(startGUIBoot, 300);
+        setTimeout(startGUIBoot, 450);
       }
     }
     printKernel();
@@ -299,7 +299,7 @@ function initOS() {
     setTimeout(() => {
       bootScreen.style.display = 'none';
       document.getElementById('lock-screen').style.display = 'block';
-    }, 1200);
+    }, 1400);
   }
 
   printBIOS();
@@ -767,7 +767,7 @@ function renderDesktop() {
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
 
-    // 觸控螢幕輕觸即開啟，滑鼠亦可點擊或雙擊
+    // 觸控螢幕與滑鼠一律輕觸即開啟
     iconItem.addEventListener('click', () => {
       openApp(app.id);
     });
@@ -847,7 +847,7 @@ function uninstallApp(id) {
 }
 
 /* ==========================================================================
-   6. REAL HIERARCHICAL VFS ENGINE (真實路徑資料夾系統)
+   6. WINDOWS 10 STYLE FILE EXPLORER (帶 Ribbon 及導航窗格)
    ========================================================================== */
 
 const INITIAL_VFS = {
@@ -892,13 +892,12 @@ SOFTWARE.`
 };
 
 let vfs = JSON.parse(localStorage.getItem('os_vfs_v2')) || INITIAL_VFS;
-let currentVFSPath = ["C:"]; // 根目錄
+let currentVFSPath = ["C:"];
 
 function saveVFS() {
   localStorage.setItem('os_vfs_v2', JSON.stringify(vfs));
 }
 
-// 根據路徑取得目錄物件
 function getNodeByPath(pathArray) {
   let curr = vfs;
   for (let i = 1; i < pathArray.length; i++) {
@@ -911,16 +910,30 @@ function getNodeByPath(pathArray) {
   return curr;
 }
 
+function navigateVFS(targetPathArray) {
+  currentVFSPath = [...targetPathArray];
+  renderFS();
+}
+
 function renderFS() {
   const fsGrid = document.getElementById('fs-grid');
   const pathLabel = document.getElementById('fs-current-path');
+  const statusCount = document.getElementById('fs-status-count');
+  
   fsGrid.innerHTML = '';
   pathLabel.innerText = currentVFSPath.join('\\') + "\\";
+
+  // 更新左側導覽欄高亮
+  document.querySelectorAll('.win10-sidebar .side-item').forEach(item => {
+    item.classList.remove('active');
+  });
 
   const currentDir = getNodeByPath(currentVFSPath);
   if (!currentDir) return;
 
+  let count = 0;
   for (let name in currentDir) {
+    count++;
     const isFolder = typeof currentDir[name] === 'object';
     const iconSrc = isFolder 
       ? 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png'
@@ -955,8 +968,11 @@ function renderFS() {
     item.innerHTML = `<img src="${iconSrc}"><div class="fs-item-name">${name}</div>`;
     fsGrid.appendChild(item);
   }
+
+  statusCount.innerText = `${count} 個項目`;
 }
 
+// 導覽按鈕
 document.getElementById('fs-btn-back').onclick = () => {
   if (currentVFSPath.length > 1) {
     currentVFSPath.pop();
@@ -964,6 +980,14 @@ document.getElementById('fs-btn-back').onclick = () => {
   }
 };
 
+document.getElementById('fs-btn-up-dir').onclick = () => {
+  if (currentVFSPath.length > 1) {
+    currentVFSPath.pop();
+    renderFS();
+  }
+};
+
+// Ribbon 按鈕
 document.getElementById('fs-btn-new').onclick = () => {
   const name = prompt("文字檔案名稱:", "NewFile.txt");
   if (name) {
@@ -986,6 +1010,10 @@ document.getElementById('fs-btn-new-dir').onclick = () => {
       renderFS();
     }
   }
+};
+
+document.getElementById('fs-btn-up').onclick = () => {
+  document.getElementById('fs-upload').click();
 };
 
 document.getElementById('fs-upload').onchange = (e) => {
@@ -1012,8 +1040,17 @@ document.getElementById('fs-btn-clear').onclick = () => {
   }
 };
 
+// 檔案搜尋
+document.getElementById('fs-search-input').oninput = (e) => {
+  const query = e.target.value.toLowerCase().trim();
+  document.querySelectorAll('.win10-content-pane .fs-item').forEach(item => {
+    const name = item.querySelector('.fs-item-name').innerText.toLowerCase();
+    item.style.display = name.includes(query) ? 'block' : 'none';
+  });
+};
+
 /* ==========================================================================
-   7. COMMAND PROMPT (支援資料夾導航與重定向)
+   7. COMMAND PROMPT (支援資料夾切換與重定向)
    ========================================================================== */
 
 let cmdHistory = [];
@@ -1067,7 +1104,6 @@ function executeCommand(cmdStr, rawLine) {
 
   const currentDir = getNodeByPath(cmdPathArray);
 
-  // 輸出重定向：echo text > file.txt
   if (cmdStr.includes('>')) {
     const parts = cmdStr.split('>');
     const leftText = parts[0].trim();
@@ -1623,4 +1659,5 @@ function updateTime() {
   document.getElementById('lock-huge-date').innerText = dateStr;
 }
 
+// 系統啟動進入點
 window.addEventListener('DOMContentLoaded', initOS);
