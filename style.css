@@ -3,15 +3,13 @@
    ========================================================================== */
 
 :root {
-  /* System Colors */
-  --win-blue: #E81123; /* 配合紅色 Windows Logo 主題 */
+  --win-blue: #E81123;
   --win-dark: #1f1f1f;
   --win-light: #f2f2f2;
   --text-dark: #000000;
   --text-light: #ffffff;
   --accent-color: #E81123;
   
-  /* Desktop & Taskbar Metrics */
   --taskbar-bg: rgba(20, 20, 20, 0.95);
   --taskbar-height: 40px;
   --taskbar-width: 100%;
@@ -20,7 +18,6 @@
   --taskbar-left: 0px;
   --taskbar-radius: 0px;
   
-  /* Window Mechanics */
   --window-bg: #ffffff;
   --win-radius: 0px;
   --titlebar-height: 38px;
@@ -31,7 +28,6 @@
   --mac-btn-radius: 0px;
   --mac-btn-color: transparent;
 
-  /* Settings Palette */
   --set-sidebar-bg: #e6e6e6;
   --set-body-bg: #ffffff;
   --set-text: #000000;
@@ -39,7 +35,6 @@
   --set-item-act: #f3f3f3;
 }
 
-/* --- Theme: macOS 15 Sequoia --- */
 body.theme-macos {
   --taskbar-bg: rgba(255, 255, 255, 0.45);
   --win-radius: 12px;
@@ -61,7 +56,6 @@ body.theme-macos {
   --set-item-act: #007AFF;
 }
 
-/* --- Theme: Ubuntu 22.04 LTS --- */
 body.theme-ubuntu {
   --taskbar-bg: rgba(30, 30, 30, 0.98);
   --win-blue: #E95420;
@@ -105,11 +99,11 @@ html, body {
   -webkit-user-select: none;
   background-color: #000000;
   color: #ffffff;
-  touch-action: none; /* 關鍵：攔截 iPad Safari 手勢滑動以支援拖曳 */
+  touch-action: none;
 }
 
 /* ==========================================================================
-   3. OVERLAYS (BIOS, BOOT, LOCK SCREEN, ONBOARDING)
+   3. OVERLAYS (BIOS, KERNEL LOGS, RED GUI BOOT, LOCK SCREEN)
    ========================================================================== */
 
 .sys-screen {
@@ -138,7 +132,18 @@ html, body {
   margin-bottom: 4px;
 }
 
-/* --- Boot Loader --- */
+/* --- Kernel Boot Screen (高對比黑底綠字) --- */
+#kernel-screen {
+  background: #000000;
+  color: #00ff66;
+  font-family: 'Consolas', 'Courier New', monospace;
+  font-size: 13.5px;
+  overflow-y: auto;
+  padding: 24px;
+  line-height: 1.45;
+}
+
+/* --- GUI Boot Loader (紅色 Windows 環) --- */
 #boot-screen {
   display: flex;
   flex-direction: column;
@@ -147,13 +152,14 @@ html, body {
 }
 
 .spinner {
-  width: 42px;
-  height: 42px;
+  width: 44px;
+  height: 44px;
   border: 4px solid rgba(255, 255, 255, 0.15);
   border-top: 4px solid #E81123;
   border-radius: 50%;
   animation: spinLoader 1.1s linear infinite;
   margin-top: 35px;
+  box-shadow: 0 0 15px rgba(232, 17, 35, 0.4);
 }
 
 @keyframes spinLoader {
@@ -871,7 +877,7 @@ body.theme-ubuntu #power-menu {
   transition: background-color 0.15s;
 }
 
-/* Win10 Control Buttons */
+/* Win10 Buttons */
 body.theme-win10 .ctrl-btn {
   height: 100%;
   color: #333333;
@@ -886,7 +892,7 @@ body.theme-win10 .ctrl-btn.close:hover {
   color: #ffffff;
 }
 
-/* macOS Control Buttons */
+/* macOS Buttons */
 body.theme-macos .ctrl-btn.close {
   background: #ff5f56;
   border-color: #e0443e;
@@ -906,7 +912,7 @@ body.theme-macos .ctrl-btn:hover {
   color: rgba(0, 0, 0, 0.6);
 }
 
-/* Ubuntu Control Buttons */
+/* Ubuntu Buttons */
 body.theme-ubuntu .ctrl-btn {
   background: #e95420;
   color: #ffffff;
@@ -959,7 +965,181 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   7. ADAPTIVE SETTINGS APPLICATION
+   7. WINDOWS 10 FILE EXPLORER UI STYLES
+   ========================================================================== */
+
+.win10-explorer {
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  color: #000000;
+}
+
+.win10-ribbon {
+  background: #f5f6f7;
+  border-bottom: 1px solid #dadbdc;
+  display: flex;
+  flex-direction: column;
+}
+
+.ribbon-tabs {
+  display: flex;
+  padding: 4px 10px 0 10px;
+  background: #e5e6e7;
+  gap: 4px;
+}
+
+.ribbon-tab {
+  padding: 6px 14px;
+  font-size: 12px;
+  cursor: pointer;
+  border: 1px solid transparent;
+  border-bottom: none;
+}
+
+.ribbon-tab.active {
+  background: #f5f6f7;
+  border-color: #dadbdc;
+  font-weight: bold;
+}
+
+.ribbon-actions {
+  display: flex;
+  padding: 6px 12px;
+  gap: 8px;
+  align-items: center;
+}
+
+.ribbon-btn {
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  border-radius: 2px;
+  padding: 4px 10px;
+  font-size: 12px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+
+.ribbon-btn:hover {
+  background: #e5f1fb;
+  border-color: #70c0e7;
+}
+
+/* 網址列與導覽列 */
+.win10-nav-bar {
+  display: flex;
+  padding: 6px 10px;
+  background: #ffffff;
+  border-bottom: 1px solid #e5e5e5;
+  gap: 8px;
+  align-items: center;
+}
+
+.nav-arrow-btn {
+  background: transparent;
+  border: 1px solid transparent;
+  border-radius: 50%;
+  width: 26px;
+  height: 26px;
+  cursor: pointer;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  font-size: 13px;
+}
+
+.nav-arrow-btn:hover {
+  background: #e5e5e5;
+}
+
+.address-bar {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  border: 1px solid #cccccc;
+  padding: 4px 10px;
+  font-size: 12px;
+  background: #ffffff;
+  height: 28px;
+}
+
+.search-box input {
+  border: 1px solid #cccccc;
+  padding: 5px 10px;
+  font-size: 12px;
+  width: 180px;
+  outline: none;
+  height: 28px;
+}
+
+/* 檔案總管主畫面 */
+.win10-exp-body {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.win10-sidebar {
+  width: 190px;
+  background: #fbfbfb;
+  border-right: 1px solid #e5e5e5;
+  padding: 10px 0;
+  overflow-y: auto;
+  font-size: 12.5px;
+}
+
+.side-group-title {
+  padding: 6px 14px;
+  font-weight: bold;
+  color: #666666;
+  font-size: 11px;
+}
+
+.side-item {
+  padding: 6px 16px;
+  cursor: pointer;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.side-item.sub {
+  padding-left: 28px;
+}
+
+.side-item:hover {
+  background: #e5f3ff;
+}
+
+.side-item.active {
+  background: #cce8ff;
+  font-weight: 600;
+}
+
+.win10-content-pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  background: #ffffff;
+  overflow-y: auto;
+}
+
+.win10-status-bar {
+  height: 24px;
+  background: #f0f0f0;
+  border-top: 1px solid #dcdcdc;
+  font-size: 11px;
+  color: #555555;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 12px;
+}
+
+/* ==========================================================================
+   8. SPECIFIC APP STYLES & SETTINGS
    ========================================================================== */
 
 .settings-layout {
@@ -967,7 +1147,6 @@ body.theme-ubuntu .ctrl-btn.close {
   height: 100%;
   background: var(--set-body-bg);
   color: var(--set-text);
-  transition: background-color 0.3s;
 }
 
 .settings-nav {
@@ -981,27 +1160,18 @@ body.theme-ubuntu .ctrl-btn.close {
   font-size: 14px;
   cursor: pointer;
   border-left: 4px solid transparent;
-  transition: background-color 0.2s;
 }
 
 .set-nav-item:hover {
   background: var(--set-item-hover);
 }
 
-/* Win10 Settings Adapter */
 body.theme-win10 .set-nav-item.active {
   background: var(--set-item-act);
   border-left: 4px solid var(--win-blue);
   font-weight: bold;
 }
 
-body.theme-win10 .set-group input, 
-body.theme-win10 .set-group select {
-  border: 2px solid #cccccc;
-  border-radius: 0px;
-}
-
-/* macOS Settings Adapter (Grouped Card Style) */
 body.theme-macos .set-nav-item {
   border-radius: 8px;
   margin: 0 10px 6px 10px;
@@ -1015,39 +1185,10 @@ body.theme-macos .set-nav-item.active {
   font-weight: 600;
 }
 
-body.theme-macos .set-group {
-  background: #ffffff;
-  padding: 18px;
-  border-radius: 10px;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
-  margin-bottom: 20px;
-  border: 1px solid #e5e5e5;
-}
-
-body.theme-macos .set-group label {
-  font-weight: 600;
-  margin-bottom: 10px;
-}
-
-body.theme-macos .set-group input, 
-body.theme-macos .set-group select {
-  border-radius: 6px;
-  border: 1px solid #dcdcdc;
-}
-
-/* Ubuntu Settings Adapter (Dark Solid Style) */
 body.theme-ubuntu .set-nav-item.active {
   background: var(--set-item-act);
   color: #ffffff;
   font-weight: bold;
-}
-
-body.theme-ubuntu .set-group input, 
-body.theme-ubuntu .set-group select {
-  background: #383838;
-  border: 1px solid #505050;
-  color: #ffffff;
-  border-radius: 4px;
 }
 
 .settings-main {
@@ -1107,10 +1248,6 @@ body.theme-ubuntu .set-group select {
   border: 1px solid rgba(150, 150, 150, 0.3);
   line-height: 1.5;
 }
-
-/* ==========================================================================
-   8. SPECIFIC APP STYLES
-   ========================================================================== */
 
 /* --- App Store --- */
 .store-header {
@@ -1246,33 +1383,12 @@ body.theme-ubuntu .set-group select {
   border-radius: 2px;
 }
 
-/* --- File Explorer (VFS) --- */
-.fs-toolbar {
-  padding: 10px 16px;
-  background: rgba(150, 150, 150, 0.1);
-  border-bottom: 1px solid rgba(150, 150, 150, 0.2);
-  display: flex;
-  gap: 10px;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.fs-btn {
-  padding: 6px 16px;
-  background: var(--win-blue);
-  color: #ffffff;
-  border: none;
-  border-radius: 4px;
-  cursor: pointer;
-  font-size: 13px;
-  font-weight: 600;
-}
-
+/* --- File Explorer Grid --- */
 .fs-grid {
   display: flex;
   flex-wrap: wrap;
-  gap: 20px;
-  padding: 24px;
+  gap: 16px;
+  padding: 18px;
   align-content: flex-start;
   overflow-y: auto;
   flex: 1;
@@ -1283,25 +1399,25 @@ body.theme-ubuntu .set-group select {
   text-align: center;
   cursor: pointer;
   padding: 10px;
-  border-radius: 6px;
+  border-radius: 4px;
   border: 1px solid transparent;
 }
 
 .fs-item:hover {
-  background: rgba(232, 17, 35, 0.12);
-  border: 1px solid var(--win-blue);
+  background: #e5f3ff;
+  border-color: #70c0e7;
 }
 
 .fs-item img {
   width: 48px;
   height: 48px;
-  margin-bottom: 8px;
+  margin-bottom: 6px;
 }
 
 .fs-item-name {
   font-size: 12px;
   word-break: break-all;
-  color: var(--set-text);
+  color: #000000;
 }
 
 /* --- Python IDE --- */
