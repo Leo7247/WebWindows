@@ -137,6 +137,7 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
   'app-synth'
 ];
 
+// 桌面圖示坐標保存庫
 let desktopPositions = JSON.parse(localStorage.getItem('os_desktop_pos')) || {};
 
 /* ==========================================================================
@@ -290,8 +291,10 @@ function initOS() {
       line.innerText = kernelLines[kIdx];
       kernelText.appendChild(line);
 
+      // 強制向下滾動
       kernelScreen.scrollTop = kernelScreen.scrollHeight;
 
+      // 模擬 Linux 開機卡頓：在特定硬體檢測與掛載點卡 100~500ms
       let delay = 35 + Math.random() * 25;
       if (kIdx === 14 || kIdx === 28 || kIdx === 33 || kIdx === 40 || kIdx === 50) {
         delay = 180 + Math.random() * 320;
@@ -300,6 +303,7 @@ function initOS() {
       kIdx++;
       setTimeout(printKernel, delay);
     } else {
+      // 內核滾動完畢，切換至 Windows GUI Boot (隨機 2~4 秒)
       const guiBootDuration = 2000 + Math.random() * 2000;
       setTimeout(startGUIBoot, 300, guiBootDuration);
     }
@@ -546,12 +550,12 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
-/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 (完備細節) --- */
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 (全要素實裝) --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
 
-  // 1. 偵測線上瀏覽器名稱與圖標
+  // 1. 偵測線上真實瀏覽器名稱與精確圖標
   const ua = navigator.userAgent;
   let bName = "Web Browser";
   let bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/internet-explorer-icon.png";
@@ -592,7 +596,7 @@ window.openAboutPC = () => {
   if (sysTheme === 'theme-macos') {
     winTitle.innerText = "About this Mac";
     bannerTitle.innerText = "macOS Sequoia";
-    bannerTitle.style.color = "#000";
+    bannerTitle.style.color = "#000000";
     logoImg.src = "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg";
     lineOs.innerText = "Apple macOS (Project Horizon)";
     lineVer.innerText = "Version 15.0 • Processor: Apple M4 • RAM: 16GB LPDDR5X";
@@ -925,6 +929,7 @@ function renderDesktop() {
 
   const allApps = getAllApps();
 
+  // 1. 加入 Rubbish Bin 桌面圖示
   const rubbishBinIcon = {
     id: 'special-rubbish-bin',
     name: '資源回收筒',
@@ -958,6 +963,7 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
+    // 觸控與滑鼠拖曳擺位
     let iconDragging = false;
     let iconStartX, iconStartY, iconOffsetX, iconOffsetY;
     let hasMoved = false;
@@ -1222,6 +1228,7 @@ function saveVFS() {
   localStorage.setItem('os_vfs_v4', JSON.stringify(vfs));
 }
 
+// 自動為當前登入者建立專屬 C:\Users\<username> 資料夾
 function ensureUserEnvironment(username) {
   if (!vfs["Users"]) vfs["Users"] = { isSystemProtected: false };
   if (!vfs["Users"][username]) {
@@ -1239,6 +1246,7 @@ function ensureUserEnvironment(username) {
 
   const allApps = getAllApps();
 
+  // 同步應用程式捷徑至 C:\Apps
   allApps.forEach(app => {
     const appKey = `${getAppName(app)}.app`;
     vfs["Apps"][appKey] = {
@@ -1249,6 +1257,7 @@ function ensureUserEnvironment(username) {
     };
   });
 
+  // 同步桌面捷徑至當前用戶的 Desktop 目錄
   allApps.forEach(app => {
     const lnkKey = `${getAppName(app)}.lnk`;
     vfs["Users"][username]["Desktop"][lnkKey] = {
@@ -1295,6 +1304,7 @@ function renderFS() {
   
   fsGrid.innerHTML = '';
 
+  // 動態磁碟標籤顯示
   let rootDisplayName = "C:\\";
   if (sysTheme === 'theme-macos') {
     rootDisplayName = "Macintosh HD/";
@@ -1309,6 +1319,7 @@ function renderFS() {
   let formattedPath = currentVFSPath.slice(1).join('\\');
   pathLabel.innerText = rootDisplayName + (formattedPath ? formattedPath + "\\" : "");
 
+  // 更新側邊欄文字提示
   document.getElementById('nav-side-desktop').innerText = `🖥️ 桌面 (${sysUser})`;
   document.getElementById('nav-side-documents').innerText = `📄 文件 (${sysUser})`;
 
@@ -1318,6 +1329,7 @@ function renderFS() {
   const isInsideBin = currentVFSPath.length === 2 && currentVFSPath[1] === "RubbishBin";
   const isInsideSystem = currentVFSPath.includes("System");
 
+  // 如果在資源回收筒內，頂部顯示清空按鈕
   if (isInsideBin) {
     const emptyBar = document.createElement('div');
     emptyBar.style.width = "100%";
@@ -1373,17 +1385,21 @@ function renderFS() {
       };
     }
 
+    // 右鍵選單：回收筒操作 vs 刪除至回收筒
     item.oncontextmenu = (e) => {
       e.preventDefault();
 
+      // 1. 系統檔案保護檢查
       if (isInsideSystem || name === "System" || name === "RubbishBin") {
         alert("🔒 系統核心檔案受到防護，無法被刪除或重新命名！");
         return;
       }
 
+      // 2. 如果在資源回收筒內：還原或徹底銷毀
       if (isInsideBin) {
         const binChoice = confirm(`檔案 [${name}] 正存放於資源回收筒中。\n點擊「確定」還原至桌面，點擊「取消」將其永久抹除！`);
         if (binChoice) {
+          // 還原到當前用戶的桌面
           vfs["Users"][sysUser]["Desktop"][name] = itemData;
           delete currentDir[name];
           saveVFS();
@@ -1400,8 +1416,10 @@ function renderFS() {
         return;
       }
 
+      // 3. 一般目錄檔案：重新命名或送至回收筒
       const action = prompt(`操作檔案 [${name}]\n輸入 'del' 將其丟入資源回收筒，或輸入新名稱進行更名:`, name);
       if (action === 'del') {
+        // 移動至資源回收筒
         vfs["RubbishBin"][name] = itemData;
         delete currentDir[name];
         saveVFS();
@@ -1424,6 +1442,7 @@ function renderFS() {
   statusCount.innerText = `${count} 個項目`;
 }
 
+// 清空資源回收筒
 window.emptyRubbishBin = () => {
   if (confirm("⚠️ 確定要清空資源回收筒？所有被刪除的檔案將被永久銷毀！")) {
     vfs["RubbishBin"] = { isSystemProtected: true };
