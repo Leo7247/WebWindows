@@ -290,10 +290,8 @@ function initOS() {
       line.innerText = kernelLines[kIdx];
       kernelText.appendChild(line);
 
-      // 強制向下滾動
       kernelScreen.scrollTop = kernelScreen.scrollHeight;
 
-      // 模擬 Linux 開機卡頓：在特定硬體檢測與掛載點卡 100~500ms
       let delay = 35 + Math.random() * 25;
       if (kIdx === 14 || kIdx === 28 || kIdx === 33 || kIdx === 40 || kIdx === 50) {
         delay = 180 + Math.random() * 320;
@@ -302,7 +300,6 @@ function initOS() {
       kIdx++;
       setTimeout(printKernel, delay);
     } else {
-      // 內核滾動完畢，切換至 Windows GUI Boot (隨機 2~4 秒)
       const guiBootDuration = 2000 + Math.random() * 2000;
       setTimeout(startGUIBoot, 300, guiBootDuration);
     }
@@ -1138,7 +1135,7 @@ function startInstallProgress() {
     fill.style.width = pct + '%';
     percentText.innerText = pct + '%';
 
-    if (pct < 40) statusText.innerText = "正在複製檔案至 C:\\Apps...";
+    if (pct < 40) statusText.innerText = "正在複製二進制檔案至 C:\\Apps...";
     else if (pct < 80) statusText.innerText = `正在寫入捷徑至 C:\\Users\\${sysUser}\\Desktop...`;
     else statusText.innerText = "正在向 WebOS 註冊系統服務元件...";
 
@@ -1396,6 +1393,7 @@ function renderFS() {
       if (isInsideBin) {
         const binChoice = confirm(`檔案 [${name}] 正存放於資源回收筒中。\n點擊「確定」還原至桌面，點擊「取消」將其永久抹除！`);
         if (binChoice) {
+          // 還原到當前用戶的桌面
           vfs["Users"][sysUser]["Desktop"][name] = itemData;
           delete currentDir[name];
           saveVFS();
@@ -1415,6 +1413,7 @@ function renderFS() {
       // 3. 一般目錄檔案：重新命名或送至回收筒
       const action = prompt(`操作檔案 [${name}]\n輸入 'del' 將其丟入資源回收筒，或輸入新名稱進行更名:`, name);
       if (action === 'del') {
+        // 移動至資源回收筒
         vfs["RubbishBin"][name] = itemData;
         delete currentDir[name];
         saveVFS();
@@ -1535,7 +1534,7 @@ document.getElementById('fs-search-input').oninput = (e) => {
 
 /* ==========================================================================
    8. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
-   ========================================================================== */
+   ========================================================================= */
 
 function toggleNpMenu(menuId, event) {
   event.stopPropagation();
