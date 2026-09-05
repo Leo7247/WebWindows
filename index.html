@@ -45,7 +45,7 @@
        ========================================== -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- Stage 1: Linux 核心文字滾動開機畫面 (預設可見，最頂層) -->
+  <!-- Stage 1: Linux 核心文字滾動開機畫面 (預設最頂層顯示) -->
   <div id="kernel-screen" class="sys-screen" style="display:block; z-index:999999;">
     <div id="kernel-text"></div>
   </div>
@@ -81,7 +81,7 @@
            • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
         <h4>3. 系統核心功能</h4>
         <p>• <strong>原生觸控螢幕支援</strong>：支援 iPad 點擊圖示開啟 App、拖曳標題列及拖曳右下角自由縮放視窗。<br>
-           • <strong>Windows 10 增強版計算機</strong>：具備標準模式、歷史算式預覽與 Fluent Design 介面。<br>
+           • <strong>Windows 10 全功能計算機</strong>：具備標準模式、歷史算式記錄抽屜面板 (🕒)、科學運算模式與記憶體運算鍵。<br>
            • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD)、音樂合成器、碼錶及 WebKit MDM Bypass 瀏覽器。<br>
            • 可在「設定」中即時切換 Windows 10、macOS 15 及 Ubuntu 22 三大介面風格！</p>
       </div>
@@ -209,7 +209,7 @@
               <label data-i18n="theme_select">介面風格引擎 (即時切換)</label>
               <select id="theme-select">
                 <option value="theme-win10">Windows 10 (經典平扁化)</option>
-                <option value="theme-macos">macOS 15 Sequoia (圓角置中)</option>
+                <option value="theme-macos">macOS 15 Sequoia (圓角 Dock)</option>
                 <option value="theme-ubuntu">Ubuntu 22 (Linux 頂部欄)</option>
               </select>
             </div>
@@ -263,7 +263,7 @@
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v14.0 (Windows 10 Fluent Calculator Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
+              <p>Version: Project Horizon v16.0 (Windows 10 Fluent Calculator & Kernel Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -307,7 +307,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: User Guide -->
+    <!-- APP: User Guide (100% 完整收錄) -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
@@ -332,9 +332,9 @@ SOFTWARE.</pre>
             <div class="guide-card">
               <h3>核心架構亮點</h3>
               <ul>
-                <li><strong>雙階段真實開機</strong>：Linux/NT 核心真實日誌急速滾動輸出（具備真實卡頓模擬），緊接著 Windows 紅色標誌開機載入。</li>
+                <li><strong>雙階段真實開機</strong>：Linux/NT 核心日誌強制逐行滾動輸出（含隨機卡頓模擬），緊接著 Windows 紅色標誌開機載入。</li>
                 <li><strong>觸控螢幕原生支援</strong>：完整重構視窗驅動，支援 iPad / iPhone 手指單擊開啟圖示、順滑拖曳視窗與右下角放大縮小。</li>
-                <li><strong>Windows 10 原生風格計算機</strong>：具備標準模式、歷史算式記錄與記憶體運算鍵。</li>
+                <li><strong>Windows 10 全功能計算機</strong>：包含歷史算式抽屜 (🕒)、標準/科學模式切換、記憶體按鈕 (MC/MR/M+/M-/MS) 與進階數學函數。</li>
                 <li><strong>真實 Windows 10 檔案總管</strong>：配備 Ribbon 選單、左側導覽欄、路徑階層列與真實目錄架構。</li>
                 <li><strong>跨裝置雲端同步</strong>：新註冊帳戶自動同步至雲端，任何其他造訪此網站的裝置皆能即時讀取。</li>
                 <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 代理隧道繞過 MDM 限制。</li>
@@ -383,7 +383,7 @@ SOFTWARE.</pre>
             <h2>內建應用程式特色</h2>
             <ul>
               <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、完整調色盤以及匯出 PNG 圖檔功能。</li>
-              <li><strong>Windows 10 計算機</strong>：Fluent Design 半透明外觀，支援即時歷史計算式、退格刪除及全功能記憶體運算。</li>
+              <li><strong>Windows 10 全功能計算機</strong>：包含百分比、平方、開平方根、倒數、退格、全套記憶體 (MC/MR/M+/M-/MS) 實裝。</li>
               <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需後端伺服器即可直接在瀏覽器本地直譯執行標準 Python 3 語法與演算法。</li>
               <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
               <li><strong>音效合成器 (Audio Synth)</strong>：利用 HTML5 Web Audio API 本地即時產生電子音階。</li>
@@ -618,8 +618,8 @@ engine.simulate(30)
       </div>
     </div>
     
-    <!-- APP: Enhanced Windows 10 Calculator (大幅強化版計算機) -->
-    <div class="window" id="app-calc" style="width: 340px; height: 520px;">
+    <!-- APP: Enhanced Windows 10 Calculator (Fluent Design + Real History Drawer) -->
+    <div class="window" id="app-calc" style="width: 350px; height: 540px;">
       <div class="title-bar" data-win="app-calc">
         <div class="title-text" data-i18n="calc">計算機 (Calculator)</div>
         <div class="window-controls">
@@ -627,29 +627,38 @@ engine.simulate(30)
         </div>
       </div>
       <div class="window-content win10-calc-container">
-        <!-- 頂部標準標頭 -->
+        <!-- 頂部功能選單列 -->
         <div class="calc-header-bar">
-          <span>≡ 標準</span>
-          <span style="float:right; opacity:0.7;">🕒</span>
+          <span id="calc-mode-title" style="cursor:pointer;" onclick="toggleCalcMode()">≡ 標準 (Standard) ▾</span>
+          <span id="calc-history-toggle" style="float:right; cursor:pointer;" title="檢視歷程記錄">🕒</span>
         </div>
 
-        <!-- 兩行式顯示區 -->
+        <!-- 算式與數字螢幕 -->
         <div class="calc-display-panel">
           <div id="calc-history-line" class="calc-history-text"></div>
           <input type="text" id="calc-display" disabled value="0" class="calc-main-input">
         </div>
 
-        <!-- 記憶體功能列 -->
+        <!-- 記憶體功能按鍵行 -->
         <div class="calc-mem-bar">
-          <button class="mem-btn">MC</button>
-          <button class="mem-btn">MR</button>
-          <button class="mem-btn">M+</button>
-          <button class="mem-btn">M-</button>
-          <button class="mem-btn">MS</button>
+          <button class="mem-btn" onclick="calcMem('MC')">MC</button>
+          <button class="mem-btn" onclick="calcMem('MR')">MR</button>
+          <button class="mem-btn" onclick="calcMem('M+')">M+</button>
+          <button class="mem-btn" onclick="calcMem('M-')">M-</button>
+          <button class="mem-btn" onclick="calcMem('MS')">MS</button>
         </div>
 
         <!-- 按鈕鍵盤網格 -->
         <div class="calc-btn-grid" id="calc-grid"></div>
+
+        <!-- 歷史紀錄滑出抽屜 (History Drawer Flyout) -->
+        <div id="calc-history-flyout" class="calc-history-flyout">
+          <div style="font-weight:bold; font-size:13px; margin-bottom:10px; color:#ddd;">歷程記錄 (History)</div>
+          <div id="calc-history-list" class="calc-history-list">
+            <div style="color:#777; font-size:12px; margin-top:20px; text-align:center;">尚無歷程記錄</div>
+          </div>
+          <button class="calc-history-clear-btn" onclick="clearCalcHistory()">🗑️ 清除所有歷程記錄</button>
+        </div>
       </div>
     </div>
 
