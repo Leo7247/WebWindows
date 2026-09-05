@@ -45,12 +45,12 @@
        ========================================== -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- Stage 1: Linux 核心文字滾動開機畫面 -->
+  <!-- Stage 1: Linux 核心文字滾動開機畫面 (預設最頂層顯示) -->
   <div id="kernel-screen" class="sys-screen" style="display:block; z-index:999999;">
     <div id="kernel-text"></div>
   </div>
 
-  <!-- Stage 2: Windows GUI 開機畫面 -->
+  <!-- Stage 2: Windows GUI 開機畫面 (紅色 Windows Logo) -->
   <div id="boot-screen" class="sys-screen">
     <img src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" 
          id="boot-logo" 
@@ -85,11 +85,13 @@
       </div>
     </div>
 
+    <!-- 鎖定畫面大時鐘 -->
     <div id="lock-time-view">
       <div class="lock-time" id="lock-huge-time">00:00</div>
       <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
     </div>
     
+    <!-- 登入卡片容器 -->
     <div id="login-view">
       <div class="login-box">
         <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
@@ -359,7 +361,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: About This PC / About Windows (完全還原 winver 與動態主題風格) -->
+    <!-- APP: About This PC / About Windows (完全還原 winver 圖片排版與動態主題風格) -->
     <div class="window" id="app-about-pc" style="width: 540px; height: 500px;">
       <div class="title-bar" data-win="app-about-pc">
         <div class="title-text" id="about-win-title">About Windows</div>
@@ -368,7 +370,7 @@ SOFTWARE.</pre>
         </div>
       </div>
       <div class="window-content" id="about-win-content" style="background:#f0f0f0; color:#000; padding:24px; display:flex; flex-direction:column;">
-        <!-- Windows / Mac / Ubuntu 動態頂部標誌 -->
+        <!-- 頂部大標題 -->
         <div id="about-banner-container" style="display:flex; align-items:center; gap:16px; margin-bottom:15px;">
           <img id="about-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="64" height="64" alt="OS Logo">
           <h1 id="about-sys-banner-title" style="margin:0; font-size:36px; font-weight:300; color:#0078D7; font-family:'Segoe UI', sans-serif;">Windows 10</h1>
