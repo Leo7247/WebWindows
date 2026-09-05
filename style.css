@@ -36,20 +36,20 @@
 }
 
 body.theme-macos {
-  --taskbar-bg: rgba(255, 255, 255, 0.45);
+  --taskbar-bg: rgba(255, 255, 255, 0.55);
   --win-radius: 12px;
-  --taskbar-height: 55px;
+  --taskbar-height: 58px;
   --taskbar-width: max-content;
   --taskbar-bottom: 15px;
   --taskbar-top: auto;
   --taskbar-left: 50%;
-  --taskbar-radius: 16px;
+  --taskbar-radius: 18px;
   --ctrl-dir: row;
   --ctrl-pos-left: 12px;
   --ctrl-pos-right: auto;
   --mac-btn-size: 13px;
   --mac-btn-radius: 50%;
-  --set-sidebar-bg: rgba(235, 235, 235, 0.8);
+  --set-sidebar-bg: rgba(235, 235, 235, 0.85);
   --set-body-bg: #f8f9fa;
   --set-text: #1a1a1a;
   --set-item-hover: rgba(0, 0, 0, 0.05);
@@ -117,7 +117,7 @@ html, body {
   background-color: #000000;
 }
 
-/* --- Kernel Boot Screen (保證強制滾動、純黑底亮綠色字) --- */
+/* --- Kernel Boot Screen (強制最頂層、純黑底亮綠色滾動字) --- */
 #kernel-screen {
   background: #000000 !important;
   color: #00ff66 !important;
@@ -518,7 +518,7 @@ body.theme-ubuntu .desktop-icons {
 }
 
 /* ==========================================================================
-   5. TASKBAR & START MENU
+   5. TASKBAR, DOCK & START MENU
    ========================================================================== */
 
 #taskbar {
@@ -586,8 +586,8 @@ body.theme-macos .taskbar-apps {
 }
 
 body.theme-macos .taskbar-icon {
-  width: 50px;
-  height: 50px;
+  width: 52px;
+  height: 52px;
   border-bottom: none;
   position: relative;
 }
@@ -600,11 +600,11 @@ body.theme-macos .taskbar-icon {
 body.theme-macos .taskbar-icon img {
   width: 44px;
   height: 44px;
-  transition: transform 0.2s ease;
+  transition: transform 0.2s cubic-bezier(0.25, 1, 0.5, 1);
 }
 
 body.theme-macos .taskbar-icon:hover img {
-  transform: scale(1.15) translateY(-4px);
+  transform: scale(1.22) translateY(-6px);
 }
 
 .taskbar-icon:hover {
@@ -953,7 +953,7 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   7. ENHANCED WINDOWS 10 CALCULATOR (FLUENT DESIGN)
+   7. ENHANCED WINDOWS 10 CALCULATOR (FLUENT DESIGN + HISTORY DRAWER)
    ========================================================================== */
 
 .win10-calc-container {
@@ -961,6 +961,8 @@ body.theme-ubuntu .ctrl-btn.close {
   flex-direction: column;
   background: #1f1f1f;
   color: #ffffff;
+  position: relative;
+  overflow: hidden;
 }
 
 .calc-header-bar {
@@ -969,6 +971,7 @@ body.theme-ubuntu .ctrl-btn.close {
   font-weight: 600;
   color: #ffffff;
   background: #1f1f1f;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .calc-display-panel {
@@ -986,6 +989,7 @@ body.theme-ubuntu .ctrl-btn.close {
   color: #888888;
   height: 20px;
   font-family: 'Consolas', monospace;
+  word-break: break-all;
 }
 
 .calc-main-input {
@@ -993,7 +997,7 @@ body.theme-ubuntu .ctrl-btn.close {
   border: none;
   background: transparent;
   color: #ffffff;
-  font-size: 40px;
+  font-size: 38px;
   font-weight: 300;
   text-align: right;
   outline: none;
@@ -1005,6 +1009,7 @@ body.theme-ubuntu .ctrl-btn.close {
   justify-content: space-around;
   padding: 4px 6px;
   background: #1f1f1f;
+  border-bottom: 1px solid #2a2a2a;
 }
 
 .mem-btn {
@@ -1032,7 +1037,7 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 .calc-btn-grid button {
-  font-size: 18px;
+  font-size: 17px;
   font-weight: 400;
   border: none;
   background: #060606;
@@ -1062,6 +1067,66 @@ body.theme-ubuntu .ctrl-btn.close {
 
 .calc-btn-grid button.equal-btn:hover {
   filter: brightness(1.15);
+}
+
+/* 歷史記錄滑出面板 (History Flyout) */
+.calc-history-flyout {
+  position: absolute;
+  top: 40px;
+  right: 0;
+  width: 100%;
+  height: calc(100% - 40px);
+  background: rgba(30, 30, 30, 0.98);
+  backdrop-filter: blur(15px);
+  padding: 16px;
+  display: none;
+  flex-direction: column;
+  z-index: 50;
+  box-shadow: -4px 0 15px rgba(0,0,0,0.5);
+}
+
+.calc-history-list {
+  flex: 1;
+  overflow-y: auto;
+  font-family: 'Consolas', monospace;
+}
+
+.history-item {
+  padding: 10px;
+  border-bottom: 1px solid #333;
+  cursor: pointer;
+  text-align: right;
+  border-radius: 4px;
+}
+
+.history-item:hover {
+  background: rgba(255, 255, 255, 0.1);
+}
+
+.history-item-exp {
+  font-size: 12px;
+  color: #888;
+}
+
+.history-item-val {
+  font-size: 20px;
+  font-weight: bold;
+  color: #fff;
+}
+
+.calc-history-clear-btn {
+  padding: 10px;
+  background: #2b2b2b;
+  border: 1px solid #444;
+  color: #ddd;
+  cursor: pointer;
+  border-radius: 4px;
+  font-size: 12px;
+}
+
+.calc-history-clear-btn:hover {
+  background: #d9534f;
+  color: #fff;
 }
 
 /* ==========================================================================
