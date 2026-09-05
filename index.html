@@ -50,14 +50,14 @@
     <div id="kernel-text"></div>
   </div>
 
-  <!-- Stage 2: Windows GUI 開機畫面 (紅色 Windows Logo) -->
+  <!-- Stage 2: 主題動態 GUI 開機畫面 -->
   <div id="boot-screen" class="sys-screen">
     <img src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" 
          id="boot-logo" 
          width="120" 
          referrerpolicy="no-referrer"
          onerror="this.onerror=null; this.src='https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg';" 
-         alt="Windows Red Logo">
+         alt="Boot Logo">
     <div class="spinner"></div>
   </div>
 
@@ -76,9 +76,9 @@
         <p>• 預設提供訪客帳戶 <strong>「User」</strong>，<strong>無需密碼</strong>。<br>
            • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
            • 登入後系統會自動彈出註冊引導視窗，輸入新名稱與密碼（必填），系統會建立專屬 <code>C:\Users\&lt;用戶名&gt;</code> 個人資料夾並同步至雲端！</p>
-        <h4>2. 動態主題與 About This PC</h4>
-        <p>• <strong>Windows 主題</strong>：開始功能表內建 Winver 原生規格面板，主磁碟為 <code>C:Local Disk</code>。<br>
-           • <strong>macOS 主題</strong>：頂部選單列左上角 Apple Logo 可開啓「About this Mac」，配備 Apple M4 晶片、16GB LPDDR5X 及 Macintosh HD。<br>
+        <h4>2. 動態主題與 About This PC / Mac</h4>
+        <p>• <strong>Windows 主題</strong>：還原原生 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
+           • <strong>macOS 主題</strong>：真實 macOS 15 扁平卡片風格「About this Mac」，處理器 Apple M4、記憶體 16GB LPDDR5X、Macintosh HD。<br>
            • <strong>Ubuntu 主題</strong>：開機磁碟為 <code>/dev/nvme0n1p1</code> (NVME)。</p>
         <h4>3. 記事本功能</h4>
         <p>• 記事本內建完整 File / Edit / View 頂部選單，支援檔案開啓、儲存、另存新檔與字型調整。</p>
@@ -361,53 +361,68 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: About This PC / About Windows (完全還原 winver 圖片排版與動態主題風格) -->
-    <div class="window" id="app-about-pc" style="width: 540px; height: 500px;">
+    <!-- APP: About This PC / About Windows / About this Mac (動態全能還原視窗) -->
+    <div class="window" id="app-about-pc" style="width: 550px; height: 490px;">
       <div class="title-bar" data-win="app-about-pc">
         <div class="title-text" id="about-win-title">About Windows</div>
         <div class="window-controls">
           <div class="ctrl-btn close">✕</div>
         </div>
       </div>
-      <div class="window-content" id="about-win-content" style="background:#f0f0f0; color:#000; padding:24px; display:flex; flex-direction:column;">
-        <!-- 頂部大標題 -->
-        <div id="about-banner-container" style="display:flex; align-items:center; gap:16px; margin-bottom:15px;">
-          <img id="about-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="64" height="64" alt="OS Logo">
-          <h1 id="about-sys-banner-title" style="margin:0; font-size:36px; font-weight:300; color:#0078D7; font-family:'Segoe UI', sans-serif;">Windows 10</h1>
+      <div class="window-content" id="about-win-content">
+        <!-- 頂部大標題 / Logo -->
+        <div id="about-banner-container">
+          <img id="about-logo-img" src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" width="68" height="68" alt="OS Logo">
+          <div id="about-banner-text-wrap">
+            <h1 id="about-sys-banner-title">Windows 10</h1>
+            <div id="about-sys-sub-title" style="display:none;">MacBook Pro (16-inch, 2026)</div>
+          </div>
         </div>
 
-        <hr style="border:0; border-top:1px solid #d0d0d0; margin:10px 0 16px 0;">
+        <hr id="about-divider" style="border:0; border-top:1px solid #d0d0d0; margin:10px 0 16px 0;">
 
         <!-- 規格與版本詳細訊息 -->
-        <div id="about-specs-body" style="font-size:12.5px; line-height:1.6; color:#333; flex:1;">
+        <div id="about-specs-body">
           <div id="about-line-os">Microsoft Windows</div>
           <div id="about-line-ver">Version 1909 (OS Build 18363.1082)</div>
           <div id="about-line-copy">© Microsoft Corporation. All rights reserved.</div>
-          <br>
+          <br id="about-space-1">
           <div id="about-line-desc">
             The Windows 10 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.
           </div>
-          <br>
-          <div>This product is licensed under the <a href="#" onclick="openApp('app-guide'); return false;" style="color:#0066cc;">Software License Terms</a> to:</div>
-          <div style="margin-left:20px; margin-top:4px;">
-            <strong id="about-user-name">Admin</strong><br>
-            <span id="about-org-name">WebOS Project Horizon</span>
+          <br id="about-space-2">
+          
+          <div id="about-license-section">
+            <div>This product is licensed under the <a href="#" onclick="openApp('app-guide'); return false;" style="color:#0066cc;">Software License Terms</a> to:</div>
+            <div style="margin-left:20px; margin-top:4px;">
+              <strong id="about-user-name">Admin</strong><br>
+              <span id="about-org-name">WebOS Project Horizon</span>
+            </div>
+            <br>
           </div>
-          <br>
+
+          <!-- macOS 專屬規格清單項目 (在 macOS 主題下切換顯示) -->
+          <div id="about-mac-specs-list" style="display:none;">
+            <div class="mac-spec-row"><span class="mac-spec-label">晶片</span><span class="mac-spec-val">Apple M4 (10-core CPU, 10-core GPU)</span></div>
+            <div class="mac-spec-row"><span class="mac-spec-label">記憶體</span><span class="mac-spec-val">16 GB 統一記憶體 (LPDDR5X)</span></div>
+            <div class="mac-spec-row"><span class="mac-spec-label">開機磁碟</span><span class="mac-spec-val">Macintosh HD (APFS)</span></div>
+            <div class="mac-spec-row"><span class="mac-spec-label">系統版本</span><span class="mac-spec-val">macOS Sequoia 15.0</span></div>
+          </div>
+
           <!-- 線上瀏覽器精確偵測區塊 -->
-          <div style="background:#fff; border:1px solid #ccc; padding:8px 12px; border-radius:4px; display:flex; align-items:center; gap:8px;">
-            <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="20" height="20" alt="Browser">
-            <div>
+          <div id="about-browser-box">
+            <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="22" height="22" alt="Browser">
+            <div style="font-size:12px;">
               <strong>當前線上瀏覽器:</strong> <span id="about-browser-name">Microsoft Edge</span><br>
               <span id="about-disk-info" style="color:#666;">開機磁碟: C:Local Disk</span>
             </div>
           </div>
         </div>
 
-        <!-- 底部版權與 OK 按鈕 -->
-        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid #ddd; padding-top:12px;">
+        <!-- 底部版權與按鈕欄 -->
+        <div id="about-footer-bar">
           <div style="font-size:12px; font-weight:bold; color:#444;">Copyright 2026 iAnyFeature</div>
-          <button class="set-btn" style="min-width:85px; padding:6px 14px; border:1px solid #0078D7; background:#e1e1e1;" onclick="closeApp('app-about-pc')">OK</button>
+          <button class="set-btn" id="about-ok-btn" onclick="closeApp('app-about-pc')">OK</button>
         </div>
       </div>
     </div>
