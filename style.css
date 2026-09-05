@@ -160,6 +160,47 @@ html, body {
   display: block;
 }
 
+.macos-dropdown-wrapper {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.menu-popup-dropdown {
+  display: none;
+  position: absolute;
+  top: 28px;
+  left: 0;
+  width: 180px;
+  background: rgba(255, 255, 255, 0.92);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.2);
+  border-radius: 6px;
+  padding: 5px 0;
+  z-index: 9900;
+  color: #000000;
+  font-size: 13px;
+}
+
+.menu-pop-item {
+  padding: 6px 16px;
+  cursor: pointer;
+}
+
+.menu-pop-item:hover {
+  background: #007AFF;
+  color: #ffffff;
+}
+
+.menu-pop-divider {
+  height: 1px;
+  background: rgba(0, 0, 0, 0.1);
+  margin: 4px 0;
+}
+
 /* Apple 標誌下拉選單 */
 #macos-apple-dropdown {
   display: none;
@@ -1047,7 +1088,60 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   8. ENHANCED WINDOWS 10 CALCULATOR
+   8. ENHANCED NOTEPAD (帶有可點擊選單列)
+   ========================================================================== */
+
+.notepad-container {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+.notepad-menubar {
+  display: flex;
+  background: #f3f3f3;
+  border-bottom: 1px solid #e0e0e0;
+  padding: 0 4px;
+  font-size: 12.5px;
+  color: #333;
+}
+
+.np-menu-item {
+  padding: 6px 12px;
+  cursor: pointer;
+  position: relative;
+}
+
+.np-menu-item:hover {
+  background: #e5e5e5;
+}
+
+.np-dropdown {
+  display: none;
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #ffffff;
+  border: 1px solid #cccccc;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  min-width: 160px;
+  z-index: 1000;
+  padding: 4px 0;
+}
+
+.np-drop-opt {
+  padding: 6px 16px;
+  cursor: pointer;
+  font-size: 12px;
+}
+
+.np-drop-opt:hover {
+  background: #0078D7;
+  color: white;
+}
+
+/* ==========================================================================
+   9. ENHANCED WINDOWS 10 CALCULATOR
    ========================================================================== */
 
 .win10-calc-container {
@@ -1223,7 +1317,7 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   9. WINDOWS 10 FILE EXPLORER UI STYLES
+   10. WINDOWS 10 FILE EXPLORER UI STYLES
    ========================================================================== */
 
 .win10-explorer {
@@ -1396,7 +1490,7 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   10. INSTALLER & OTHER APPLICATION STYLES
+   11. INSTALLER & OTHER APPLICATION STYLES
    ========================================================================== */
 
 .installer-body {
