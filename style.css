@@ -105,7 +105,7 @@ html, body {
 }
 
 /* ==========================================================================
-   3. MACOS TOP MENU BAR & APPLE DROPDOWN
+   3. MACOS TOP MENU BAR & DROPDOWN
    ========================================================================== */
 
 #macos-menubar {
@@ -201,7 +201,6 @@ html, body {
   margin: 4px 0;
 }
 
-/* Apple 標誌下拉選單 */
 #macos-apple-dropdown {
   display: none;
   position: absolute;
@@ -251,7 +250,6 @@ html, body {
   background-color: #000000;
 }
 
-/* --- Kernel Boot Screen --- */
 #kernel-screen {
   background: #000000 !important;
   color: #00ff66 !important;
@@ -269,7 +267,6 @@ html, body {
   word-break: break-all;
 }
 
-/* --- GUI Boot Loader (紅色 Windows 環) --- */
 #boot-screen {
   flex-direction: column;
   justify-content: center;
@@ -292,7 +289,6 @@ html, body {
   100% { transform: rotate(360deg); }
 }
 
-/* --- Lock Screen --- */
 #lock-screen {
   background-position: center center;
   background-size: cover;
@@ -515,7 +511,6 @@ html, body {
   opacity: 1;
 }
 
-/* --- Modal Overlay (User Onboarding) --- */
 .modal-overlay {
   position: absolute;
   top: 0;
