@@ -351,7 +351,7 @@ function updateStartIcon() {
   } else if (sysTheme === 'theme-macos') {
     icon.src = 'https://cdn-icons-png.flaticon.com/512/732/732221.png';
   } else if (sysTheme === 'theme-ubuntu') {
-    icon.src = 'https://cdn-icons-png.flaticon.com/512/825/825501.png';
+    icon.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
   }
 }
 
@@ -445,48 +445,6 @@ function attemptLogin() {
     document.getElementById('set-password').value = targetUser.pw;
     document.getElementById('set-avatar').value = targetUser.avatar;
 
-    // 動態更新「關於此 Mac / PC」視窗內的用戶名與瀏覽器偵測
-    document.getElementById('about-active-user').innerText = sysUser;
-    
-    // 偵測線上瀏覽器名稱與圖標
-    const ua = navigator.userAgent;
-    let bName = "Web Browser";
-    let bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png";
-    if (ua.indexOf("Firefox") > -1) {
-      bName = "Mozilla Firefox";
-      bIcon = "https://upload.wikimedia.org/wikipedia/commons/a/a0/Firefox_Logo%2C_2019.svg";
-    } else if (ua.indexOf("SamsungBrowser") > -1) {
-      bName = "Samsung Internet";
-      bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/samsung-icon.png";
-    } else if (ua.indexOf("Opera") > -1 || ua.indexOf("OPR") > -1) {
-      bName = "Opera Browser";
-      bIcon = "https://upload.wikimedia.org/wikipedia/commons/4/4b/Opera_Logo_%282015%29.svg";
-    } else if (ua.indexOf("Edge") > -1 || ua.indexOf("Edg") > -1) {
-      bName = "Microsoft Edge";
-      bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png";
-    } else if (ua.indexOf("Chrome") > -1) {
-      bName = "Google Chrome";
-      bIcon = "https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%282011%29.svg";
-    } else if (ua.indexOf("Safari") > -1) {
-      bName = "Apple Safari";
-      bIcon = "https://upload.wikimedia.org/wikipedia/commons/5/52/Safari_browser_logo.svg";
-    }
-    
-    document.getElementById('about-browser-name').innerText = bName;
-    document.getElementById('about-browser-icon').src = bIcon;
-
-    if (sysTheme === 'theme-macos') {
-      document.getElementById('about-win-title').innerText = "關於此 Mac";
-      document.getElementById('about-sys-name').innerText = "macOS Sequoia";
-      document.getElementById('about-sys-ver').innerText = `版本 15.0 (${sysUser} 用戶空間)`;
-      document.getElementById('about-logo-img').src = "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg";
-    } else {
-      document.getElementById('about-win-title').innerText = "關於此 PC";
-      document.getElementById('about-sys-name').innerText = "Windows 10 Pro Horizon";
-      document.getElementById('about-sys-ver').innerText = `版本 19045 (${sysUser} 用戶空間)`;
-      document.getElementById('about-logo-img').src = "https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png";
-    }
-
     renderDesktop();
     renderFS();
 
@@ -567,14 +525,106 @@ document.getElementById('macos-apple-btn').onclick = (e) => {
   dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 };
 
+window.toggleMenuDropdown = (id) => {
+  event.stopPropagation();
+  closeAllMenus();
+  const menu = document.getElementById(id);
+  if (menu) {
+    menu.style.display = menu.style.display === 'block' ? 'none' : 'block';
+  }
+};
+
+window.closeAllMenus = () => {
+  document.querySelectorAll('.menu-popup-dropdown').forEach(m => m.style.display = 'none');
+  const appleDrop = document.getElementById('macos-apple-dropdown');
+  if (appleDrop) appleDrop.style.display = 'none';
+};
+
 document.getElementById('mac-sleep-btn').onclick = () => {
   document.getElementById('lock-screen').style.display = 'block';
   document.getElementById('login-cancel').click();
-  document.getElementById('macos-apple-dropdown').style.display = 'none';
+  closeAllMenus();
 };
 document.getElementById('mac-reboot-btn').onclick = () => document.getElementById('pwr-reboot').click();
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
+
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
+window.openAboutPC = () => {
+  closeAllMenus();
+  openApp('app-about-pc');
+
+  // 1. 偵測線上瀏覽器名稱與圖標
+  const ua = navigator.userAgent;
+  let bName = "Web Browser";
+  let bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/internet-explorer-icon.png";
+  if (ua.indexOf("Firefox") > -1) {
+    bName = "Mozilla Firefox";
+    bIcon = "https://upload.wikimedia.org/wikipedia/commons/a/a0/Firefox_Logo%2C_2019.svg";
+  } else if (ua.indexOf("SamsungBrowser") > -1) {
+    bName = "Samsung Internet";
+    bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/samsung-icon.png";
+  } else if (ua.indexOf("Opera") > -1 || ua.indexOf("OPR") > -1) {
+    bName = "Opera Browser";
+    bIcon = "https://upload.wikimedia.org/wikipedia/commons/4/4b/Opera_Logo_%282015%29.svg";
+  } else if (ua.indexOf("Edge") > -1 || ua.indexOf("Edg") > -1) {
+    bName = "Microsoft Edge";
+    bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png";
+  } else if (ua.indexOf("Chrome") > -1) {
+    bName = "Google Chrome";
+    bIcon = "https://upload.wikimedia.org/wikipedia/commons/e/e1/Google_Chrome_icon_%282011%29.svg";
+  } else if (ua.indexOf("Safari") > -1) {
+    bName = "Apple Safari";
+    bIcon = "https://upload.wikimedia.org/wikipedia/commons/5/52/Safari_browser_logo.svg";
+  }
+
+  document.getElementById('about-browser-name').innerText = bName;
+  document.getElementById('about-browser-icon').src = bIcon;
+  document.getElementById('about-user-name').innerText = sysUser;
+
+  // 2. 主題動態適應
+  const winTitle = document.getElementById('about-win-title');
+  const bannerTitle = document.getElementById('about-sys-banner-title');
+  const logoImg = document.getElementById('about-logo-img');
+  const lineOs = document.getElementById('about-line-os');
+  const lineVer = document.getElementById('about-line-ver');
+  const lineCopy = document.getElementById('about-line-copy');
+  const lineDesc = document.getElementById('about-line-desc');
+  const diskInfo = document.getElementById('about-disk-info');
+
+  if (sysTheme === 'theme-macos') {
+    winTitle.innerText = "About this Mac";
+    bannerTitle.innerText = "macOS Sequoia";
+    bannerTitle.style.color = "#000";
+    logoImg.src = "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg";
+    lineOs.innerText = "Apple macOS (Project Horizon)";
+    lineVer.innerText = "Version 15.0 • Processor: Apple M4 • RAM: 16GB LPDDR5X";
+    lineCopy.innerText = "™ and © 2026 Apple Inc. All rights reserved.";
+    lineDesc.innerText = "macOS Sequoia is designed for optimal web computing and Apple Silicon spatial emulation.";
+    diskInfo.innerText = "Startup Disk: Macintosh HD (APFS)";
+  } else if (sysTheme === 'theme-ubuntu') {
+    winTitle.innerText = "About This PC (Ubuntu)";
+    bannerTitle.innerText = "Ubuntu 22.04";
+    bannerTitle.style.color = "#E95420";
+    logoImg.src = "https://cdn-icons-png.flaticon.com/512/888/888879.png";
+    lineOs.innerText = "Ubuntu Linux LTS (x86_64)";
+    lineVer.innerText = "Kernel 6.6.0-webos-generic • RAM: 16GB NVME Subsystem";
+    lineCopy.innerText = "© Canonical Ltd. Ubuntu and Canonical are registered trademarks.";
+    lineDesc.innerText = "Ubuntu is an open source software operating system that runs from the desktop to the cloud.";
+    diskInfo.innerText = "Startup Disk: /dev/nvme0n1p1 (Disk Type: NVME)";
+  } else {
+    // Windows 10 winver 經典視窗 (完全還原圖片)
+    winTitle.innerText = "About Windows";
+    bannerTitle.innerText = "Windows 10";
+    bannerTitle.style.color = "#0078D7";
+    logoImg.src = "https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg";
+    lineOs.innerText = "Microsoft Windows";
+    lineVer.innerText = "Version 1909 (OS Build 18363.1082)";
+    lineCopy.innerText = "© 2019 Microsoft Corporation. All rights reserved.";
+    lineDesc.innerText = "The Windows 10 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
+    diskInfo.innerText = "開機磁碟: C:Local Disk";
+  }
+};
 
 /* ==========================================================================
    4. WINDOW MANAGER (TOUCH & RESIZE ENGINE)
@@ -592,7 +642,7 @@ function openApp(id) {
   if (!win) return;
   win.style.display = 'flex';
   document.getElementById('start-menu').style.display = 'none';
-  document.getElementById('macos-apple-dropdown').style.display = 'none';
+  closeAllMenus();
   
   const tbIcon = document.getElementById('tb-' + id);
   if (tbIcon) {
@@ -609,6 +659,12 @@ function openApp(id) {
   const appObj = getAllApps().find(a => a.id === id);
   if (appObj) {
     document.getElementById('macos-active-app-name').innerText = getAppName(appObj);
+  } else if (id === 'app-settings') {
+    document.getElementById('macos-active-app-name').innerText = "系統設定";
+  } else if (id === 'app-explorer') {
+    document.getElementById('macos-active-app-name').innerText = "檔案總管";
+  } else if (id === 'app-about-pc') {
+    document.getElementById('macos-active-app-name').innerText = sysTheme === 'theme-macos' ? "關於此 Mac" : "關於此 PC";
   }
 
   if (id === 'app-cmd') {
@@ -872,7 +928,6 @@ function renderDesktop() {
 
   const allApps = getAllApps();
 
-  // 1. 加入 Rubbish Bin 桌面圖示
   const rubbishBinIcon = {
     id: 'special-rubbish-bin',
     name: '資源回收筒',
@@ -906,7 +961,6 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
-    // 觸控與滑鼠拖曳擺位
     let iconDragging = false;
     let iconStartX, iconStartY, iconOffsetX, iconOffsetY;
     let hasMoved = false;
@@ -1078,7 +1132,7 @@ function startInstallProgress() {
   fill.style.width = '0%';
 
   const timer = setInterval(() => {
-    pct += Math.floor(Math.random() * 12) + 6;
+    pct += Math.floor(Math.random() * 14) + 8;
     if (pct > 100) pct = 100;
 
     fill.style.width = pct + '%';
@@ -1086,16 +1140,16 @@ function startInstallProgress() {
 
     if (pct < 40) statusText.innerText = "正在複製檔案至 C:\\Apps...";
     else if (pct < 80) statusText.innerText = `正在寫入捷徑至 C:\\Users\\${sysUser}\\Desktop...`;
-    else statusText.innerText = "正在註冊系統元件並完成設定...";
+    else statusText.innerText = "正在向 WebOS 註冊系統服務元件...";
 
     if (pct >= 100) {
       clearInterval(timer);
       setTimeout(() => {
         document.getElementById('inst-step-progress').style.display = 'none';
         document.getElementById('inst-step-finish').style.display = 'flex';
-      }, 400);
+      }, 350);
     }
-  }, 120);
+  }, 100);
 }
 
 function finishInstallation() {
@@ -1243,9 +1297,24 @@ function renderFS() {
   const fsGrid = document.getElementById('fs-grid');
   const pathLabel = document.getElementById('fs-current-path');
   const statusCount = document.getElementById('fs-status-count');
+  const mainDiskLabel = document.getElementById('nav-side-main-disk');
   
   fsGrid.innerHTML = '';
-  pathLabel.innerText = currentVFSPath.join('\\') + "\\";
+
+  // 動態磁碟標籤顯示
+  let rootDisplayName = "C:\\";
+  if (sysTheme === 'theme-macos') {
+    rootDisplayName = "Macintosh HD/";
+    if (mainDiskLabel) mainDiskLabel.innerText = "💽 Macintosh HD";
+  } else if (sysTheme === 'theme-ubuntu') {
+    rootDisplayName = "/dev/nvme0n1p1/";
+    if (mainDiskLabel) mainDiskLabel.innerText = "💽 /dev/nvme0n1p1";
+  } else {
+    if (mainDiskLabel) mainDiskLabel.innerText = "💽 C:Local Disk";
+  }
+
+  let formattedPath = currentVFSPath.slice(1).join('\\');
+  pathLabel.innerText = rootDisplayName + (formattedPath ? formattedPath + "\\" : "");
 
   // 更新側邊欄文字提示
   document.getElementById('nav-side-desktop').innerText = `🖥️ 桌面 (${sysUser})`;
@@ -1327,7 +1396,6 @@ function renderFS() {
       if (isInsideBin) {
         const binChoice = confirm(`檔案 [${name}] 正存放於資源回收筒中。\n點擊「確定」還原至桌面，點擊「取消」將其永久抹除！`);
         if (binChoice) {
-          // 還原到當前用戶的桌面
           vfs["Users"][sysUser]["Desktop"][name] = itemData;
           delete currentDir[name];
           saveVFS();
@@ -1347,7 +1415,6 @@ function renderFS() {
       // 3. 一般目錄檔案：重新命名或送至回收筒
       const action = prompt(`操作檔案 [${name}]\n輸入 'del' 將其丟入資源回收筒，或輸入新名稱進行更名:`, name);
       if (action === 'del') {
-        // 移動至資源回收筒
         vfs["RubbishBin"][name] = itemData;
         delete currentDir[name];
         saveVFS();
@@ -1449,7 +1516,7 @@ document.getElementById('fs-upload').onchange = (e) => {
 };
 
 document.getElementById('fs-btn-clear').onclick = () => {
-  if (confirm("格式化虛擬磁碟？將還原至初始狀態。")) {
+  if (confirm("格式化虛擬磁碟？將還原至出廠狀態。")) {
     vfs = INITIAL_VFS;
     currentVFSPath = ["C:"];
     ensureUserEnvironment(sysUser);
@@ -1467,7 +1534,7 @@ document.getElementById('fs-search-input').oninput = (e) => {
 };
 
 /* ==========================================================================
-   11. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
+   8. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
    ========================================================================== */
 
 function toggleNpMenu(menuId, event) {
@@ -1531,7 +1598,7 @@ window.npZoom = (direction) => {
 };
 
 /* ==========================================================================
-   12. COMMAND PROMPT (支援回收筒與系統保護)
+   9. COMMAND PROMPT (支援回收筒與系統保護)
    ========================================================================== */
 
 let cmdHistory = [];
@@ -1757,7 +1824,7 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   13. ENHANCED WINDOWS 10 CALCULATOR LOGIC (WITH REAL FLYOUT)
+   10. ENHANCED WINDOWS 10 CALCULATOR LOGIC (WITH REAL FLYOUT)
    ========================================================================== */
 
 let calcExpr = "";
@@ -1977,7 +2044,7 @@ function initCalc() {
 }
 
 /* ==========================================================================
-   14. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
+   11. SETTINGS & APP LAUNCHERS
    ========================================================================== */
 
 function initGuide() {
@@ -2036,6 +2103,7 @@ document.getElementById('btn-save-acc').onclick = () => {
     isGuest: false
   };
   localStorage.setItem('os_users_db', JSON.stringify(usersDB));
+  ensureUserEnvironment(u);
   updateUserSelectDropdown();
   alert("帳戶資料已更新！");
 };
@@ -2046,13 +2114,14 @@ document.getElementById('btn-create-acc').onclick = async () => {
   const a = document.getElementById('new-u-av').value.trim();
 
   if (!n || !p) {
-    alert("❌ 帳號名稱與密碼為必填項目！");
+    alert("❌ 帳戶名稱與密碼為必填項目！");
     return;
   }
 
   const btn = document.getElementById('btn-create-acc');
   btn.innerText = "正在推送到雲端...";
   await pushUserToCloud(n, p, a);
+  ensureUserEnvironment(n);
 
   document.getElementById('new-u-name').value = '';
   document.getElementById('new-u-pw').value = '';
