@@ -137,7 +137,6 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
   'app-synth'
 ];
 
-// 桌面圖示坐標保存庫
 let desktopPositions = JSON.parse(localStorage.getItem('os_desktop_pos')) || {};
 
 /* ==========================================================================
@@ -309,10 +308,20 @@ function initOS() {
     }
   }
 
-  // --- Stage 2: Windows GUI Boot (紅色 Windows Logo) ---
+  // --- Stage 2: 主題動態 GUI Boot (同步替換為指定的 Logo) ---
   function startGUIBoot(duration) {
     kernelScreen.style.display = 'none';
     const bootScreen = document.getElementById('boot-screen');
+    const bootLogo = document.getElementById('boot-logo');
+    
+    if (sysTheme === 'theme-macos') {
+      bootLogo.src = 'https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000';
+    } else if (sysTheme === 'theme-ubuntu') {
+      bootLogo.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
+    } else {
+      bootLogo.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
+    }
+    
     bootScreen.style.display = 'flex';
 
     setTimeout(() => {
@@ -347,12 +356,16 @@ function applyCurrentTheme() {
 
 function updateStartIcon() {
   const icon = document.getElementById('start-icon');
+  const bootLogo = document.getElementById('boot-logo');
   if (sysTheme === 'theme-win10') {
     icon.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
+    if (bootLogo) bootLogo.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
   } else if (sysTheme === 'theme-macos') {
-    icon.src = 'https://cdn-icons-png.flaticon.com/512/732/732221.png';
+    icon.src = 'https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000';
+    if (bootLogo) bootLogo.src = 'https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000';
   } else if (sysTheme === 'theme-ubuntu') {
     icon.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
+    if (bootLogo) bootLogo.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
   }
 }
 
@@ -586,44 +599,82 @@ window.openAboutPC = () => {
   // 2. 主題動態適應
   const winTitle = document.getElementById('about-win-title');
   const bannerTitle = document.getElementById('about-sys-banner-title');
+  const subTitle = document.getElementById('about-sys-sub-title');
   const logoImg = document.getElementById('about-logo-img');
   const lineOs = document.getElementById('about-line-os');
   const lineVer = document.getElementById('about-line-ver');
   const lineCopy = document.getElementById('about-line-copy');
   const lineDesc = document.getElementById('about-line-desc');
   const diskInfo = document.getElementById('about-disk-info');
+  const licenseSection = document.getElementById('about-license-section');
+  const macSpecsList = document.getElementById('about-mac-specs-list');
+  const sp1 = document.getElementById('about-space-1');
+  const sp2 = document.getElementById('about-space-2');
+  const okBtn = document.getElementById('about-ok-btn');
 
   if (sysTheme === 'theme-macos') {
     winTitle.innerText = "About this Mac";
-    bannerTitle.innerText = "macOS Sequoia";
-    bannerTitle.style.color = "#000000";
-    logoImg.src = "https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg";
-    lineOs.innerText = "Apple macOS (Project Horizon)";
-    lineVer.innerText = "Version 15.0 • Processor: Apple M4 • RAM: 16GB LPDDR5X";
-    lineCopy.innerText = "™ and © 2026 Apple Inc. All rights reserved.";
-    lineDesc.innerText = "macOS Sequoia is designed for optimal web computing and Apple Silicon spatial emulation.";
+    bannerTitle.innerText = "MacBook Pro";
+    subTitle.innerText = "16-inch, 2026";
+    subTitle.style.display = "block";
+    logoImg.src = "https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000";
+    
+    lineOs.style.display = "none";
+    lineVer.style.display = "none";
+    lineCopy.style.display = "none";
+    lineDesc.style.display = "none";
+    licenseSection.style.display = "none";
+    sp1.style.display = "none";
+    sp2.style.display = "none";
+    macSpecsList.style.display = "block";
+
     diskInfo.innerText = "開機磁碟: Macintosh HD (APFS)";
+    okBtn.innerText = "更多資訊...";
   } else if (sysTheme === 'theme-ubuntu') {
     winTitle.innerText = "About This PC (Ubuntu)";
     bannerTitle.innerText = "Ubuntu 22.04";
     bannerTitle.style.color = "#E95420";
+    subTitle.style.display = "none";
     logoImg.src = "https://cdn-icons-png.flaticon.com/512/888/888879.png";
+    
+    lineOs.style.display = "block";
+    lineVer.style.display = "block";
+    lineCopy.style.display = "block";
+    lineDesc.style.display = "block";
+    licenseSection.style.display = "block";
+    sp1.style.display = "inline";
+    sp2.style.display = "inline";
+    macSpecsList.style.display = "none";
+
     lineOs.innerText = "Ubuntu Linux LTS (x86_64)";
     lineVer.innerText = "Kernel 6.6.0-webos-generic • RAM: 16GB NVME Subsystem";
     lineCopy.innerText = "© Canonical Ltd. Ubuntu and Canonical are registered trademarks.";
     lineDesc.innerText = "Ubuntu is an open source software operating system that runs from the desktop to the cloud.";
     diskInfo.innerText = "開機磁碟: /dev/nvme0n1p1 (Disk Type: NVME)";
+    okBtn.innerText = "OK";
   } else {
     // Windows 10 winver 經典視窗 (完全還原圖片)
     winTitle.innerText = "About Windows";
     bannerTitle.innerText = "Windows 10";
     bannerTitle.style.color = "#0078D7";
-    logoImg.src = "https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg";
+    subTitle.style.display = "none";
+    logoImg.src = "https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png";
+
+    lineOs.style.display = "block";
+    lineVer.style.display = "block";
+    lineCopy.style.display = "block";
+    lineDesc.style.display = "block";
+    licenseSection.style.display = "block";
+    sp1.style.display = "inline";
+    sp2.style.display = "inline";
+    macSpecsList.style.display = "none";
+
     lineOs.innerText = "Microsoft Windows";
     lineVer.innerText = "Version 1909 (OS Build 18363.1082)";
     lineCopy.innerText = "© 2019 Microsoft Corporation. All rights reserved.";
     lineDesc.innerText = "The Windows 10 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
     diskInfo.innerText = "開機磁碟: C:Local Disk";
+    okBtn.innerText = "OK";
   }
 };
 
@@ -656,7 +707,6 @@ function openApp(id) {
     tbIcon.classList.add('active');
   }
 
-  // 更新 macOS 頂部活躍 App 標題
   const appObj = getAllApps().find(a => a.id === id);
   if (appObj) {
     document.getElementById('macos-active-app-name').innerText = getAppName(appObj);
@@ -2077,6 +2127,7 @@ window.changeTheme = () => {
   localStorage.setItem('os_theme', sysTheme);
   applyCurrentTheme();
   renderDesktop();
+  renderFS();
 };
 
 document.getElementById('theme-select').onchange = changeTheme;
