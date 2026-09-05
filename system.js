@@ -132,6 +132,7 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
   'app-python',
   'app-cmd',
   'app-paint',
+  'app-calc',
   'app-clock',
   'app-synth'
 ];
@@ -288,19 +289,16 @@ function initOS() {
       line.innerText = kernelLines[kIdx];
       kernelText.appendChild(line);
 
-      // 強制每行即時向下滾動
       kernelScreen.scrollTop = kernelScreen.scrollHeight;
 
-      // 模擬 Linux 開機卡頓：在特定硬體檢測與掛載點卡 100~500ms
       let delay = 35 + Math.random() * 25;
       if (kIdx === 14 || kIdx === 28 || kIdx === 33 || kIdx === 40 || kIdx === 50) {
-        delay = 180 + Math.random() * 320; // 模擬硬體等待卡頓
+        delay = 180 + Math.random() * 320;
       }
 
       kIdx++;
       setTimeout(printKernel, delay);
     } else {
-      // 內核滾動完畢，切換至 Windows GUI Boot (隨機 2~4 秒)
       const guiBootDuration = 2000 + Math.random() * 2000;
       setTimeout(startGUIBoot, 300, guiBootDuration);
     }
@@ -318,7 +316,6 @@ function initOS() {
     }, duration);
   }
 
-  // 立即啟動內核滾動
   printKernel();
   
   renderDesktop();
@@ -541,8 +538,8 @@ function closeApp(id) {
 }
 
 function toggleApp(id) {
-  const win = document.getElementById(id);
-  if (win.style.display === 'flex' && win.style.zIndex == zIndex) {
+  const w = document.getElementById(id);
+  if (w.style.display === 'flex' && w.style.zIndex == zIndex) {
     minApp(id);
   } else {
     openApp(id);
@@ -754,7 +751,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
-   5. DESKTOP & REAL FOLDER-BASED VFS ENGINE
+   5. DESKTOP & DOCK INTERACTION LOGIC
    ========================================================================== */
 
 function getAppName(app) {
@@ -783,7 +780,6 @@ function renderDesktop() {
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
 
-    // 支援 iPad 與桌面輕觸即時彈出 App
     iconItem.addEventListener('click', () => {
       openApp(app.id);
     });
@@ -803,12 +799,19 @@ function renderDesktop() {
     tileItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     startTiles.appendChild(tileItem);
 
+    // 工作列 / macOS Dock 按鈕建立
     const tbItem = document.createElement('div');
     tbItem.className = 'taskbar-icon';
     tbItem.id = 'tb-' + app.id;
     tbItem.title = displayName;
     tbItem.style.display = 'none';
-    tbItem.onclick = () => toggleApp(app.id);
+    
+    // 支援觸控與滑鼠即時開啟/切換
+    tbItem.addEventListener('pointerdown', (e) => {
+      e.stopPropagation();
+      toggleApp(app.id);
+    });
+    
     tbItem.innerHTML = `<img src="${app.icon}">`;
     taskbarApps.appendChild(tbItem);
   });
@@ -1276,7 +1279,232 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   8. SPECIFIC APPS (FLUENT CALCULATOR, SETTINGS, BROWSER, PAINT, STOPWATCH)
+   8. ENHANCED WINDOWS 10 CALCULATOR (WITH HISTORY & SCIENTIFIC MODE)
+   ========================================================================== */
+
+let calcExpr = "";
+let calcCurr = "0";
+let calcMemory = 0;
+let shouldResetDisplay = false;
+let calcMode = "standard"; // "standard" or "scientific"
+let calcHistoryData = JSON.parse(localStorage.getItem('os_calc_history')) || [];
+
+function updateCalcScreen() {
+  document.getElementById('calc-history-line').innerText = calcExpr;
+  document.getElementById('calc-display').value = calcCurr;
+}
+
+// 記憶體運算鍵 (MC, MR, M+, M-, MS)
+window.calcMem = (action) => {
+  const currentVal = parseFloat(calcCurr) || 0;
+  switch(action) {
+    case 'MC':
+      calcMemory = 0;
+      break;
+    case 'MR':
+      calcCurr = String(calcMemory);
+      shouldResetDisplay = true;
+      break;
+    case 'M+':
+      calcMemory += currentVal;
+      shouldResetDisplay = true;
+      break;
+    case 'M-':
+      calcMemory -= currentVal;
+      shouldResetDisplay = true;
+      break;
+    case 'MS':
+      calcMemory = currentVal;
+      shouldResetDisplay = true;
+      break;
+  }
+  updateCalcScreen();
+};
+
+// 模式切換（標準 / 科學）
+window.toggleCalcMode = () => {
+  calcMode = (calcMode === "standard") ? "scientific" : "standard";
+  document.getElementById('calc-mode-title').innerText = 
+    calcMode === "standard" ? "≡ 標準 (Standard) ▾" : "≡ 科學 (Scientific) ▾";
+  initCalc();
+};
+
+// 歷史記錄抽屜面板開關
+document.getElementById('calc-history-toggle').onclick = () => {
+  const flyout = document.getElementById('calc-history-flyout');
+  flyout.style.display = (flyout.style.display === 'flex') ? 'none' : 'flex';
+  renderCalcHistory();
+};
+
+function renderCalcHistory() {
+  const list = document.getElementById('calc-history-list');
+  if (calcHistoryData.length === 0) {
+    list.innerHTML = '<div style="color:#777; font-size:12px; margin-top:20px; text-align:center;">尚無歷程記錄</div>';
+    return;
+  }
+  list.innerHTML = '';
+  calcHistoryData.forEach((item, index) => {
+    const div = document.createElement('div');
+    div.className = 'history-item';
+    div.innerHTML = `
+      <div class="history-item-exp">${item.expression}</div>
+      <div class="history-item-val">${item.result}</div>
+    `;
+    div.onclick = () => {
+      calcCurr = item.result;
+      calcExpr = "";
+      shouldResetDisplay = true;
+      updateCalcScreen();
+      document.getElementById('calc-history-flyout').style.display = 'none';
+    };
+    list.appendChild(div);
+  });
+}
+
+window.clearCalcHistory = () => {
+  calcHistoryData = [];
+  localStorage.setItem('os_calc_history', JSON.stringify(calcHistoryData));
+  renderCalcHistory();
+};
+
+// 按鍵核心邏輯
+window.handleCalcBtn = (key) => {
+  if (key >= '0' && key <= '9') {
+    if (calcCurr === "0" || shouldResetDisplay) {
+      calcCurr = key;
+      shouldResetDisplay = false;
+    } else {
+      calcCurr += key;
+    }
+  } else if (key === '.') {
+    if (shouldResetDisplay) {
+      calcCurr = "0.";
+      shouldResetDisplay = false;
+    } else if (!calcCurr.includes('.')) {
+      calcCurr += '.';
+    }
+  } else if (key === 'CE') {
+    calcCurr = "0";
+  } else if (key === 'C') {
+    calcCurr = "0";
+    calcExpr = "";
+  } else if (key === '⌫') {
+    if (!shouldResetDisplay) {
+      calcCurr = calcCurr.length > 1 ? calcCurr.slice(0, -1) : "0";
+    }
+  } else if (key === '±') {
+    calcCurr = String(-parseFloat(calcCurr) || 0);
+  } else if (key === '¹/x') {
+    const val = parseFloat(calcCurr);
+    if (val === 0) {
+      calcCurr = "無法除以零";
+    } else {
+      calcExpr = `1/(${calcCurr})`;
+      calcCurr = String(1 / val);
+    }
+    shouldResetDisplay = true;
+  } else if (key === 'x²') {
+    const val = parseFloat(calcCurr);
+    calcExpr = `sqr(${calcCurr})`;
+    calcCurr = String(val * val);
+    shouldResetDisplay = true;
+  } else if (key === '√x') {
+    const val = parseFloat(calcCurr);
+    if (val < 0) {
+      calcCurr = "無效輸入";
+    } else {
+      calcExpr = `√(${calcCurr})`;
+      calcCurr = String(Math.sqrt(val));
+    }
+    shouldResetDisplay = true;
+  } else if (key === '%') {
+    const val = parseFloat(calcCurr);
+    calcCurr = String(val / 100);
+    shouldResetDisplay = true;
+  } else if (key === 'sin') {
+    calcExpr = `sin(${calcCurr})`;
+    calcCurr = String(Math.sin(parseFloat(calcCurr) * Math.PI / 180).toFixed(6));
+    shouldResetDisplay = true;
+  } else if (key === 'cos') {
+    calcExpr = `cos(${calcCurr})`;
+    calcCurr = String(Math.cos(parseFloat(calcCurr) * Math.PI / 180).toFixed(6));
+    shouldResetDisplay = true;
+  } else if (key === 'tan') {
+    calcExpr = `tan(${calcCurr})`;
+    calcCurr = String(Math.tan(parseFloat(calcCurr) * Math.PI / 180).toFixed(6));
+    shouldResetDisplay = true;
+  } else if (key === 'log') {
+    calcExpr = `log(${calcCurr})`;
+    calcCurr = String(Math.log10(parseFloat(calcCurr)).toFixed(6));
+    shouldResetDisplay = true;
+  } else if (key === 'π') {
+    calcCurr = String(Math.PI.toFixed(6));
+    shouldResetDisplay = true;
+  } else if (['+', '-', '×', '÷'].includes(key)) {
+    calcExpr = calcCurr + " " + key + " ";
+    shouldResetDisplay = true;
+  } else if (key === '=') {
+    if (calcExpr) {
+      const full = calcExpr + calcCurr;
+      const sanitized = full.replace(/×/g, '*').replace(/÷/g, '/');
+      try {
+        const result = eval(sanitized);
+        const finalVal = String(Number(result.toFixed(10)));
+        
+        // 儲存至歷史紀錄
+        calcHistoryData.unshift({ expression: full + " =", result: finalVal });
+        if (calcHistoryData.length > 20) calcHistoryData.pop();
+        localStorage.setItem('os_calc_history', JSON.stringify(calcHistoryData));
+
+        calcExpr = full + " =";
+        calcCurr = finalVal;
+      } catch (e) {
+        calcCurr = "錯誤";
+      }
+      shouldResetDisplay = true;
+    }
+  }
+  updateCalcScreen();
+}
+
+function initCalc() {
+  const grid = document.getElementById('calc-grid');
+  grid.innerHTML = '';
+
+  let buttons = [];
+  if (calcMode === "standard") {
+    buttons = [
+      { label: '%', op: true }, { label: 'CE', op: true }, { label: 'C', op: true }, { label: '⌫', op: true },
+      { label: '¹/x', op: true }, { label: 'x²', op: true }, { label: '√x', op: true }, { label: '÷', op: true },
+      { label: '7' }, { label: '8' }, { label: '9' }, { label: '×', op: true },
+      { label: '4' }, { label: '5' }, { label: '6' }, { label: '-', op: true },
+      { label: '1' }, { label: '2' }, { label: '3' }, { label: '+', op: true },
+      { label: '±' }, { label: '0' }, { label: '.' }, { label: '=', equal: true }
+    ];
+  } else {
+    buttons = [
+      { label: 'sin', op: true }, { label: 'cos', op: true }, { label: 'tan', op: true }, { label: 'C', op: true },
+      { label: 'log', op: true }, { label: 'x²', op: true }, { label: '√x', op: true }, { label: '÷', op: true },
+      { label: 'π', op: true }, { label: 'CE', op: true }, { label: '⌫', op: true }, { label: '×', op: true },
+      { label: '7' }, { label: '8' }, { label: '9' }, { label: '-', op: true },
+      { label: '4' }, { label: '5' }, { label: '6' }, { label: '+', op: true },
+      { label: '1' }, { label: '2' }, { label: '3' }, { label: '=', equal: true }
+    ];
+  }
+
+  buttons.forEach(btn => {
+    const b = document.createElement('button');
+    b.innerText = btn.label;
+    if (btn.op) b.className = 'op-btn';
+    if (btn.equal) b.className = 'equal-btn';
+    b.onclick = () => handleCalcBtn(btn.label);
+    grid.appendChild(b);
+  });
+  updateCalcScreen();
+}
+
+/* ==========================================================================
+   9. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
    ========================================================================== */
 
 function initGuide() {
@@ -1445,7 +1673,7 @@ document.getElementById('w-gps').onclick = () => {
   }
 };
 
-// Paint (觸控極致強化)
+// Paint (支援觸控與滑鼠)
 let paintCanvas, ctx;
 let painting = false;
 let paintColor = '#000000';
@@ -1612,72 +1840,6 @@ window.playTone = (freq) => {
   osc.start();
   osc.stop(audioCtx.currentTime + 0.5);
 };
-
-/* --- 增強版 Windows 10 計算機核心邏輯 (Fluent Calculator) --- */
-let calcExpression = "";
-let calcCurrentVal = "0";
-
-function updateCalcUI() {
-  document.getElementById('calc-history-line').innerText = calcExpression;
-  document.getElementById('calc-display').value = calcCurrentVal;
-}
-
-window.handleCalcInput = (token) => {
-  if (token === 'C') {
-    calcExpression = "";
-    calcCurrentVal = "0";
-  } else if (token === 'CE') {
-    calcCurrentVal = "0";
-  } else if (token === '⌫') {
-    calcCurrentVal = calcCurrentVal.length > 1 ? calcCurrentVal.slice(0, -1) : "0";
-  } else if (token === '=') {
-    try {
-      const fullExp = (calcExpression + calcCurrentVal).replace(/×/g, '*').replace(/÷/g, '/');
-      const res = eval(fullExp);
-      calcExpression = "";
-      calcCurrentVal = String(res);
-    } catch (e) {
-      calcCurrentVal = "錯誤";
-      calcExpression = "";
-    }
-  } else if (['+', '-', '×', '÷'].includes(token)) {
-    calcExpression += calcCurrentVal + " " + token + " ";
-    calcCurrentVal = "0";
-  } else if (token === '±') {
-    calcCurrentVal = String(parseFloat(calcCurrentVal) * -1);
-  } else if (token === '.') {
-    if (!calcCurrentVal.includes('.')) calcCurrentVal += '.';
-  } else {
-    // 數字輸入
-    calcCurrentVal = (calcCurrentVal === "0") ? token : (calcCurrentVal + token);
-  }
-  updateCalcUI();
-};
-
-function initCalc() {
-  const grid = document.getElementById('calc-grid');
-  grid.innerHTML = '';
-  
-  // Windows 10 標準 24 鍵佈局
-  const keys = [
-    { label: '%', op: true }, { label: 'CE', op: true }, { label: 'C', op: true }, { label: '⌫', op: true },
-    { label: '¹/x', op: true }, { label: 'x²', op: true }, { label: '√x', op: true }, { label: '÷', op: true },
-    { label: '7' }, { label: '8' }, { label: '9' }, { label: '×', op: true },
-    { label: '4' }, { label: '5' }, { label: '6' }, { label: '-', op: true },
-    { label: '1' }, { label: '2' }, { label: '3' }, { label: '+', op: true },
-    { label: '±' }, { label: '0' }, { label: '.' }, { label: '=', equal: true }
-  ];
-
-  keys.forEach(k => {
-    const btn = document.createElement('button');
-    btn.innerText = k.label;
-    if (k.op) btn.className = 'op-btn';
-    if (k.equal) btn.className = 'equal-btn';
-    btn.onclick = () => handleCalcInput(k.label);
-    grid.appendChild(btn);
-  });
-  updateCalcUI();
-}
 
 // Clock Loop
 function updateTime() {
