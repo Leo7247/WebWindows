@@ -103,7 +103,7 @@ html, body {
 }
 
 /* ==========================================================================
-   3. OVERLAYS (BIOS, KERNEL LOGS, RED GUI BOOT, LOCK SCREEN)
+   3. OVERLAYS (KERNEL LOGS, RED GUI BOOT, LOCK SCREEN)
    ========================================================================== */
 
 .sys-screen {
@@ -117,30 +117,16 @@ html, body {
   background-color: #000000;
 }
 
-/* --- BIOS POST --- */
-#bios-screen {
-  flex-direction: column;
-  padding: 30px;
-  font-family: 'Consolas', 'Courier New', Courier, monospace;
-  font-size: 14px;
-  color: #cccccc;
-  line-height: 1.5;
-}
-
-.bios-line {
-  margin-bottom: 4px;
-}
-
-/* --- Kernel Boot Screen (高對比黑底綠字，保證滾動) --- */
+/* --- Kernel Boot Screen (保證強制滾動、純黑底亮綠色字) --- */
 #kernel-screen {
   background: #000000 !important;
   color: #00ff66 !important;
   font-family: 'Consolas', 'Courier New', monospace;
-  font-size: 13.5px;
+  font-size: 13px;
   overflow-y: scroll !important;
   -webkit-overflow-scrolling: touch;
   padding: 24px;
-  line-height: 1.5;
+  line-height: 1.45;
 }
 
 .kernel-log-line {
@@ -933,7 +919,7 @@ body.theme-ubuntu .ctrl-btn.close {
   overflow: hidden;
 }
 
-/* Resizers: 專為 iPad 放大觸控感應區域 */
+/* Resizers */
 .resizer {
   position: absolute;
   z-index: 99;
@@ -967,7 +953,119 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   7. WINDOWS 10 FILE EXPLORER UI STYLES
+   7. ENHANCED WINDOWS 10 CALCULATOR (FLUENT DESIGN)
+   ========================================================================== */
+
+.win10-calc-container {
+  display: flex;
+  flex-direction: column;
+  background: #1f1f1f;
+  color: #ffffff;
+}
+
+.calc-header-bar {
+  padding: 10px 14px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ffffff;
+  background: #1f1f1f;
+}
+
+.calc-display-panel {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end;
+  padding: 10px 16px;
+  background: #1f1f1f;
+  min-height: 85px;
+}
+
+.calc-history-text {
+  font-size: 13px;
+  color: #888888;
+  height: 20px;
+  font-family: 'Consolas', monospace;
+}
+
+.calc-main-input {
+  width: 100%;
+  border: none;
+  background: transparent;
+  color: #ffffff;
+  font-size: 40px;
+  font-weight: 300;
+  text-align: right;
+  outline: none;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+
+.calc-mem-bar {
+  display: flex;
+  justify-content: space-around;
+  padding: 4px 6px;
+  background: #1f1f1f;
+}
+
+.mem-btn {
+  background: transparent;
+  border: none;
+  color: #888888;
+  font-size: 11px;
+  padding: 4px 8px;
+  border-radius: 2px;
+  cursor: pointer;
+}
+
+.mem-btn:hover {
+  background: #333333;
+  color: #ffffff;
+}
+
+.calc-btn-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: #1f1f1f;
+  padding: 4px;
+  flex: 1;
+}
+
+.calc-btn-grid button {
+  font-size: 18px;
+  font-weight: 400;
+  border: none;
+  background: #060606;
+  color: #ffffff;
+  border-radius: 2px;
+  cursor: pointer;
+  transition: background 0.1s;
+}
+
+.calc-btn-grid button:hover {
+  background: #333333;
+}
+
+.calc-btn-grid button.op-btn {
+  background: #141414;
+}
+
+.calc-btn-grid button.op-btn:hover {
+  background: #3a3a3a;
+}
+
+.calc-btn-grid button.equal-btn {
+  background: var(--win-blue);
+  color: #ffffff;
+  font-weight: bold;
+}
+
+.calc-btn-grid button.equal-btn:hover {
+  filter: brightness(1.15);
+}
+
+/* ==========================================================================
+   8. WINDOWS 10 FILE EXPLORER UI STYLES
    ========================================================================== */
 
 .win10-explorer {
@@ -1140,7 +1238,7 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   8. SPECIFIC APP STYLES & SETTINGS
+   9. SETTINGS & OTHER APPLICATION STYLES
    ========================================================================== */
 
 .settings-layout {
@@ -1250,7 +1348,7 @@ body.theme-ubuntu .set-nav-item.active {
   line-height: 1.5;
 }
 
-/* --- App Store --- */
+/* App Store */
 .store-header {
   padding: 25px;
   font-size: 22px;
@@ -1297,7 +1395,7 @@ body.theme-ubuntu .set-nav-item.active {
   background: #dc3545;
 }
 
-/* --- User Guide --- */
+/* User Guide */
 .guide-layout {
   display: flex;
   height: 100%;
@@ -1384,7 +1482,7 @@ body.theme-ubuntu .set-nav-item.active {
   border-radius: 2px;
 }
 
-/* --- File Explorer Grid --- */
+/* File Explorer Grid */
 .fs-grid {
   display: flex;
   flex-wrap: wrap;
@@ -1421,7 +1519,7 @@ body.theme-ubuntu .set-nav-item.active {
   color: #000000;
 }
 
-/* --- Python IDE --- */
+/* Python IDE */
 .py-layout {
   display: flex;
   flex-direction: column;
@@ -1474,7 +1572,7 @@ body.theme-ubuntu .set-nav-item.active {
   line-height: 1.4;
 }
 
-/* --- Browser --- */
+/* Browser */
 .browser-bar {
   padding: 8px 14px;
   background: #f1f1f1;
@@ -1515,7 +1613,7 @@ body.theme-ubuntu .set-nav-item.active {
   background: #ffffff;
 }
 
-/* --- Weather --- */
+/* Weather */
 .weather-bar {
   padding: 15px;
   display: flex;
@@ -1555,7 +1653,7 @@ body.theme-ubuntu .set-nav-item.active {
   line-height: 1;
 }
 
-/* --- Paint --- */
+/* Paint */
 .paint-toolbar {
   padding: 8px 16px;
   background: #f5f6f7;
@@ -1582,24 +1680,7 @@ body.theme-ubuntu .set-nav-item.active {
   border-color: var(--win-blue);
 }
 
-/* --- Calculator --- */
-.calc-grid {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 8px;
-  height: 320px;
-}
-
-.calc-grid button {
-  font-size: 22px;
-  border: none;
-  border-radius: 6px;
-  background: #ffffff;
-  cursor: pointer;
-  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12);
-}
-
-/* --- Command Prompt --- */
+/* Command Prompt */
 .term-content {
   background: #0c0c0c;
   color: #cccccc;
@@ -1629,7 +1710,7 @@ body.theme-ubuntu .set-nav-item.active {
   margin: 0;
 }
 
-/* --- Notepad --- */
+/* Notepad */
 #np-text {
   width: 100%;
   height: 100%;
