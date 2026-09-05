@@ -245,14 +245,13 @@ const kernelLines = [
 ];
 
 function initOS() {
-  document.body.className = sysTheme;
+  applyCurrentTheme();
   document.getElementById('theme-select').value = sysTheme;
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('set-bg-url').value = sysBg;
   document.getElementById('np-text').value = localStorage.getItem('os_np') || '';
   
-  updateStartIcon();
   setLang(curLang);
   updateUserSelectDropdown();
   syncUsersFromCloud();
@@ -292,8 +291,10 @@ function initOS() {
       line.innerText = kernelLines[kIdx];
       kernelText.appendChild(line);
 
+      // 強制向下滾動
       kernelScreen.scrollTop = kernelScreen.scrollHeight;
 
+      // 模擬 Linux 開機卡頓：在特定硬體檢測與掛載點卡 100~500ms
       let delay = 35 + Math.random() * 25;
       if (kIdx === 14 || kIdx === 28 || kIdx === 33 || kIdx === 40 || kIdx === 50) {
         delay = 180 + Math.random() * 320;
@@ -302,6 +303,7 @@ function initOS() {
       kIdx++;
       setTimeout(printKernel, delay);
     } else {
+      // 內核滾動完畢，切換至 Windows GUI Boot (隨機 2~4 秒)
       const guiBootDuration = 2000 + Math.random() * 2000;
       setTimeout(startGUIBoot, 300, guiBootDuration);
     }
@@ -321,7 +323,7 @@ function initOS() {
 
   printKernel();
   
-  syncVFSStructure();
+  ensureUserEnvironment(sysUser);
   renderDesktop();
   renderFS();
   initPaint();
@@ -330,6 +332,17 @@ function initOS() {
   initStopwatch();
   setInterval(updateTime, 1000);
   updateTime();
+}
+
+function applyCurrentTheme() {
+  document.body.className = sysTheme;
+  const macMenu = document.getElementById('macos-menubar');
+  if (sysTheme === 'theme-macos') {
+    macMenu.style.display = 'flex';
+  } else {
+    macMenu.style.display = 'none';
+  }
+  updateStartIcon();
 }
 
 function updateStartIcon() {
@@ -424,12 +437,17 @@ function attemptLogin() {
 
   if (currentLoginUser === "User" || (targetUser && inputPw === targetUser.pw)) {
     sysUser = currentLoginUser;
+    ensureUserEnvironment(sysUser);
+
     document.getElementById('lock-screen').style.display = 'none';
     document.getElementById('desktop').style.display = 'block';
 
     document.getElementById('set-username').value = sysUser;
     document.getElementById('set-password').value = targetUser.pw;
     document.getElementById('set-avatar').value = targetUser.avatar;
+
+    renderDesktop();
+    renderFS();
 
     if (sysUser === "User") {
       document.getElementById('onboarding-modal').style.display = 'flex';
@@ -463,8 +481,9 @@ document.getElementById('ob-submit-btn').onclick = async () => {
   submitBtn.innerText = "正在推送到雲端...";
 
   await pushUserToCloud(newName, newPw, newAv);
+  ensureUserEnvironment(newName);
 
-  alert(`🎉 帳戶「${newName}」已同步至雲端！\n其他 iPad 或電腦皆可見到此帳戶。現在將自動登出。`);
+  alert(`🎉 帳戶「${newName}」已同步至雲端！\n專屬目錄 C:\\Users\\${newName} 已成功建立。現在將自動登出。`);
   
   document.getElementById('ob-username').value = '';
   document.getElementById('ob-password').value = '';
@@ -500,6 +519,22 @@ document.getElementById('pwr-shutdown').onclick = () => {
   document.getElementById('black-screen').style.display = 'block';
 };
 
+// macOS 頂部選單事件
+document.getElementById('macos-apple-btn').onclick = (e) => {
+  e.stopPropagation();
+  const dropdown = document.getElementById('macos-apple-dropdown');
+  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+};
+
+document.getElementById('mac-sleep-btn').onclick = () => {
+  document.getElementById('lock-screen').style.display = 'block';
+  document.getElementById('login-cancel').click();
+  document.getElementById('macos-apple-dropdown').style.display = 'none';
+};
+document.getElementById('mac-reboot-btn').onclick = () => document.getElementById('pwr-reboot').click();
+document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
+document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
+
 /* ==========================================================================
    4. WINDOW MANAGER (TOUCH & RESIZE ENGINE)
    ========================================================================== */
@@ -516,6 +551,7 @@ function openApp(id) {
   if (!win) return;
   win.style.display = 'flex';
   document.getElementById('start-menu').style.display = 'none';
+  document.getElementById('macos-apple-dropdown').style.display = 'none';
   
   const tbIcon = document.getElementById('tb-' + id);
   if (tbIcon) {
@@ -526,6 +562,12 @@ function openApp(id) {
   document.querySelectorAll('.taskbar-icon').forEach(icon => icon.classList.remove('active'));
   if (tbIcon) {
     tbIcon.classList.add('active');
+  }
+
+  // 更新 macOS 頂部活躍 App 標題
+  const appObj = getAllApps().find(a => a.id === id);
+  if (appObj) {
+    document.getElementById('macos-active-app-name').innerText = getAppName(appObj);
   }
 
   if (id === 'app-cmd') {
@@ -540,6 +582,7 @@ function closeApp(id) {
   if (tbIcon) {
     tbIcon.style.display = 'none';
   }
+  document.getElementById('macos-active-app-name').innerText = "Finder";
 }
 
 function toggleApp(id) {
@@ -571,13 +614,13 @@ function maxApp(id) {
     w.style.left = w.dataset.l;
     w.dataset.max = '0';
   } else {
-    w.dataset.w = w.style.width || (w.offsetWidth + 'px');
-    w.dataset.h = w.style.height || (w.offsetHeight + 'px');
-    w.dataset.t = w.style.top || (w.offsetTop + 'px');
-    w.dataset.l = w.style.left || (w.offsetLeft + 'px');
+    w.dataset.w = w.style.width || (win.offsetWidth + 'px');
+    w.dataset.h = w.style.height || (win.offsetHeight + 'px');
+    w.dataset.t = w.style.top || (win.offsetTop + 'px');
+    w.dataset.l = w.style.left || (win.offsetLeft + 'px');
     w.style.width = '100%';
-    w.style.height = 'calc(100% - var(--taskbar-height))';
-    w.style.top = document.body.classList.contains('theme-ubuntu') ? 'var(--taskbar-height)' : '0';
+    w.style.height = sysTheme === 'theme-macos' ? 'calc(100% - 88px)' : 'calc(100% - var(--taskbar-height))';
+    w.style.top = sysTheme === 'theme-macos' ? '28px' : (document.body.classList.contains('theme-ubuntu') ? 'var(--taskbar-height)' : '0');
     w.style.left = '0';
     w.dataset.max = '1';
   }
@@ -618,7 +661,8 @@ document.querySelectorAll('.title-bar').forEach(bar => {
       let newX = e.clientX - oX;
       let newY = e.clientY - oY;
 
-      if (newY < 0) newY = 0;
+      let minY = sysTheme === 'theme-macos' ? 28 : 0;
+      if (newY < minY) newY = minY;
 
       curWin.style.left = newX + 'px';
       curWin.style.top = newY + 'px';
@@ -736,13 +780,16 @@ document.addEventListener('click', (e) => {
     document.getElementById('start-menu').style.display = 'none';
     document.getElementById('power-menu').style.display = 'none';
   }
+  if (!e.target.closest('#macos-apple-dropdown') && !e.target.closest('#macos-apple-btn')) {
+    document.getElementById('macos-apple-dropdown').style.display = 'none';
+  }
   if (!e.target.closest('#context-menu')) {
     document.getElementById('context-menu').style.display = 'none';
   }
 });
 
 document.addEventListener('contextmenu', (e) => {
-  if (e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('#start-menu')) return;
+  if (e.target.closest('.window') || e.target.closest('#taskbar') || e.target.closest('#start-menu') || e.target.closest('#macos-menubar')) return;
   const contextMenu = document.getElementById('context-menu');
   contextMenu.style.display = 'block';
   contextMenu.style.left = e.clientX + 'px';
@@ -758,7 +805,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
-   5. DESKTOP ICONS (自由拖曳位置 + C:\Apps 與 Desktop 資料夾同步)
+   5. DESKTOP & REAL USER DESKTOP VFS FOLDER ENGINE
    ========================================================================== */
 
 function getAppName(app) {
@@ -770,7 +817,7 @@ function getAllApps() {
   return [...coreApps, ...custom];
 }
 
-// 渲染桌面圖示，支援拖曳任意座標定位
+// 渲染桌面圖示（包含專屬回收筒捷徑，支援自由拖曳儲存座標）
 function renderDesktop() {
   const desktopBox = document.getElementById('desktop-icons');
   const startList = document.getElementById('start-app-list');
@@ -783,31 +830,42 @@ function renderDesktop() {
   taskbarApps.innerHTML = '';
 
   const allApps = getAllApps();
+
+  // 1. 加入 Rubbish Bin 桌面圖示
+  const rubbishBinIcon = {
+    id: 'special-rubbish-bin',
+    name: '資源回收筒',
+    icon: 'https://cdn-icons-png.flaticon.com/512/3221/3221803.png',
+    action: () => {
+      openApp('app-explorer');
+      navigateVFS(['C:', 'RubbishBin']);
+    }
+  };
+
+  const desktopEntries = [rubbishBinIcon, ...allApps];
+
   let defaultX = 20;
-  let defaultY = 20;
+  let defaultY = sysTheme === 'theme-macos' ? 45 : 20;
 
-  allApps.forEach((app, idx) => {
-    const displayName = getAppName(app);
-
-    // 建立桌面圖示元素
+  desktopEntries.forEach((item) => {
+    const displayName = item.name ? item.name : getAppName(item);
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
-    iconItem.dataset.id = app.id;
+    iconItem.dataset.id = item.id;
 
-    // 計算預設位置或讀取保存的位置
-    if (!desktopPositions[app.id]) {
-      desktopPositions[app.id] = { left: defaultX, top: defaultY };
-      defaultY += 100;
+    if (!desktopPositions[item.id]) {
+      desktopPositions[item.id] = { left: defaultX, top: defaultY };
+      defaultY += 105;
       if (defaultY > window.innerHeight - 150) {
-        defaultY = 20;
+        defaultY = sysTheme === 'theme-macos' ? 45 : 20;
         defaultX += 95;
       }
     }
 
-    iconItem.style.left = desktopPositions[app.id].left + 'px';
-    iconItem.style.top = desktopPositions[app.id].top + 'px';
+    iconItem.style.left = desktopPositions[item.id].left + 'px';
+    iconItem.style.top = desktopPositions[item.id].top + 'px';
 
-    // 自由拖曳定位邏輯 (Pointer Events 原生相容 iPad 及滑鼠)
+    // 觸控與滑鼠拖曳擺位
     let iconDragging = false;
     let iconStartX, iconStartY, iconOffsetX, iconOffsetY;
     let hasMoved = false;
@@ -830,8 +888,9 @@ function renderDesktop() {
       if (hasMoved) {
         let posX = e.clientX - iconOffsetX;
         let posY = e.clientY - iconOffsetY;
+        let minY = sysTheme === 'theme-macos' ? 28 : 0;
         if (posX < 0) posX = 0;
-        if (posY < 0) posY = 0;
+        if (posY < minY) posY = minY;
         iconItem.style.left = posX + 'px';
         iconItem.style.top = posY + 'px';
       }
@@ -842,14 +901,17 @@ function renderDesktop() {
         iconDragging = false;
         try { iconItem.releasePointerCapture(e.pointerId); } catch(err) {}
         if (hasMoved) {
-          desktopPositions[app.id] = {
+          desktopPositions[item.id] = {
             left: parseInt(iconItem.style.left, 10),
             top: parseInt(iconItem.style.top, 10)
           };
           localStorage.setItem('os_desktop_pos', JSON.stringify(desktopPositions));
         } else {
-          // 未拖動則視為點擊開啟
-          openApp(app.id);
+          if (item.action) {
+            item.action();
+          } else {
+            openApp(item.id);
+          }
         }
       }
     };
@@ -857,35 +919,34 @@ function renderDesktop() {
     iconItem.addEventListener('pointerup', stopIconDrag);
     iconItem.addEventListener('pointercancel', stopIconDrag);
 
-    iconItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
+    iconItem.innerHTML = `<img src="${item.icon}"><span>${displayName}</span>`;
     desktopBox.appendChild(iconItem);
 
-    // 開始選單項目
-    const listItem = document.createElement('div');
-    listItem.className = 'start-app-item';
-    listItem.onclick = () => openApp(app.id);
-    listItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
-    startList.appendChild(listItem);
+    if (item.id !== 'special-rubbish-bin') {
+      const listItem = document.createElement('div');
+      listItem.className = 'start-app-item';
+      listItem.onclick = () => openApp(item.id);
+      listItem.innerHTML = `<img src="${item.icon}"><span>${displayName}</span>`;
+      startList.appendChild(listItem);
 
-    // 開始選單磁貼
-    const tileItem = document.createElement('div');
-    tileItem.className = 'tile';
-    tileItem.onclick = () => openApp(app.id);
-    tileItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
-    startTiles.appendChild(tileItem);
+      const tileItem = document.createElement('div');
+      tileItem.className = 'tile';
+      tileItem.onclick = () => openApp(item.id);
+      tileItem.innerHTML = `<img src="${item.icon}"><span>${displayName}</span>`;
+      startTiles.appendChild(tileItem);
 
-    // 工作列 / macOS Dock 按鈕
-    const tbItem = document.createElement('div');
-    tbItem.className = 'taskbar-icon';
-    tbItem.id = 'tb-' + app.id;
-    tbItem.title = displayName;
-    tbItem.style.display = 'none';
-    tbItem.addEventListener('pointerdown', (e) => {
-      e.stopPropagation();
-      toggleApp(app.id);
-    });
-    tbItem.innerHTML = `<img src="${app.icon}">`;
-    taskbarApps.appendChild(tbItem);
+      const tbItem = document.createElement('div');
+      tbItem.className = 'taskbar-icon';
+      tbItem.id = 'tb-' + item.id;
+      tbItem.title = displayName;
+      tbItem.style.display = 'none';
+      tbItem.addEventListener('pointerdown', (e) => {
+        e.stopPropagation();
+        toggleApp(item.id);
+      });
+      tbItem.innerHTML = `<img src="${item.icon}">`;
+      taskbarApps.appendChild(tbItem);
+    }
   });
 }
 
@@ -909,7 +970,7 @@ function renderStore() {
       if (isInst) {
         uninstallApp(app.id);
       } else {
-        openInstaller(app); // 啟動安裝嚮導精靈
+        openInstaller(app);
       }
     };
 
@@ -920,18 +981,29 @@ function renderStore() {
   });
 }
 
+function installApp(id) {
+  if (!installedApps.includes(id)) {
+    installedApps.push(id);
+    localStorage.setItem('os_apps', JSON.stringify(installedApps));
+    ensureUserEnvironment(sysUser);
+    renderDesktop();
+    renderStore();
+    renderFS();
+  }
+}
+
 function uninstallApp(id) {
   installedApps = installedApps.filter(appId => appId !== id);
   localStorage.setItem('os_apps', JSON.stringify(installedApps));
   closeApp(id);
-  syncVFSStructure();
+  ensureUserEnvironment(sysUser);
   renderDesktop();
   renderStore();
   renderFS();
 }
 
 /* ==========================================================================
-   6. WINDOWS PROGRAM SETUP WIZARD (真實軟體安裝精靈)
+   6. WINDOWS PROGRAM SETUP WIZARD
    ========================================================================== */
 
 let pendingInstallApp = null;
@@ -965,31 +1037,31 @@ function startInstallProgress() {
   fill.style.width = '0%';
 
   const timer = setInterval(() => {
-    pct += Math.floor(Math.random() * 12) + 6;
+    pct += Math.floor(Math.random() * 14) + 8;
     if (pct > 100) pct = 100;
 
     fill.style.width = pct + '%';
     percentText.innerText = pct + '%';
 
-    if (pct < 40) statusText.innerText = "正在複製檔案至 C:\\Apps...";
-    else if (pct < 80) statusText.innerText = "正在建立桌面快捷方式至 C:\\Users\\Admin\\Desktop...";
-    else statusText.innerText = "正在註冊系統元件並完成設定...";
+    if (pct < 40) statusText.innerText = "正在複製二進制檔案至 C:\\Apps...";
+    else if (pct < 80) statusText.innerText = `正在寫入捷徑至 C:\\Users\\${sysUser}\\Desktop...`;
+    else statusText.innerText = "正在向 WebOS 註冊系統服務元件...";
 
     if (pct >= 100) {
       clearInterval(timer);
       setTimeout(() => {
         document.getElementById('inst-step-progress').style.display = 'none';
         document.getElementById('inst-step-finish').style.display = 'flex';
-      }, 400);
+      }, 350);
     }
-  }, 120);
+  }, 100);
 }
 
 function finishInstallation() {
   if (pendingInstallApp && !installedApps.includes(pendingInstallApp.id)) {
     installedApps.push(pendingInstallApp.id);
     localStorage.setItem('os_apps', JSON.stringify(installedApps));
-    syncVFSStructure();
+    ensureUserEnvironment(sysUser);
     renderDesktop();
     renderStore();
     renderFS();
@@ -998,14 +1070,14 @@ function finishInstallation() {
 }
 
 /* ==========================================================================
-   7. REAL VFS ENGINE (C:\Apps, C:\Users\Admin\Desktop 與系統檔案)
+   7. MULTI-USER VFS ENGINE & RUBBISH BIN (防護系統核心檔)
    ========================================================================== */
 
 const INITIAL_VFS = {
-  "README.txt": "歡迎來到 WebOS Project Horizon 虛擬檔案系統！\n所有建立的檔案皆即時保存在 LocalStorage 中。",
   "System": {
-    "system.js": "// WebOS Core Logic Source Code Mounted\nconsole.log('Kernel Running');",
-    "style.css": "/* WebOS Dynamic Adaptive Theme Stylesheet */",
+    "isSystemProtected": true,
+    "system.js": "// WebOS Core Kernel Logic Protected\nconsole.log('Kernel Running');",
+    "style.css": "/* WebOS Adaptive Theme Stylesheet */",
     "copyright.txt": `MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -1028,37 +1100,58 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`
   },
-  "Apps": {},
+  "Apps": {
+    "isSystemProtected": false
+  },
   "Users": {
+    "isSystemProtected": false,
     "Admin": {
       "Desktop": {},
       "Documents": {
-        "Notes.txt": "會議記錄：系統已全面支援全觸控與資料夾導航。"
+        "Admin_Notes.txt": "系統最高權限管理員個人檔案夾。"
+      }
+    },
+    "User": {
+      "Desktop": {},
+      "Documents": {
+        "Welcome.txt": "歡迎來到您的個人空間！"
       }
     }
+  },
+  "RubbishBin": {
+    "isSystemProtected": true
   }
 };
 
-let vfs = JSON.parse(localStorage.getItem('os_vfs_v3')) || INITIAL_VFS;
+let vfs = JSON.parse(localStorage.getItem('os_vfs_v4')) || INITIAL_VFS;
 let currentVFSPath = ["C:"];
 
 function saveVFS() {
-  localStorage.setItem('os_vfs_v3', JSON.stringify(vfs));
+  localStorage.setItem('os_vfs_v4', JSON.stringify(vfs));
 }
 
-// 同步 C:\Apps 和 C:\Users\Admin\Desktop 內容
-function syncVFSStructure() {
+// 自動為當前登入者建立專屬 C:\Users\<username> 資料夾
+function ensureUserEnvironment(username) {
+  if (!vfs["Users"]) vfs["Users"] = { isSystemProtected: false };
+  if (!vfs["Users"][username]) {
+    vfs["Users"][username] = {
+      "Desktop": {},
+      "Documents": {
+        "About_Me.txt": `這是 ${username} 的個人專屬資料夾。\n所有存放在 Desktop 的檔案都會同步顯示在您的桌面上！`
+      }
+    };
+  }
+  if (!vfs["Users"][username]["Desktop"]) vfs["Users"][username]["Desktop"] = {};
+  if (!vfs["Users"][username]["Documents"]) vfs["Users"][username]["Documents"] = {};
   if (!vfs["Apps"]) vfs["Apps"] = {};
-  if (!vfs["Users"]) vfs["Users"] = { "Admin": { "Desktop": {}, "Documents": {} } };
-  if (!vfs["Users"]["Admin"]) vfs["Users"]["Admin"] = { "Desktop": {}, "Documents": {} };
-  if (!vfs["Users"]["Admin"]["Desktop"]) vfs["Users"]["Admin"]["Desktop"] = {};
+  if (!vfs["RubbishBin"]) vfs["RubbishBin"] = { isSystemProtected: true };
 
   const allApps = getAllApps();
 
-  // 更新 C:\Apps
+  // 同步應用程式捷徑至 C:\Apps
   allApps.forEach(app => {
-    const fileName = `${getAppName(app)}.app`;
-    vfs["Apps"][fileName] = {
+    const appKey = `${getAppName(app)}.app`;
+    vfs["Apps"][appKey] = {
       isAppShortcut: true,
       appId: app.id,
       name: getAppName(app),
@@ -1066,10 +1159,10 @@ function syncVFSStructure() {
     };
   });
 
-  // 更新 C:\Users\Admin\Desktop
+  // 同步桌面捷徑至當前用戶的 Desktop 目錄
   allApps.forEach(app => {
-    const lnkName = `${getAppName(app)}.lnk`;
-    vfs["Users"]["Admin"]["Desktop"][lnkName] = {
+    const lnkKey = `${getAppName(app)}.lnk`;
+    vfs["Users"][username]["Desktop"][lnkKey] = {
       isAppShortcut: true,
       appId: app.id,
       name: getAppName(app),
@@ -1092,6 +1185,14 @@ function getNodeByPath(pathArray) {
   return curr;
 }
 
+function openCurrentUserDesktop() {
+  navigateVFS(['C:', 'Users', sysUser, 'Desktop']);
+}
+
+function openCurrentUserDocuments() {
+  navigateVFS(['C:', 'Users', sysUser, 'Documents']);
+}
+
 function navigateVFS(targetPathArray) {
   currentVFSPath = [...targetPathArray];
   renderFS();
@@ -1105,22 +1206,46 @@ function renderFS() {
   fsGrid.innerHTML = '';
   pathLabel.innerText = currentVFSPath.join('\\') + "\\";
 
-  document.querySelectorAll('.win10-sidebar .side-item').forEach(item => {
-    item.classList.remove('active');
-  });
+  // 更新側邊欄文字提示
+  document.getElementById('nav-side-desktop').innerText = `🖥️ 桌面 (${sysUser})`;
+  document.getElementById('nav-side-documents').innerText = `📄 文件 (${sysUser})`;
 
   const currentDir = getNodeByPath(currentVFSPath);
   if (!currentDir) return;
 
+  const isInsideBin = currentVFSPath.length === 2 && currentVFSPath[1] === "RubbishBin";
+  const isInsideSystem = currentVFSPath.includes("System");
+
+  // 如果在資源回收筒內，頂部顯示清空按鈕
+  if (isInsideBin) {
+    const emptyBar = document.createElement('div');
+    emptyBar.style.width = "100%";
+    emptyBar.style.padding = "6px 12px";
+    emptyBar.style.background = "#fff3cd";
+    emptyBar.style.color = "#856404";
+    emptyBar.style.fontSize = "12px";
+    emptyBar.style.display = "flex";
+    emptyBar.style.justifyContent = "space-between";
+    emptyBar.style.alignItems = "center";
+    emptyBar.innerHTML = `
+      <span>🗑️ 資源回收筒 (垃圾暫存區)</span>
+      <button class="set-btn" style="background:#dc3545; color:#fff; padding:4px 10px; font-size:11px;" onclick="emptyRubbishBin()">清空資源回收筒</button>
+    `;
+    fsGrid.appendChild(emptyBar);
+  }
+
   let count = 0;
   for (let name in currentDir) {
+    if (name === "isSystemProtected") continue;
     count++;
     const itemData = currentDir[name];
     const isFolder = typeof itemData === 'object' && !itemData.isAppShortcut;
     const isApp = typeof itemData === 'object' && itemData.isAppShortcut;
 
     let iconSrc = 'https://cdn-icons-png.flaticon.com/512/2965/2965335.png';
-    if (isFolder) {
+    if (name === "RubbishBin") {
+      iconSrc = 'https://cdn-icons-png.flaticon.com/512/3221/3221803.png';
+    } else if (isFolder) {
       iconSrc = 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png';
     } else if (isApp) {
       iconSrc = itemData.icon || 'https://cdn-icons-png.flaticon.com/512/888/888846.png';
@@ -1147,19 +1272,53 @@ function renderFS() {
       };
     }
 
-    // 檔案右鍵重命名與刪除功能
+    // 右鍵選單：回收筒操作 vs 刪除至回收筒
     item.oncontextmenu = (e) => {
       e.preventDefault();
-      const action = prompt(`操作檔案 [${name}]\n輸入 'del' 刪除，或輸入新名稱進行重新命名:`, name);
+
+      // 1. 系統檔案保護檢查
+      if (isInsideSystem || name === "System" || name === "RubbishBin") {
+        alert("🔒 系統核心檔案受到防護，無法被刪除或重新命名！");
+        return;
+      }
+
+      // 2. 如果在資源回收筒內：還原或徹底銷毀
+      if (isInsideBin) {
+        const binChoice = confirm(`檔案 [${name}] 正存放於資源回收筒中。\n點擊「確定」還原至桌面，點擊「取消」將其永久抹除！`);
+        if (binChoice) {
+          // 還原到當前用戶的桌面
+          vfs["Users"][sysUser]["Desktop"][name] = itemData;
+          delete currentDir[name];
+          saveVFS();
+          renderFS();
+          renderDesktop();
+          alert(`✅ 已將 ${name} 還原至 ${sysUser} 的桌面。`);
+        } else {
+          if (confirm(`⚠️ 確定要永久刪除 ${name} 嗎？此操作無法撤銷！`)) {
+            delete currentDir[name];
+            saveVFS();
+            renderFS();
+          }
+        }
+        return;
+      }
+
+      // 3. 一般目錄檔案：重新命名或送至回收筒
+      const action = prompt(`操作檔案 [${name}]\n輸入 'del' 將其丟入資源回收筒，或輸入新名稱進行更名:`, name);
       if (action === 'del') {
+        // 移動至資源回收筒
+        vfs["RubbishBin"][name] = itemData;
         delete currentDir[name];
         saveVFS();
         renderFS();
+        renderDesktop();
+        alert(`🗑️ 檔案 [${name}] 已移至資源回收筒。`);
       } else if (action && action !== name) {
         currentDir[action] = currentDir[name];
         delete currentDir[name];
         saveVFS();
         renderFS();
+        renderDesktop();
       }
     };
 
@@ -1169,6 +1328,15 @@ function renderFS() {
 
   statusCount.innerText = `${count} 個項目`;
 }
+
+// 清空資源回收筒
+window.emptyRubbishBin = () => {
+  if (confirm("⚠️ 確定要清空資源回收筒？所有被刪除的檔案將被永久銷毀！")) {
+    vfs["RubbishBin"] = { isSystemProtected: true };
+    saveVFS();
+    renderFS();
+  }
+};
 
 document.getElementById('fs-btn-back').onclick = () => {
   if (currentVFSPath.length > 1) {
@@ -1185,6 +1353,10 @@ document.getElementById('fs-btn-up-dir').onclick = () => {
 };
 
 document.getElementById('fs-btn-new').onclick = () => {
+  if (currentVFSPath.includes("System")) {
+    alert("🔒 系統核心目錄受保護，不允許新建檔案。");
+    return;
+  }
   const name = prompt("文字檔案名稱:", "NewFile.txt");
   if (name) {
     const dir = getNodeByPath(currentVFSPath);
@@ -1197,6 +1369,10 @@ document.getElementById('fs-btn-new').onclick = () => {
 };
 
 document.getElementById('fs-btn-new-dir').onclick = () => {
+  if (currentVFSPath.includes("System")) {
+    alert("🔒 系統核心目錄受保護，不允許新建資料夾。");
+    return;
+  }
   const name = prompt("資料夾名稱:", "NewFolder");
   if (name) {
     const dir = getNodeByPath(currentVFSPath);
@@ -1209,6 +1385,10 @@ document.getElementById('fs-btn-new-dir').onclick = () => {
 };
 
 document.getElementById('fs-btn-up').onclick = () => {
+  if (currentVFSPath.includes("System")) {
+    alert("🔒 系統核心目錄受保護，不允許上傳。");
+    return;
+  }
   document.getElementById('fs-upload').click();
 };
 
@@ -1228,11 +1408,12 @@ document.getElementById('fs-upload').onchange = (e) => {
 };
 
 document.getElementById('fs-btn-clear').onclick = () => {
-  if (confirm("格式化虛擬磁碟？將還原至初始狀態。")) {
+  if (confirm("格式化虛擬磁碟？將還原至出廠狀態。")) {
     vfs = INITIAL_VFS;
     currentVFSPath = ["C:"];
-    syncVFSStructure();
+    ensureUserEnvironment(sysUser);
     renderFS();
+    renderDesktop();
   }
 };
 
@@ -1245,7 +1426,7 @@ document.getElementById('fs-search-input').oninput = (e) => {
 };
 
 /* ==========================================================================
-   8. COMMAND PROMPT (支援真實資料夾切換與重定向)
+   8. COMMAND PROMPT (支援回收筒與系統保護)
    ========================================================================== */
 
 let cmdHistory = [];
@@ -1304,6 +1485,10 @@ function executeCommand(cmdStr, rawLine) {
     const leftText = parts[0].trim();
     const targetFileName = parts[1].trim();
     if (leftText.toLowerCase().startsWith('echo ') && targetFileName) {
+      if (cmdPathArray.includes("System")) {
+        cmdOutput.innerHTML += `<div>存取遭拒。系統核心檔案受到防寫保護。</div>`;
+        return;
+      }
       if (currentDir) {
         currentDir[targetFileName] = leftText.substring(5);
         saveVFS();
@@ -1325,7 +1510,7 @@ CD [路徑]      變更目錄或顯示當前路徑。<br>
 CLS            清除命令列所有文字。<br>
 COLOR [代碼]   設定終端機字體顏色 (0a, 0c, 0f, 0e)。<br>
 DATE           顯示當前系統日期。<br>
-DEL [檔案]     刪除當前目錄中的檔案。<br>
+DEL [檔案]     刪除檔案並移送至資源回收筒。<br>
 DIR            顯示當前目錄之檔案與子目錄清單。<br>
 ECHO [文字]    輸出訊息，或將輸出重定向至指定檔案。<br>
 EXIT           關閉終端機視窗。<br>
@@ -1347,6 +1532,7 @@ VER            顯示 Windows 版本號碼。<br>
       let byteCount = 0;
 
       for (let item in currentDir) {
+        if (item === "isSystemProtected") continue;
         const itemObj = currentDir[item];
         if (typeof itemObj === 'object' && !itemObj.isAppShortcut) {
           dirHTML += `<div>${dateStr}  &lt;DIR&gt;          ${item}</div>`;
@@ -1416,11 +1602,15 @@ VER            顯示 Windows 版本號碼。<br>
     case 'del':
       if (!args[0]) {
         cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
+      } else if (cmdPathArray.includes("System") || args[0] === "System" || args[0] === "RubbishBin") {
+        cmdOutput.innerHTML += `<div>存取遭拒。此為系統保護檔案，禁止刪除。</div>`;
       } else if (currentDir && currentDir[args[0]] !== undefined) {
+        vfs["RubbishBin"][args[0]] = currentDir[args[0]];
         delete currentDir[args[0]];
         saveVFS();
         renderFS();
-        cmdOutput.innerHTML += `<div>已刪除: ${args[0]}</div>`;
+        renderDesktop();
+        cmdOutput.innerHTML += `<div>已將 ${args[0]} 丟入資源回收筒。</div>`;
       } else {
         cmdOutput.innerHTML += `<div>找不到指定檔案。</div>`;
       }
@@ -1430,6 +1620,8 @@ VER            顯示 Windows 版本號碼。<br>
     case 'mkdir':
       if (!args[0]) {
         cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
+      } else if (cmdPathArray.includes("System")) {
+        cmdOutput.innerHTML += `<div>存取遭拒。系統目錄禁止建立子資料夾。</div>`;
       } else if (currentDir) {
         currentDir[args[0]] = {};
         saveVFS();
@@ -1460,7 +1652,7 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   9. ENHANCED WINDOWS 10 CALCULATOR (WITH HISTORY & SCIENTIFIC MODE)
+   9. ENHANCED WINDOWS 10 CALCULATOR LOGIC (WITH REAL FLYOUT)
    ========================================================================== */
 
 let calcExpr = "";
@@ -1680,7 +1872,7 @@ function initCalc() {
 }
 
 /* ==========================================================================
-   10. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
+   10. SETTINGS & APP LAUNCHERS
    ========================================================================== */
 
 function initGuide() {
@@ -1705,16 +1897,24 @@ document.querySelectorAll('.set-nav-item').forEach(item => {
 
 window.changeTheme = () => {
   sysTheme = document.getElementById('theme-select').value;
-  document.body.className = sysTheme;
   localStorage.setItem('os_theme', sysTheme);
-  updateStartIcon();
+  applyCurrentTheme();
+  renderDesktop();
 };
+
+document.getElementById('theme-select').onchange = changeTheme;
 
 window.changeWallpaper = () => {
   sysBg = document.getElementById('set-bg-url').value;
   localStorage.setItem('os_bg', sysBg);
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`;
+};
+
+document.getElementById('btn-apply-bg').onclick = changeWallpaper;
+document.getElementById('btn-default-bg').onclick = () => {
+  document.getElementById('set-bg-url').value = 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500';
+  changeWallpaper();
 };
 
 document.getElementById('btn-save-acc').onclick = () => {
@@ -1731,6 +1931,7 @@ document.getElementById('btn-save-acc').onclick = () => {
     isGuest: false
   };
   localStorage.setItem('os_users_db', JSON.stringify(usersDB));
+  ensureUserEnvironment(u);
   updateUserSelectDropdown();
   alert("帳戶資料已更新！");
 };
@@ -1748,6 +1949,7 @@ document.getElementById('btn-create-acc').onclick = async () => {
   const btn = document.getElementById('btn-create-acc');
   btn.innerText = "正在推送到雲端...";
   await pushUserToCloud(n, p, a);
+  ensureUserEnvironment(n);
 
   document.getElementById('new-u-name').value = '';
   document.getElementById('new-u-pw').value = '';
@@ -2035,6 +2237,9 @@ function updateTime() {
   document.getElementById('tb-date').innerText = dateStr;
   document.getElementById('lock-huge-time').innerText = timeStr;
   document.getElementById('lock-huge-date').innerText = dateStr;
+
+  const macClock = document.getElementById('macos-clock');
+  if (macClock) macClock.innerText = timeStr;
 }
 
 window.addEventListener('DOMContentLoaded', initOS);
