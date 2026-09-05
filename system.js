@@ -137,6 +137,9 @@ let installedApps = JSON.parse(localStorage.getItem('os_apps')) || [
   'app-synth'
 ];
 
+// 桌面圖示坐標保存庫
+let desktopPositions = JSON.parse(localStorage.getItem('os_desktop_pos')) || {};
+
 /* ==========================================================================
    2. CLOUD USER DATA SYNCHRONIZATION
    ========================================================================== */
@@ -318,6 +321,7 @@ function initOS() {
 
   printKernel();
   
+  syncVFSStructure();
   renderDesktop();
   renderFS();
   initPaint();
@@ -509,6 +513,7 @@ function openApp(id) {
   }
 
   const win = document.getElementById(id);
+  if (!win) return;
   win.style.display = 'flex';
   document.getElementById('start-menu').style.display = 'none';
   
@@ -530,7 +535,7 @@ function openApp(id) {
 
 function closeApp(id) {
   const win = document.getElementById(id);
-  win.style.display = 'none';
+  if (win) win.style.display = 'none';
   const tbIcon = document.getElementById('tb-' + id);
   if (tbIcon) {
     tbIcon.style.display = 'none';
@@ -539,6 +544,7 @@ function closeApp(id) {
 
 function toggleApp(id) {
   const w = document.getElementById(id);
+  if (!w) return;
   if (w.style.display === 'flex' && w.style.zIndex == zIndex) {
     minApp(id);
   } else {
@@ -548,7 +554,7 @@ function toggleApp(id) {
 
 function minApp(id) {
   const win = document.getElementById(id);
-  win.style.display = 'none';
+  if (win) win.style.display = 'none';
   const tbIcon = document.getElementById('tb-' + id);
   if (tbIcon) {
     tbIcon.classList.remove('active');
@@ -556,23 +562,24 @@ function minApp(id) {
 }
 
 function maxApp(id) {
-  const win = document.getElementById(id);
-  if (win.dataset.max === '1') {
-    win.style.width = win.dataset.w;
-    win.style.height = win.dataset.h;
-    win.style.top = win.dataset.t;
-    win.style.left = win.dataset.l;
-    win.dataset.max = '0';
+  const w = document.getElementById(id);
+  if (!w) return;
+  if (w.dataset.max === '1') {
+    w.style.width = w.dataset.w;
+    w.style.height = w.dataset.h;
+    w.style.top = w.dataset.t;
+    w.style.left = w.dataset.l;
+    w.dataset.max = '0';
   } else {
-    win.dataset.w = win.style.width || (win.offsetWidth + 'px');
-    win.dataset.h = win.style.height || (win.offsetHeight + 'px');
-    win.dataset.t = win.style.top || (win.offsetTop + 'px');
-    win.dataset.l = win.style.left || (win.offsetLeft + 'px');
-    win.style.width = '100%';
-    win.style.height = 'calc(100% - var(--taskbar-height))';
-    win.style.top = document.body.classList.contains('theme-ubuntu') ? 'var(--taskbar-height)' : '0';
-    win.style.left = '0';
-    win.dataset.max = '1';
+    w.dataset.w = w.style.width || (w.offsetWidth + 'px');
+    w.dataset.h = w.style.height || (w.offsetHeight + 'px');
+    w.dataset.t = w.style.top || (w.offsetTop + 'px');
+    w.dataset.l = w.style.left || (w.offsetLeft + 'px');
+    w.style.width = '100%';
+    w.style.height = 'calc(100% - var(--taskbar-height))';
+    w.style.top = document.body.classList.contains('theme-ubuntu') ? 'var(--taskbar-height)' : '0';
+    w.style.left = '0';
+    w.dataset.max = '1';
   }
 }
 
@@ -751,7 +758,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
-   5. DESKTOP & DOCK INTERACTION LOGIC
+   5. DESKTOP ICONS (自由拖曳位置 + C:\Apps 與 Desktop 資料夾同步)
    ========================================================================== */
 
 function getAppName(app) {
@@ -763,6 +770,7 @@ function getAllApps() {
   return [...coreApps, ...custom];
 }
 
+// 渲染桌面圖示，支援拖曳任意座標定位
 function renderDesktop() {
   const desktopBox = document.getElementById('desktop-icons');
   const startList = document.getElementById('start-app-list');
@@ -774,44 +782,108 @@ function renderDesktop() {
   startTiles.innerHTML = '';
   taskbarApps.innerHTML = '';
 
-  getAllApps().forEach(app => {
+  const allApps = getAllApps();
+  let defaultX = 20;
+  let defaultY = 20;
+
+  allApps.forEach((app, idx) => {
     const displayName = getAppName(app);
 
+    // 建立桌面圖示元素
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
+    iconItem.dataset.id = app.id;
 
-    iconItem.addEventListener('click', () => {
-      openApp(app.id);
+    // 計算預設位置或讀取保存的位置
+    if (!desktopPositions[app.id]) {
+      desktopPositions[app.id] = { left: defaultX, top: defaultY };
+      defaultY += 100;
+      if (defaultY > window.innerHeight - 150) {
+        defaultY = 20;
+        defaultX += 95;
+      }
+    }
+
+    iconItem.style.left = desktopPositions[app.id].left + 'px';
+    iconItem.style.top = desktopPositions[app.id].top + 'px';
+
+    // 自由拖曳定位邏輯 (Pointer Events 原生相容 iPad 及滑鼠)
+    let iconDragging = false;
+    let iconStartX, iconStartY, iconOffsetX, iconOffsetY;
+    let hasMoved = false;
+
+    iconItem.addEventListener('pointerdown', (e) => {
+      iconDragging = true;
+      hasMoved = false;
+      iconStartX = e.clientX;
+      iconStartY = e.clientY;
+      iconOffsetX = e.clientX - iconItem.offsetLeft;
+      iconOffsetY = e.clientY - iconItem.offsetTop;
+      iconItem.setPointerCapture(e.pointerId);
     });
+
+    iconItem.addEventListener('pointermove', (e) => {
+      if (!iconDragging) return;
+      if (Math.abs(e.clientX - iconStartX) > 5 || Math.abs(e.clientY - iconStartY) > 5) {
+        hasMoved = true;
+      }
+      if (hasMoved) {
+        let posX = e.clientX - iconOffsetX;
+        let posY = e.clientY - iconOffsetY;
+        if (posX < 0) posX = 0;
+        if (posY < 0) posY = 0;
+        iconItem.style.left = posX + 'px';
+        iconItem.style.top = posY + 'px';
+      }
+    });
+
+    const stopIconDrag = (e) => {
+      if (iconDragging) {
+        iconDragging = false;
+        try { iconItem.releasePointerCapture(e.pointerId); } catch(err) {}
+        if (hasMoved) {
+          desktopPositions[app.id] = {
+            left: parseInt(iconItem.style.left, 10),
+            top: parseInt(iconItem.style.top, 10)
+          };
+          localStorage.setItem('os_desktop_pos', JSON.stringify(desktopPositions));
+        } else {
+          // 未拖動則視為點擊開啟
+          openApp(app.id);
+        }
+      }
+    };
+
+    iconItem.addEventListener('pointerup', stopIconDrag);
+    iconItem.addEventListener('pointercancel', stopIconDrag);
 
     iconItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     desktopBox.appendChild(iconItem);
 
+    // 開始選單項目
     const listItem = document.createElement('div');
     listItem.className = 'start-app-item';
     listItem.onclick = () => openApp(app.id);
     listItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     startList.appendChild(listItem);
 
+    // 開始選單磁貼
     const tileItem = document.createElement('div');
     tileItem.className = 'tile';
     tileItem.onclick = () => openApp(app.id);
     tileItem.innerHTML = `<img src="${app.icon}"><span>${displayName}</span>`;
     startTiles.appendChild(tileItem);
 
-    // 工作列 / macOS Dock 按鈕建立
+    // 工作列 / macOS Dock 按鈕
     const tbItem = document.createElement('div');
     tbItem.className = 'taskbar-icon';
     tbItem.id = 'tb-' + app.id;
     tbItem.title = displayName;
     tbItem.style.display = 'none';
-    
-    // 支援觸控與滑鼠即時開啟/切換
     tbItem.addEventListener('pointerdown', (e) => {
       e.stopPropagation();
       toggleApp(app.id);
     });
-    
     tbItem.innerHTML = `<img src="${app.icon}">`;
     taskbarApps.appendChild(tbItem);
   });
@@ -837,7 +909,7 @@ function renderStore() {
       if (isInst) {
         uninstallApp(app.id);
       } else {
-        installApp(app.id);
+        openInstaller(app); // 啟動安裝嚮導精靈
       }
     };
 
@@ -848,25 +920,85 @@ function renderStore() {
   });
 }
 
-function installApp(id) {
-  if (!installedApps.includes(id)) {
-    installedApps.push(id);
-    localStorage.setItem('os_apps', JSON.stringify(installedApps));
-    renderDesktop();
-    renderStore();
-  }
-}
-
 function uninstallApp(id) {
   installedApps = installedApps.filter(appId => appId !== id);
   localStorage.setItem('os_apps', JSON.stringify(installedApps));
   closeApp(id);
+  syncVFSStructure();
   renderDesktop();
   renderStore();
+  renderFS();
 }
 
 /* ==========================================================================
-   6. WINDOWS 10 STYLE FILE EXPLORER (帶 Ribbon 及導航窗格)
+   6. WINDOWS PROGRAM SETUP WIZARD (真實軟體安裝精靈)
+   ========================================================================== */
+
+let pendingInstallApp = null;
+
+function openInstaller(app) {
+  pendingInstallApp = app;
+  openApp('app-installer');
+
+  document.getElementById('inst-app-name').innerText = `安裝 ${getAppName(app)} (Setup)`;
+  document.getElementById('inst-agree-chk').checked = false;
+  document.getElementById('inst-next-btn').disabled = true;
+
+  document.getElementById('inst-step-welcome').style.display = 'flex';
+  document.getElementById('inst-step-progress').style.display = 'none';
+  document.getElementById('inst-step-finish').style.display = 'none';
+}
+
+document.getElementById('inst-agree-chk').onchange = (e) => {
+  document.getElementById('inst-next-btn').disabled = !e.target.checked;
+};
+
+function startInstallProgress() {
+  document.getElementById('inst-step-welcome').style.display = 'none';
+  document.getElementById('inst-step-progress').style.display = 'flex';
+
+  const fill = document.getElementById('inst-progress-fill');
+  const percentText = document.getElementById('inst-percent');
+  const statusText = document.getElementById('inst-status-text');
+
+  let pct = 0;
+  fill.style.width = '0%';
+
+  const timer = setInterval(() => {
+    pct += Math.floor(Math.random() * 12) + 6;
+    if (pct > 100) pct = 100;
+
+    fill.style.width = pct + '%';
+    percentText.innerText = pct + '%';
+
+    if (pct < 40) statusText.innerText = "正在複製檔案至 C:\\Apps...";
+    else if (pct < 80) statusText.innerText = "正在建立桌面快捷方式至 C:\\Users\\Admin\\Desktop...";
+    else statusText.innerText = "正在註冊系統元件並完成設定...";
+
+    if (pct >= 100) {
+      clearInterval(timer);
+      setTimeout(() => {
+        document.getElementById('inst-step-progress').style.display = 'none';
+        document.getElementById('inst-step-finish').style.display = 'flex';
+      }, 400);
+    }
+  }, 120);
+}
+
+function finishInstallation() {
+  if (pendingInstallApp && !installedApps.includes(pendingInstallApp.id)) {
+    installedApps.push(pendingInstallApp.id);
+    localStorage.setItem('os_apps', JSON.stringify(installedApps));
+    syncVFSStructure();
+    renderDesktop();
+    renderStore();
+    renderFS();
+  }
+  closeApp('app-installer');
+}
+
+/* ==========================================================================
+   7. REAL VFS ENGINE (C:\Apps, C:\Users\Admin\Desktop 與系統檔案)
    ========================================================================== */
 
 const INITIAL_VFS = {
@@ -896,13 +1028,10 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`
   },
-  "Apps": {
-    "Games": {
-      "info.txt": "HTML5 Canvas and SpriteKit projects are located here."
-    }
-  },
+  "Apps": {},
   "Users": {
     "Admin": {
+      "Desktop": {},
       "Documents": {
         "Notes.txt": "會議記錄：系統已全面支援全觸控與資料夾導航。"
       }
@@ -910,11 +1039,45 @@ SOFTWARE.`
   }
 };
 
-let vfs = JSON.parse(localStorage.getItem('os_vfs_v2')) || INITIAL_VFS;
+let vfs = JSON.parse(localStorage.getItem('os_vfs_v3')) || INITIAL_VFS;
 let currentVFSPath = ["C:"];
 
 function saveVFS() {
-  localStorage.setItem('os_vfs_v2', JSON.stringify(vfs));
+  localStorage.setItem('os_vfs_v3', JSON.stringify(vfs));
+}
+
+// 同步 C:\Apps 和 C:\Users\Admin\Desktop 內容
+function syncVFSStructure() {
+  if (!vfs["Apps"]) vfs["Apps"] = {};
+  if (!vfs["Users"]) vfs["Users"] = { "Admin": { "Desktop": {}, "Documents": {} } };
+  if (!vfs["Users"]["Admin"]) vfs["Users"]["Admin"] = { "Desktop": {}, "Documents": {} };
+  if (!vfs["Users"]["Admin"]["Desktop"]) vfs["Users"]["Admin"]["Desktop"] = {};
+
+  const allApps = getAllApps();
+
+  // 更新 C:\Apps
+  allApps.forEach(app => {
+    const fileName = `${getAppName(app)}.app`;
+    vfs["Apps"][fileName] = {
+      isAppShortcut: true,
+      appId: app.id,
+      name: getAppName(app),
+      icon: app.icon
+    };
+  });
+
+  // 更新 C:\Users\Admin\Desktop
+  allApps.forEach(app => {
+    const lnkName = `${getAppName(app)}.lnk`;
+    vfs["Users"]["Admin"]["Desktop"][lnkName] = {
+      isAppShortcut: true,
+      appId: app.id,
+      name: getAppName(app),
+      icon: app.icon
+    };
+  });
+
+  saveVFS();
 }
 
 function getNodeByPath(pathArray) {
@@ -952,12 +1115,18 @@ function renderFS() {
   let count = 0;
   for (let name in currentDir) {
     count++;
-    const isFolder = typeof currentDir[name] === 'object';
-    const iconSrc = isFolder 
-      ? 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png'
-      : (name.endsWith('.txt') 
-          ? 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png'
-          : 'https://cdn-icons-png.flaticon.com/512/2965/2965335.png');
+    const itemData = currentDir[name];
+    const isFolder = typeof itemData === 'object' && !itemData.isAppShortcut;
+    const isApp = typeof itemData === 'object' && itemData.isAppShortcut;
+
+    let iconSrc = 'https://cdn-icons-png.flaticon.com/512/2965/2965335.png';
+    if (isFolder) {
+      iconSrc = 'https://cdn-icons-png.flaticon.com/512/3767/3767084.png';
+    } else if (isApp) {
+      iconSrc = itemData.icon || 'https://cdn-icons-png.flaticon.com/512/888/888846.png';
+    } else if (name.endsWith('.txt')) {
+      iconSrc = 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png';
+    }
 
     const item = document.createElement('div');
     item.className = 'fs-item';
@@ -967,6 +1136,10 @@ function renderFS() {
         currentVFSPath.push(name);
         renderFS();
       };
+    } else if (isApp) {
+      item.onclick = () => {
+        openApp(itemData.appId);
+      };
     } else {
       item.onclick = () => {
         openApp('app-notepad');
@@ -974,9 +1147,16 @@ function renderFS() {
       };
     }
 
+    // 檔案右鍵重命名與刪除功能
     item.oncontextmenu = (e) => {
       e.preventDefault();
-      if (confirm(`確定刪除 ${name}？`)) {
+      const action = prompt(`操作檔案 [${name}]\n輸入 'del' 刪除，或輸入新名稱進行重新命名:`, name);
+      if (action === 'del') {
+        delete currentDir[name];
+        saveVFS();
+        renderFS();
+      } else if (action && action !== name) {
+        currentDir[action] = currentDir[name];
         delete currentDir[name];
         saveVFS();
         renderFS();
@@ -1051,7 +1231,7 @@ document.getElementById('fs-btn-clear').onclick = () => {
   if (confirm("格式化虛擬磁碟？將還原至初始狀態。")) {
     vfs = INITIAL_VFS;
     currentVFSPath = ["C:"];
-    saveVFS();
+    syncVFSStructure();
     renderFS();
   }
 };
@@ -1065,7 +1245,7 @@ document.getElementById('fs-search-input').oninput = (e) => {
 };
 
 /* ==========================================================================
-   7. COMMAND PROMPT (支援資料夾切換與重定向)
+   8. COMMAND PROMPT (支援真實資料夾切換與重定向)
    ========================================================================== */
 
 let cmdHistory = [];
@@ -1167,11 +1347,12 @@ VER            顯示 Windows 版本號碼。<br>
       let byteCount = 0;
 
       for (let item in currentDir) {
-        if (typeof currentDir[item] === 'object') {
+        const itemObj = currentDir[item];
+        if (typeof itemObj === 'object' && !itemObj.isAppShortcut) {
           dirHTML += `<div>${dateStr}  &lt;DIR&gt;          ${item}</div>`;
         } else {
           fileCount++;
-          const len = currentDir[item].length;
+          const len = typeof itemObj === 'string' ? itemObj.length : 1024;
           byteCount += len;
           dirHTML += `<div>${dateStr}               ${len.toString().padStart(6, ' ')} ${item}</div>`;
         }
@@ -1192,7 +1373,7 @@ VER            顯示 Windows 版本號碼。<br>
         cmdPathArray = ["C:"];
         updatePromptDisplay();
       } else {
-        if (currentDir && typeof currentDir[args[0]] === 'object') {
+        if (currentDir && typeof currentDir[args[0]] === 'object' && !currentDir[args[0]].isAppShortcut) {
           cmdPathArray.push(args[0]);
           updatePromptDisplay();
         } else {
@@ -1279,14 +1460,14 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   8. ENHANCED WINDOWS 10 CALCULATOR (WITH HISTORY & SCIENTIFIC MODE)
+   9. ENHANCED WINDOWS 10 CALCULATOR (WITH HISTORY & SCIENTIFIC MODE)
    ========================================================================== */
 
 let calcExpr = "";
 let calcCurr = "0";
 let calcMemory = 0;
 let shouldResetDisplay = false;
-let calcMode = "standard"; // "standard" or "scientific"
+let calcMode = "standard";
 let calcHistoryData = JSON.parse(localStorage.getItem('os_calc_history')) || [];
 
 function updateCalcScreen() {
@@ -1294,7 +1475,6 @@ function updateCalcScreen() {
   document.getElementById('calc-display').value = calcCurr;
 }
 
-// 記憶體運算鍵 (MC, MR, M+, M-, MS)
 window.calcMem = (action) => {
   const currentVal = parseFloat(calcCurr) || 0;
   switch(action) {
@@ -1321,7 +1501,6 @@ window.calcMem = (action) => {
   updateCalcScreen();
 };
 
-// 模式切換（標準 / 科學）
 window.toggleCalcMode = () => {
   calcMode = (calcMode === "standard") ? "scientific" : "standard";
   document.getElementById('calc-mode-title').innerText = 
@@ -1329,7 +1508,6 @@ window.toggleCalcMode = () => {
   initCalc();
 };
 
-// 歷史記錄抽屜面板開關
 document.getElementById('calc-history-toggle').onclick = () => {
   const flyout = document.getElementById('calc-history-flyout');
   flyout.style.display = (flyout.style.display === 'flex') ? 'none' : 'flex';
@@ -1343,7 +1521,7 @@ function renderCalcHistory() {
     return;
   }
   list.innerHTML = '';
-  calcHistoryData.forEach((item, index) => {
+  calcHistoryData.forEach((item) => {
     const div = document.createElement('div');
     div.className = 'history-item';
     div.innerHTML = `
@@ -1367,7 +1545,6 @@ window.clearCalcHistory = () => {
   renderCalcHistory();
 };
 
-// 按鍵核心邏輯
 window.handleCalcBtn = (key) => {
   if (key >= '0' && key <= '9') {
     if (calcCurr === "0" || shouldResetDisplay) {
@@ -1451,7 +1628,6 @@ window.handleCalcBtn = (key) => {
         const result = eval(sanitized);
         const finalVal = String(Number(result.toFixed(10)));
         
-        // 儲存至歷史紀錄
         calcHistoryData.unshift({ expression: full + " =", result: finalVal });
         if (calcHistoryData.length > 20) calcHistoryData.pop();
         localStorage.setItem('os_calc_history', JSON.stringify(calcHistoryData));
@@ -1465,7 +1641,7 @@ window.handleCalcBtn = (key) => {
     }
   }
   updateCalcScreen();
-}
+};
 
 function initCalc() {
   const grid = document.getElementById('calc-grid');
@@ -1504,7 +1680,7 @@ function initCalc() {
 }
 
 /* ==========================================================================
-   9. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
+   10. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
    ========================================================================== */
 
 function initGuide() {
