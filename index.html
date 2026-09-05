@@ -45,12 +45,12 @@
        ========================================== -->
   <div id="black-screen" class="sys-screen"></div>
 
-  <!-- Stage 1: Linux 核心文字滾動開機畫面 (預設最頂層顯示) -->
+  <!-- Stage 1: Linux 核心文字滾動開機畫面 -->
   <div id="kernel-screen" class="sys-screen" style="display:block; z-index:999999;">
     <div id="kernel-text"></div>
   </div>
 
-  <!-- Stage 2: Windows GUI 開機畫面 (紅色 Windows Logo) -->
+  <!-- Stage 2: Windows GUI 開機畫面 -->
   <div id="boot-screen" class="sys-screen">
     <img src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" 
          id="boot-logo" 
@@ -76,23 +76,20 @@
         <p>• 預設提供訪客帳戶 <strong>「User」</strong>，<strong>無需密碼</strong>。<br>
            • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
            • 登入後系統會自動彈出註冊引導視窗，輸入新名稱與密碼（必填），系統會建立專屬 <code>C:\Users\&lt;用戶名&gt;</code> 個人資料夾並同步至雲端！</p>
-        <h4>2. 現有預設帳戶</h4>
-        <p>• <strong>User</strong>: 訪客專用（無密碼，專門引導註冊新帳戶）。<br>
-           • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
-        <h4>3. 系統特色功能</h4>
-        <p>• <strong>動態選單列與「關於此 Mac / PC」</strong>：支援點擊頂部選單觸發動作，並動態顯示當前線上瀏覽器與版權宣告。<br>
-           • <strong>多用戶獨立資料夾</strong>：每個登入帳戶均擁有獨立的 <code>C:\Users\&lt;名稱&gt;\Desktop</code> 與 <code>Documents</code>。<br>
-           • <strong>資源回收筒保護</strong>：系統核心檔案受到防護無法刪除；刪除的檔案將進入資源回收筒，支援還原或徹底抹除。</p>
+        <h4>2. 動態主題與 About This PC</h4>
+        <p>• <strong>Windows 主題</strong>：開始功能表內建 Winver 原生規格面板，主磁碟為 <code>C:Local Disk</code>。<br>
+           • <strong>macOS 主題</strong>：頂部選單列左上角 Apple Logo 可開啓「About this Mac」，配備 Apple M4 晶片、16GB LPDDR5X 及 Macintosh HD。<br>
+           • <strong>Ubuntu 主題</strong>：開機磁碟為 <code>/dev/nvme0n1p1</code> (NVME)。</p>
+        <h4>3. 記事本功能</h4>
+        <p>• 記事本內建完整 File / Edit / View 頂部選單，支援檔案開啓、儲存、另存新檔與字型調整。</p>
       </div>
     </div>
 
-    <!-- 鎖定畫面大時鐘 -->
     <div id="lock-time-view">
       <div class="lock-time" id="lock-huge-time">00:00</div>
       <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
     </div>
     
-    <!-- 登入卡片容器 -->
     <div id="login-view">
       <div class="login-box">
         <img id="login-avatar" src="https://cdn-icons-png.flaticon.com/512/3135/3135715.png" alt="Avatar">
@@ -141,13 +138,11 @@
        ========================================== -->
   <div id="macos-menubar" style="display:none;">
     <div class="macos-menu-left">
-      <!-- 官方經典 Apple Logo -->
       <div class="macos-menu-item apple-logo-item" id="macos-apple-btn">
         <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" width="16" height="16" alt="Apple" class="apple-svg-icon">
       </div>
       <span class="macos-menu-item app-title-bold" id="macos-active-app-name">Finder</span>
       
-      <!-- 動態下拉選單 -->
       <div class="macos-dropdown-wrapper">
         <span class="macos-menu-item" onclick="toggleMenuDropdown('drop-file')">檔案 (File)</span>
         <div id="drop-file" class="menu-popup-dropdown">
@@ -178,13 +173,13 @@
       <div class="macos-dropdown-wrapper">
         <span class="macos-menu-item" onclick="toggleMenuDropdown('drop-go')">前往 (Go)</span>
         <div id="drop-go" class="menu-popup-dropdown">
-          <div class="menu-pop-item" onclick="openApp('app-explorer'); navigateVFS(['C:']); closeAllMenus();">本機磁碟 (C:)</div>
-          <div class="menu-pop-item" onclick="openApp('app-explorer'); navigateVFS(['C:', 'Apps']); closeAllMenus();">應用程式庫 (Apps)</div>
+          <div class="menu-pop-item" onclick="openApp('app-explorer'); navigateVFS(['C:']); closeAllMenus();">開機磁碟</div>
+          <div class="menu-pop-item" onclick="openApp('app-explorer'); navigateVFS(['C:', 'Apps']); closeAllMenus();">應用程式 (Apps)</div>
           <div class="menu-pop-item" onclick="openCurrentUserDesktop(); openApp('app-explorer'); closeAllMenus();">個人桌面 (Desktop)</div>
         </div>
       </div>
 
-      <span class="macos-menu-item" onclick="openApp('app-about-pc')">關於此 Mac</span>
+      <span class="macos-menu-item" onclick="openAboutPC()">關於此 Mac</span>
     </div>
 
     <div class="macos-menu-right">
@@ -195,7 +190,7 @@
 
     <!-- Apple 標誌下拉選單 -->
     <div id="macos-apple-dropdown">
-      <div class="apple-drop-item" onclick="openApp('app-about-pc')">關於此 Mac (About This Mac)</div>
+      <div class="apple-drop-item" onclick="openAboutPC()">關於此 Mac (About This Mac)</div>
       <div class="apple-drop-divider"></div>
       <div class="apple-drop-item" onclick="openApp('app-settings')">系統設定... (System Settings)</div>
       <div class="apple-drop-item" onclick="openApp('app-store')">App Store...</div>
@@ -235,11 +230,12 @@
       </div>
     </div>
     
-    <!-- Windows 開始功能表 -->
+    <!-- Windows 開始功能表 (內建 About This PC) -->
     <div id="start-menu">
       <div class="start-sidebar">
         <div class="start-sidebar-icon" title="展開">≡</div>
         <div style="flex:1;"></div>
+        <div class="start-sidebar-icon" id="start-about-btn" onclick="openAboutPC()" title="關於此電腦">ℹ️</div>
         <div class="start-sidebar-icon" id="start-acc" title="帳戶設定">👤</div>
         <div class="start-sidebar-icon" id="start-set" title="系統設定">⚙️</div>
         <div class="start-sidebar-icon" id="start-pwr" title="電源選項">⏻</div>
@@ -275,7 +271,6 @@
           <div class="set-nav-item" data-tab="set-about" data-i18n="tab_about">ℹ️ 系統資訊</div>
         </div>
         <div class="settings-main">
-          <!-- 佈景主題設定 -->
           <div id="set-theme" style="display:block;">
             <h2 data-i18n="theme_title">外觀與個人化</h2>
             <div class="set-group">
@@ -296,7 +291,6 @@
             </div>
           </div>
 
-          <!-- 帳戶管理 -->
           <div id="set-account" style="display:none;">
             <h2 data-i18n="acc_title">安全性與帳戶</h2>
             <div class="set-group">
@@ -326,7 +320,6 @@
             <button class="set-btn" style="background:#dc3545; color:white; margin-top:20px; display:block;" id="btn-reset" data-i18n="reset">還原原廠設定 (危險)</button>
           </div>
 
-          <!-- 語言設定 -->
           <div id="set-lang" style="display:none;">
             <h2>System Language / 語言設定</h2>
             <div class="set-group">
@@ -335,11 +328,10 @@
             </div>
           </div>
 
-          <!-- 系統資訊與 MIT 授權條款 -->
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v18.0 (macOS Top Menu & Multi-User VFS Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
+              <p>Version: Project Horizon Ultimate (Windows 10 / macOS / Ubuntu Triple-Engine)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -367,31 +359,54 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: About This PC / Mac (動態系統資訊視窗) -->
-    <div class="window" id="app-about-pc" style="width: 500px; height: 390px;">
+    <!-- APP: About This PC / About Windows (完全還原 winver 與動態主題風格) -->
+    <div class="window" id="app-about-pc" style="width: 540px; height: 500px;">
       <div class="title-bar" data-win="app-about-pc">
-        <div class="title-text" id="about-win-title">關於此電腦</div>
+        <div class="title-text" id="about-win-title">About Windows</div>
         <div class="window-controls">
           <div class="ctrl-btn close">✕</div>
         </div>
       </div>
-      <div class="window-content" style="background:#f5f5f7; color:#1d1d1f; padding:24px; display:flex; flex-direction:column; align-items:center; text-align:center;">
-        <img id="about-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" width="55" height="55" style="margin-bottom:12px;" alt="Logo">
-        <h2 id="about-sys-name" style="margin:0 0 4px 0; font-size:20px; font-weight:600;">macOS Sequoia</h2>
-        <p id="about-sys-ver" style="font-size:12.5px; color:#515154; margin:0 0 12px 0;">版本 15.0 (Project Horizon Ultimate)</p>
-        
-        <div style="background:#fff; border:1px solid #d2d2d7; border-radius:8px; width:100%; padding:10px 14px; font-size:12.5px; text-align:left; line-height:1.5; display:flex; flex-direction:column; gap:4px;">
-          <div><strong>處理器 (Processor):</strong> Apple M3 Max / Virtual vCPU (8 cores)</div>
-          <div><strong>記憶體 (Memory):</strong> 16 GB 6400 MHz LPDDR5</div>
-          <div><strong>啟動磁碟 (Startup Disk):</strong> Macintosh HD / C: WebOS VFS</div>
-          <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
-            <strong>當前網頁瀏覽器:</strong> 
-            <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="16" height="16" alt="Browser"> 
-            <span id="about-browser-name">Microsoft Edge / WebKit</span>
-          </div>
-          <div><strong>當前活躍用戶:</strong> <span id="about-active-user">Admin</span></div>
+      <div class="window-content" id="about-win-content" style="background:#f0f0f0; color:#000; padding:24px; display:flex; flex-direction:column;">
+        <!-- Windows / Mac / Ubuntu 動態頂部標誌 -->
+        <div id="about-banner-container" style="display:flex; align-items:center; gap:16px; margin-bottom:15px;">
+          <img id="about-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/e/e4/Windows_logo_-_2021.svg" width="64" height="64" alt="OS Logo">
+          <h1 id="about-sys-banner-title" style="margin:0; font-size:36px; font-weight:300; color:#0078D7; font-family:'Segoe UI', sans-serif;">Windows 10</h1>
         </div>
-        <div style="margin-top:auto; font-size:11.5px; color:#555; font-weight:500;">Copyright 2026 iAnyFeature. All rights reserved.</div>
+
+        <hr style="border:0; border-top:1px solid #d0d0d0; margin:10px 0 16px 0;">
+
+        <!-- 規格與版本詳細訊息 -->
+        <div id="about-specs-body" style="font-size:12.5px; line-height:1.6; color:#333; flex:1;">
+          <div id="about-line-os">Microsoft Windows</div>
+          <div id="about-line-ver">Version 1909 (OS Build 18363.1082)</div>
+          <div id="about-line-copy">© Microsoft Corporation. All rights reserved.</div>
+          <br>
+          <div id="about-line-desc">
+            The Windows 10 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.
+          </div>
+          <br>
+          <div>This product is licensed under the <a href="#" onclick="openApp('app-guide'); return false;" style="color:#0066cc;">Software License Terms</a> to:</div>
+          <div style="margin-left:20px; margin-top:4px;">
+            <strong id="about-user-name">Admin</strong><br>
+            <span id="about-org-name">WebOS Project Horizon</span>
+          </div>
+          <br>
+          <!-- 線上瀏覽器精確偵測區塊 -->
+          <div style="background:#fff; border:1px solid #ccc; padding:8px 12px; border-radius:4px; display:flex; align-items:center; gap:8px;">
+            <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="20" height="20" alt="Browser">
+            <div>
+              <strong>當前線上瀏覽器:</strong> <span id="about-browser-name">Microsoft Edge</span><br>
+              <span id="about-disk-info" style="color:#666;">開機磁碟: C:Local Disk</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- 底部版權與 OK 按鈕 -->
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-top:15px; border-top:1px solid #ddd; padding-top:12px;">
+          <div style="font-size:12px; font-weight:bold; color:#444;">Copyright 2026 iAnyFeature</div>
+          <button class="set-btn" style="min-width:85px; padding:6px 14px; border:1px solid #0078D7; background:#e1e1e1;" onclick="closeApp('app-about-pc')">OK</button>
+        </div>
       </div>
     </div>
 
@@ -411,7 +426,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: User Guide (100% 完整收錄) -->
+    <!-- APP: User Guide -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
@@ -569,7 +584,7 @@ SOFTWARE.</pre>
             <div class="side-item" onclick="navigateVFS(['C:', 'Apps'])">📦 應用程式 (Apps)</div>
             <div class="side-item" onclick="navigateVFS(['C:', 'RubbishBin'])">🗑️ 資源回收筒 (Rubbish Bin)</div>
             <div class="side-group-title" style="margin-top:12px;">🖥️ 此電腦 (This PC)</div>
-            <div class="side-item active" onclick="navigateVFS(['C:'])">💽 本機磁碟 (C:)</div>
+            <div class="side-item active" id="nav-side-main-disk" onclick="navigateVFS(['C:'])">💽 C:Local Disk</div>
             <div class="side-item sub" onclick="navigateVFS(['C:', 'System'])">📁 System (系統核心受保護)</div>
             <div class="side-item sub" onclick="navigateVFS(['C:', 'Apps'])">📁 Apps (應用程式庫)</div>
             <div class="side-item sub" onclick="navigateVFS(['C:', 'Users'])">📁 Users (使用者個人庫)</div>
@@ -763,7 +778,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Notepad -->
+    <!-- APP: Notepad (帶有真實可點擊 File / Edit / View 選單列) -->
     <div class="window" id="app-notepad" style="width: 600px; height: 480px;">
       <div class="title-bar" data-win="app-notepad">
         <div class="title-text" data-i18n="notepad">記事本 (Notepad)</div>
