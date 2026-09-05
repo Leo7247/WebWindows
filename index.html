@@ -80,9 +80,10 @@
         <p>• <strong>User</strong>: 訪客專用（無密碼，專門引導註冊新帳戶）。<br>
            • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
         <h4>3. 系統核心功能</h4>
-        <p>• <strong>原生觸控螢幕支援</strong>：支援 iPad 點擊圖示開啟 App、拖曳標題列及拖曳右下角自由縮放視窗。<br>
-           • <strong>Windows 10 全功能計算機</strong>：具備標準模式、歷史算式記錄抽屜面板 (🕒)、科學運算模式與記憶體運算鍵。<br>
-           • 內建 Python 3 IDE、小畫家 (Paint)、終端機 (CMD)、音樂合成器、碼錶及 WebKit MDM Bypass 瀏覽器。<br>
+        <p>• <strong>自由排列桌面圖示</strong>：支援手指或滑鼠隨意拖曳桌面圖示擺放於任意座標。<br>
+           • <strong>完整應用管理與資料夾</strong>：所有 App 與桌面圖示均存於 <code>C:\Apps</code> 與 <code>C:\Users\Admin\Desktop</code>，支援重命名、刪除與開啟。<br>
+           • <strong>真實安裝嚮導</strong>：App Store 安裝程式具備進度條及 MIT 授權合約同意條款。<br>
+           • 內建全功能 Windows 10 計算機、Python 3 IDE、小畫家 (Paint)、終端機 (CMD) 及 WebKit MDM Bypass 瀏覽器。<br>
            • 可在「設定」中即時切換 Windows 10、macOS 15 及 Ubuntu 22 三大介面風格！</p>
       </div>
     </div>
@@ -141,6 +142,7 @@
        2. 桌面環境與工作列
        ========================================== -->
   <div id="desktop">
+    <!-- 自由拖曳畫布桌面圖示容器 -->
     <div class="desktop-icons" id="desktop-icons"></div>
 
     <div id="context-menu">
@@ -263,7 +265,7 @@
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon v16.0 (Windows 10 Fluent Calculator & Kernel Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
+              <p>Version: Project Horizon v17.0 (Universal VFS, Free Drag & Setup Wizard Edition)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -333,10 +335,10 @@ SOFTWARE.</pre>
               <h3>核心架構亮點</h3>
               <ul>
                 <li><strong>雙階段真實開機</strong>：Linux/NT 核心日誌強制逐行滾動輸出（含隨機卡頓模擬），緊接著 Windows 紅色標誌開機載入。</li>
-                <li><strong>觸控螢幕原生支援</strong>：完整重構視窗驅動，支援 iPad / iPhone 手指單擊開啟圖示、順滑拖曳視窗與右下角放大縮小。</li>
+                <li><strong>觸控螢幕原生支援與自由擺位</strong>：支援手指輕觸開啟、隨意拖曳桌面圖示擺放於任意座標，以及順滑拖曳視窗與右下角放大縮小。</li>
+                <li><strong>完整 C:\Apps 與桌面資料夾結構</strong>：所有應用程式與桌面捷徑均可在 <code>C:\Apps</code> 與 <code>C:\Users\Admin\Desktop</code> 進行管理、重命名或刪除。</li>
+                <li><strong>真實 Windows 軟體安裝精靈</strong>：包含授權合約勾選確認、解壓縮進度條及自動捷徑生成。</li>
                 <li><strong>Windows 10 全功能計算機</strong>：包含歷史算式抽屜 (🕒)、標準/科學模式切換、記憶體按鈕 (MC/MR/M+/M-/MS) 與進階數學函數。</li>
-                <li><strong>真實 Windows 10 檔案總管</strong>：配備 Ribbon 選單、左側導覽欄、路徑階層列與真實目錄架構。</li>
-                <li><strong>跨裝置雲端同步</strong>：新註冊帳戶自動同步至雲端，任何其他造訪此網站的裝置皆能即時讀取。</li>
                 <li><strong>雙模式智慧瀏覽器</strong>：預設 Google 搜尋，並整合 Google Translate 代理隧道繞過 MDM 限制。</li>
               </ul>
             </div>
@@ -350,7 +352,7 @@ SOFTWARE.</pre>
               <tbody>
                 <tr><td><code>help</code></td><td>列出所有內建支援之指令清單與語法</td><td><code>help</code></td></tr>
                 <tr><td><code>dir</code> / <code>ls</code></td><td>顯示當前工作目錄的檔案清單與佔用容量</td><td><code>dir</code></td></tr>
-                <tr><td><code>cd [路徑]</code></td><td>變更當前工作目錄 (支援 <code>..</code> 與 <code>\</code>)</td><td><code>cd System</code></td></tr>
+                <tr><td><code>cd [路徑]</code></td><td>變更當前工作目錄 (支援 <code>..</code> 與 <code>\</code>)</td><td><code>cd Apps</code></td></tr>
                 <tr><td><code>md [名稱]</code></td><td>在虛擬檔案系統建立新目錄</td><td><code>mkdir Projects</code></td></tr>
                 <tr><td><code>echo [內容] &gt; [檔名]</code></td><td>建立檔案或將文字輸出重定向至指定檔案</td><td><code>echo WebOS &gt; test.txt</code></td></tr>
                 <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type copyright.txt</code></td></tr>
@@ -461,12 +463,13 @@ SOFTWARE.</pre>
         <div class="win10-exp-body">
           <div class="win10-sidebar">
             <div class="side-group-title">⭐ 快速存取</div>
+            <div class="side-item" onclick="navigateVFS(['C:', 'Users', 'Admin', 'Desktop'])">🖥️ 桌面 (Desktop)</div>
             <div class="side-item" onclick="navigateVFS(['C:', 'Users', 'Admin', 'Documents'])">📄 文件 (Documents)</div>
             <div class="side-item" onclick="navigateVFS(['C:', 'Apps'])">📦 應用程式 (Apps)</div>
             <div class="side-group-title" style="margin-top:12px;">🖥️ 此電腦 (This PC)</div>
             <div class="side-item active" onclick="navigateVFS(['C:'])">💽 本機磁碟 (C:)</div>
             <div class="side-item sub" onclick="navigateVFS(['C:', 'System'])">📁 System (系統檔)</div>
-            <div class="side-item sub" onclick="navigateVFS(['C:', 'Apps'])">📁 Apps</div>
+            <div class="side-item sub" onclick="navigateVFS(['C:', 'Apps'])">📁 Apps (軟體庫)</div>
             <div class="side-item sub" onclick="navigateVFS(['C:', 'Users'])">📁 Users</div>
           </div>
 
@@ -715,6 +718,69 @@ engine.simulate(30)
           <button class="set-btn" onclick="playTone(392.00)">So (G4)</button>
           <button class="set-btn" onclick="playTone(440.00)">La (A4)</button>
           <button class="set-btn" onclick="playTone(493.88)">Ti (B4)</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- APP: Windows Program Setup Wizard (軟體安裝精靈視窗) -->
+    <div class="window" id="app-installer" style="width: 520px; height: 420px;">
+      <div class="title-bar" data-win="app-installer">
+        <div class="title-text" id="inst-title">軟體安裝精靈 (Setup Wizard)</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+        </div>
+      </div>
+      <div class="window-content installer-body">
+        <div id="inst-step-welcome" class="inst-step">
+          <div class="inst-header">
+            <h3 id="inst-app-name" style="margin:0 0 8px 0; color:#0078D7;">應用程式安裝</h3>
+            <p style="font-size:13px; color:#555;">歡迎使用安裝嚮導，本精靈將引導您將此應用程式安裝至 C:\Apps 目錄中。</p>
+          </div>
+          <div class="inst-license-box">
+            <div style="font-size:12px; font-weight:bold; margin-bottom:6px;">使用者授權合約 (End User License Agreement):</div>
+            <pre class="inst-license-text">MIT License
+
+Copyright (c) 2026 iAnyFeature
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY.</pre>
+          </div>
+          <div style="margin:12px 0;">
+            <label style="font-size:13px; cursor:pointer;">
+              <input type="checkbox" id="inst-agree-chk"> 我同意上述條款與授權合約 (I accept the agreement)
+            </label>
+          </div>
+          <div class="inst-footer">
+            <button class="set-btn" onclick="closeApp('app-installer')">取消</button>
+            <button class="set-btn primary" id="inst-next-btn" disabled onclick="startInstallProgress()">下一步 &gt;</button>
+          </div>
+        </div>
+
+        <div id="inst-step-progress" class="inst-step" style="display:none;">
+          <h3 style="margin-top:0;">正在安裝，請稍候...</h3>
+          <p id="inst-status-text" style="font-size:13px; color:#666;">正在解壓縮檔案至 C:\Apps...</p>
+          <div class="inst-progress-bar">
+            <div id="inst-progress-fill" class="inst-progress-fill"></div>
+          </div>
+          <div id="inst-percent" style="font-size:12px; text-align:right; margin-top:6px; color:#777;">0%</div>
+        </div>
+
+        <div id="inst-step-finish" class="inst-step" style="display:none;">
+          <h2 style="color:#28a745; margin-top:0;">🎉 安裝完成！</h2>
+          <p style="font-size:14px; color:#444;">該應用程式已成功安裝至 <code>C:\Apps</code>，並已在 <code>C:\Users\Admin\Desktop</code> 自動建立桌面捷徑！</p>
+          <div class="inst-footer" style="margin-top:auto;">
+            <button class="set-btn primary" onclick="finishInstallation()">完成 (Finish)</button>
+          </div>
         </div>
       </div>
     </div>
