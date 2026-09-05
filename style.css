@@ -1485,7 +1485,124 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   11. INSTALLER & OTHER APPLICATION STYLES
+   11. ABOUT WINDOW STYLING (WINDOWS 10 WINVER & MACOS ABOUT THIS MAC)
+   ========================================================================== */
+
+#about-win-content {
+  background: #f0f0f0;
+  color: #000;
+  padding: 24px;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+}
+
+#about-banner-container {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 12px;
+}
+
+#about-sys-banner-title {
+  margin: 0;
+  font-size: 34px;
+  font-weight: 300;
+  color: #0078D7;
+  font-family: 'Segoe UI', sans-serif;
+}
+
+#about-specs-body {
+  font-size: 12.5px;
+  line-height: 1.6;
+  color: #333;
+  flex: 1;
+  overflow-y: auto;
+}
+
+#about-browser-box {
+  background: #fff;
+  border: 1px solid #ccc;
+  padding: 8px 12px;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+#about-footer-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 15px;
+  border-top: 1px solid #ddd;
+  padding-top: 12px;
+}
+
+/* macOS 專屬 About This Mac 風格卡片 */
+body.theme-macos #about-win-content {
+  background: #fbfbfd;
+  color: #1d1d1f;
+  padding: 28px;
+}
+
+body.theme-macos #about-banner-container {
+  flex-direction: column;
+  text-align: center;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+body.theme-macos #about-sys-banner-title {
+  font-size: 22px;
+  font-weight: 600;
+  color: #1d1d1f;
+  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+}
+
+body.theme-macos #about-sys-sub-title {
+  font-size: 13px;
+  color: #6e6e73;
+}
+
+body.theme-macos #about-divider {
+  display: none;
+}
+
+.mac-spec-row {
+  display: flex;
+  padding: 6px 0;
+  font-size: 12.5px;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+}
+
+.mac-spec-label {
+  width: 90px;
+  color: #86868b;
+  font-weight: 500;
+}
+
+.mac-spec-val {
+  color: #1d1d1f;
+  font-weight: 400;
+}
+
+body.theme-macos #about-ok-btn {
+  background: rgba(0, 0, 0, 0.05);
+  border: 1px solid rgba(0, 0, 0, 0.12);
+  border-radius: 14px;
+  padding: 4px 16px;
+  font-size: 12px;
+  color: #1d1d1f;
+}
+
+body.theme-macos #about-ok-btn:hover {
+  background: rgba(0, 0, 0, 0.1);
+}
+
+/* ==========================================================================
+   12. INSTALLER & OTHER APPLICATION STYLES
    ========================================================================== */
 
 .installer-body {
