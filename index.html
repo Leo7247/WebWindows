@@ -80,10 +80,9 @@
         <p>• <strong>User</strong>: 訪客專用（無密碼，專門引導註冊新帳戶）。<br>
            • <strong>Admin</strong>: 系統管理員（預設密碼為 <code>J45F</code>）。</p>
         <h4>3. 系統特色功能</h4>
-        <p>• <strong>多用戶獨立資料夾</strong>：每個登入帳戶均擁有獨立的 <code>C:\Users\&lt;名稱&gt;\Desktop</code> 與 <code>Documents</code>。<br>
-           • <strong>資源回收筒保護</strong>：系統核心檔案受到防護無法刪除；刪除的檔案將進入資源回收筒，支援還原或徹底抹除。<br>
-           • <strong>macOS 頂部選單列</strong>：切換 macOS 主題時自動啟用頂部 Apple 選單與半透明毛玻璃 Dock。<br>
-           • <strong>Windows 10 全功能計算機</strong>：標準/科學模式、歷史算式記錄抽屜 (🕒) 與記憶體運算鍵。</p>
+        <p>• <strong>動態選單列與「關於此 Mac / PC」</strong>：支援點擊頂部選單觸發動作，並動態顯示當前線上瀏覽器與版權宣告。<br>
+           • <strong>多用戶獨立資料夾</strong>：每個登入帳戶均擁有獨立的 <code>C:\Users\&lt;名稱&gt;\Desktop</code> 與 <code>Documents</code>。<br>
+           • <strong>資源回收筒保護</strong>：系統核心檔案受到防護無法刪除；刪除的檔案將進入資源回收筒，支援還原或徹底抹除。</p>
       </div>
     </div>
 
@@ -147,13 +146,47 @@
         <img src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" width="16" height="16" alt="Apple" class="apple-svg-icon">
       </div>
       <span class="macos-menu-item app-title-bold" id="macos-active-app-name">Finder</span>
-      <span class="macos-menu-item">檔案 (File)</span>
-      <span class="macos-menu-item">編輯 (Edit)</span>
-      <span class="macos-menu-item">顯示方式 (View)</span>
-      <span class="macos-menu-item">前往 (Go)</span>
-      <span class="macos-menu-item">視窗 (Window)</span>
-      <span class="macos-menu-item">說明 (Help)</span>
+      
+      <!-- 動態下拉選單 -->
+      <div class="macos-dropdown-wrapper">
+        <span class="macos-menu-item" onclick="toggleMenuDropdown('drop-file')">檔案 (File)</span>
+        <div id="drop-file" class="menu-popup-dropdown">
+          <div class="menu-pop-item" onclick="openApp('app-explorer'); closeAllMenus();">開啟檔案總管</div>
+          <div class="menu-pop-item" onclick="openApp('app-notepad'); closeAllMenus();">新增記事本</div>
+          <div class="menu-pop-divider"></div>
+          <div class="menu-pop-item" onclick="location.reload();">重新載入系統</div>
+        </div>
+      </div>
+
+      <div class="macos-dropdown-wrapper">
+        <span class="macos-menu-item" onclick="toggleMenuDropdown('drop-edit')">編輯 (Edit)</span>
+        <div id="drop-edit" class="menu-popup-dropdown">
+          <div class="menu-pop-item" onclick="alert('全選已觸發'); closeAllMenus();">全選 (Select All)</div>
+          <div class="menu-pop-item" onclick="alert('複製已完成'); closeAllMenus();">複製 (Copy)</div>
+          <div class="menu-pop-item" onclick="alert('貼上成功'); closeAllMenus();">貼上 (Paste)</div>
+        </div>
+      </div>
+
+      <div class="macos-dropdown-wrapper">
+        <span class="macos-menu-item" onclick="toggleMenuDropdown('drop-view')">顯示方式 (View)</span>
+        <div id="drop-view" class="menu-popup-dropdown">
+          <div class="menu-pop-item" onclick="openApp('app-settings'); closeAllMenus();">切換佈景主題</div>
+          <div class="menu-pop-item" onclick="location.reload();">重新整理桌面</div>
+        </div>
+      </div>
+
+      <div class="macos-dropdown-wrapper">
+        <span class="macos-menu-item" onclick="toggleMenuDropdown('drop-go')">前往 (Go)</span>
+        <div id="drop-go" class="menu-popup-dropdown">
+          <div class="menu-pop-item" onclick="openApp('app-explorer'); navigateVFS(['C:']); closeAllMenus();">本機磁碟 (C:)</div>
+          <div class="menu-pop-item" onclick="openApp('app-explorer'); navigateVFS(['C:', 'Apps']); closeAllMenus();">應用程式庫 (Apps)</div>
+          <div class="menu-pop-item" onclick="openCurrentUserDesktop(); openApp('app-explorer'); closeAllMenus();">個人桌面 (Desktop)</div>
+        </div>
+      </div>
+
+      <span class="macos-menu-item" onclick="openApp('app-about-pc')">關於此 Mac</span>
     </div>
+
     <div class="macos-menu-right">
       <span class="macos-menu-item">100% 🔋</span>
       <span class="macos-menu-item">🌐 🔊</span>
@@ -162,7 +195,7 @@
 
     <!-- Apple 標誌下拉選單 -->
     <div id="macos-apple-dropdown">
-      <div class="apple-drop-item" onclick="openApp('app-guide')">關於此 Mac (About This WebOS)</div>
+      <div class="apple-drop-item" onclick="openApp('app-about-pc')">關於此 Mac (About This Mac)</div>
       <div class="apple-drop-divider"></div>
       <div class="apple-drop-item" onclick="openApp('app-settings')">系統設定... (System Settings)</div>
       <div class="apple-drop-item" onclick="openApp('app-store')">App Store...</div>
@@ -334,6 +367,34 @@ SOFTWARE.</pre>
       </div>
     </div>
 
+    <!-- APP: About This PC / Mac (動態系統資訊視窗) -->
+    <div class="window" id="app-about-pc" style="width: 500px; height: 390px;">
+      <div class="title-bar" data-win="app-about-pc">
+        <div class="title-text" id="about-win-title">關於此電腦</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close">✕</div>
+        </div>
+      </div>
+      <div class="window-content" style="background:#f5f5f7; color:#1d1d1f; padding:24px; display:flex; flex-direction:column; align-items:center; text-align:center;">
+        <img id="about-logo-img" src="https://upload.wikimedia.org/wikipedia/commons/f/fa/Apple_logo_black.svg" width="55" height="55" style="margin-bottom:12px;" alt="Logo">
+        <h2 id="about-sys-name" style="margin:0 0 4px 0; font-size:20px; font-weight:600;">macOS Sequoia</h2>
+        <p id="about-sys-ver" style="font-size:12.5px; color:#515154; margin:0 0 12px 0;">版本 15.0 (Project Horizon Ultimate)</p>
+        
+        <div style="background:#fff; border:1px solid #d2d2d7; border-radius:8px; width:100%; padding:10px 14px; font-size:12.5px; text-align:left; line-height:1.5; display:flex; flex-direction:column; gap:4px;">
+          <div><strong>處理器 (Processor):</strong> Apple M3 Max / Virtual vCPU (8 cores)</div>
+          <div><strong>記憶體 (Memory):</strong> 16 GB 6400 MHz LPDDR5</div>
+          <div><strong>啟動磁碟 (Startup Disk):</strong> Macintosh HD / C: WebOS VFS</div>
+          <div style="display:flex; align-items:center; gap:6px; margin-top:2px;">
+            <strong>當前網頁瀏覽器:</strong> 
+            <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="16" height="16" alt="Browser"> 
+            <span id="about-browser-name">Microsoft Edge / WebKit</span>
+          </div>
+          <div><strong>當前活躍用戶:</strong> <span id="about-active-user">Admin</span></div>
+        </div>
+        <div style="margin-top:auto; font-size:11.5px; color:#555; font-weight:500;">Copyright 2026 iAnyFeature. All rights reserved.</div>
+      </div>
+    </div>
+
     <!-- APP: App Store -->
     <div class="window" id="app-store" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-store">
@@ -397,7 +458,7 @@ SOFTWARE.</pre>
                 <tr><td><code>echo [內容] &gt; [檔名]</code></td><td>建立檔案或將文字輸出重定向至指定檔案</td><td><code>echo WebOS &gt; test.txt</code></td></tr>
                 <tr><td><code>type [檔案名]</code></td><td>印出指定文字檔案內容</td><td><code>type copyright.txt</code></td></tr>
                 <tr><td><code>del [檔案名]</code></td><td>刪除虛擬檔案系統中的指定檔案 (送至回收筒)</td><td><code>del test.txt</code></td></tr>
-                <tr><td><code>color [代碼]</code></td><td>變更色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
+                <tr><td><code>color [代碼]</code></td><td>設定色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
                 <tr><td><code>cls</code> / <code>clear</code></td><td>清除終端機螢幕上所有文字紀錄</td><td><code>cls</code></td></tr>
                 <tr><td><code>ver</code></td><td>顯示當前 Windows 作業系統核心版本號</td><td><code>ver</code></td></tr>
                 <tr><td><code>date</code> / <code>time</code></td><td>檢視當前系統日期或時間</td><td><code>date</code></td></tr>
@@ -703,17 +764,40 @@ engine.simulate(30)
     </div>
 
     <!-- APP: Notepad -->
-    <div class="window" id="app-notepad" style="width: 600px; height: 450px;">
+    <div class="window" id="app-notepad" style="width: 600px; height: 480px;">
       <div class="title-bar" data-win="app-notepad">
-        <div class="title-text" data-i18n="notepad">記事本 (Auto-Save)</div>
+        <div class="title-text" data-i18n="notepad">記事本 (Notepad)</div>
         <div class="window-controls">
           <div class="ctrl-btn close">✕</div>
           <div class="ctrl-btn max">□</div>
           <div class="ctrl-btn min">─</div>
         </div>
       </div>
-      <div class="window-content">
-        <textarea id="np-text" spellcheck="false"></textarea>
+      <div class="window-content notepad-container">
+        <!-- 記事本頂部選單列 -->
+        <div class="notepad-menubar">
+          <div class="np-menu-item" onclick="toggleNpMenu('np-drop-file', event)">檔案 (File)
+            <div id="np-drop-file" class="np-dropdown">
+              <div class="np-drop-opt" onclick="npNewFile()">新增 (New)</div>
+              <div class="np-drop-opt" onclick="npOpenFile()">開啟 (Open)...</div>
+              <div class="np-drop-opt" onclick="npSaveFile()">儲存 (Save)</div>
+              <div class="np-drop-opt" onclick="npSaveAsFile()">另存新檔 (Save As)...</div>
+            </div>
+          </div>
+          <div class="np-menu-item" onclick="toggleNpMenu('np-drop-edit', event)">編輯 (Edit)
+            <div id="np-drop-edit" class="np-dropdown">
+              <div class="np-drop-opt" onclick="npSelectAll()">全選 (Select All)</div>
+              <div class="np-drop-opt" onclick="npClearText()">清除 (Clear)</div>
+            </div>
+          </div>
+          <div class="np-menu-item" onclick="toggleNpMenu('np-drop-view', event)">檢視 (View)
+            <div id="np-drop-view" class="np-dropdown">
+              <div class="np-drop-opt" onclick="npZoom(1)">放大字型 (Zoom In)</div>
+              <div class="np-drop-opt" onclick="npZoom(-1)">縮小字型 (Zoom Out)</div>
+            </div>
+          </div>
+        </div>
+        <textarea id="np-text" spellcheck="false" style="flex:1;"></textarea>
       </div>
     </div>
 
