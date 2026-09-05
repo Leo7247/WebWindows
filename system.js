@@ -1,5 +1,5 @@
 /* ==========================================================================
-   WebOS Project Horizon - Complete Guaranteed Kernel & Touch Engine
+   WebOS Project Horizon - Extended System Core Engine (Strict Boot Pipeline)
    ========================================================================== */
 
 const CLOUD_API = "https://api.restful-api.dev/objects/ff808181932badb40193309a47320000";
@@ -180,29 +180,64 @@ async function pushUserToCloud(username, password, avatar) {
 }
 
 /* ==========================================================================
-   3. GUARANTEED KERNEL & SYSTEM BOOTSTRAP PIPELINE
+   3. STRICT PIPELINE: 50+ LINES KERNEL SCROLLING -> RED GUI -> LOCK SCREEN
    ========================================================================== */
 
 const kernelLines = [
+  "[    0.000000] Initializing cgroup subsys cpuset",
+  "[    0.000000] Initializing cgroup subsys cpu",
+  "[    0.000000] Initializing cgroup subsys cpuacct",
   "[    0.000000] Linux version 6.6.0-webos-generic (gcc version 13.2.0) #1 SMP PREEMPT",
   "[    0.001204] Command line: BOOT_IMAGE=/vmlinuz-webos root=/dev/vda1 ro quiet splash",
+  "[    0.004120] BIOS-provided physical RAM map:",
+  "[    0.008912] BIOS-e820: [mem 0x0000000000000000-0x000000000009fbff] usable",
+  "[    0.012040] BIOS-e820: [mem 0x0000000000100000-0x000000007ffdffff] usable",
   "[    0.015234] x86/fpu: Supporting XSAVE feature 0x001: 'x87 floating point registers'",
+  "[    0.018910] x86/fpu: Supporting XSAVE feature 0x002: 'SSE registers'",
+  "[    0.021040] x86/fpu: Enabled xstate features 0x7, context size is 832 bytes",
   "[    0.032110] ACPI: Core revision 20260401",
+  "[    0.036812] ACPI: PM-Timer IO Port: 0x408",
+  "[    0.040102] ACPI: Local APIC address 0xfee00000",
   "[    0.045091] Memory: 16777216K/17179869K available (14336K kernel code, 2048K data)",
+  "[    0.052019] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=8, Nodes=1",
   "[    0.061240] Dentry cache hash table entries: 2097152 (order: 12, 16777216 bytes)",
   "[    0.089431] Inode-cache hash table entries: 1048576 (order: 11, 8388608 bytes)",
   "[    0.112048] Mount-cache hash table entries: 32768 (order: 6, 262144 bytes)",
-  "[    0.140812] Initializing cgroup subsys cpu, memory, devices, freezer",
+  "[    0.125091] Mountpoint-cache hash table entries: 32768 (order: 6, 262144 bytes)",
+  "[    0.140812] Initializing cgroup subsys memory",
+  "[    0.156102] Initializing cgroup subsys devices",
+  "[    0.168912] Initializing cgroup subsys freezer",
   "[    0.180291] VFS: Disk quotas dquot_6.6.0 mounted",
+  "[    0.192040] VFS: Dquot-cache hash table entries: 512 (order 0, 4096 bytes)",
   "[    0.210482] NetLabel: Initializing",
+  "[    0.221092] NetLabel: domain hash size = 128",
+  "[    0.235912] pci 0000:00:00.0: [8086:1237] type 00 class 0x060000",
   "[    0.245012] WebKit MDM Bypass tunnel driver initialized [OK]",
+  "[    0.258912] virtio-pci 0000:00:02.0: enabling device (0000 -> 0002)",
+  "[    0.270102] input: WebOS Touchscreen / Tablet Digitizer as /dev/input/event0",
   "[    0.280918] Brython 3.12 Dynamic Compiler engine registered [OK]",
+  "[    0.295012] SCSI subsystem initialized",
   "[    0.312891] EXT4-fs (vda1): mounted filesystem with ordered data mode",
+  "[    0.325012] systemd[1]: Inserted module 'autofs4'",
+  "[    0.341092] systemd[1]: Detected architecture x86-64.",
   "[    0.354012] systemd[1]: Starting GUI Window Compositor & Session Daemon...",
+  "[    0.370129] systemd[1]: Listening on udev Control Socket.",
   "[    0.389102] systemd[1]: Started WebOS D-Bus System Message Bus.",
+  "[    0.401029] systemd[1]: Mounted Configuration File System.",
   "[    0.410291] [  OK  ] Started Graphical Window Manager Compositor.",
+  "[    0.421902] [  OK  ] Mounted Huge Pages File System.",
   "[    0.435190] [  OK  ] Mounted Windows 10 Virtual File System Hierarchy.",
-  "[    0.450119] Switching runlevel: entering multi-user target GUI"
+  "[    0.442019] [  OK  ] Listening on Journal Socket (/dev/log).",
+  "[    0.450119] [  OK  ] Reached target System Initialization.",
+  "[    0.461902] [  OK  ] Started D-Bus System Message Bus Daemon.",
+  "[    0.475102] [  OK  ] Found device VIRTIO_BLOCK_STORAGE WebOS_System.",
+  "[    0.489102] [  OK  ] Started Dispatch Password Requests to Console.",
+  "[    0.501920] [  OK  ] Reached target Paths.",
+  "[    0.518912] [  OK  ] Started User Login Management Service.",
+  "[    0.531029] [  OK  ] Started Cloud Sync Engine Daemon.",
+  "[    0.548910] [  OK  ] Reached target Multi-User System.",
+  "[    0.562019] [  OK  ] Reached target Graphical Interface.",
+  "[    0.580192] Switching runlevel: entering multi-user target GUI"
 ];
 
 function initOS() {
@@ -239,78 +274,52 @@ function initOS() {
     };
   }
 
-  // --- Stage 1: BIOS 自檢階段 ---
-  const biosScreen = document.getElementById('bios-screen');
-  const biosText = document.getElementById('bios-text');
-  biosScreen.style.display = 'flex';
+  // --- 開機狀態機：Stage 1: Linux 內核文字滾動 (3-5 秒 + 隨機卡頓) ---
+  const kernelScreen = document.getElementById('kernel-screen');
+  const kernelText = document.getElementById('kernel-text');
+  kernelScreen.style.display = 'block';
+  kernelText.innerHTML = '';
 
-  const biosLines = [
-    "Project Horizon BIOS v13.0.0",
-    "Checking Central Processor Core... OK",
-    "Initializing Touch, Pointer & Gesture Subsystem... OK",
-    "Connecting Cloud User Database Endpoint... OK",
-    "Mounting Virtual File System (VFS)... OK",
-    "Passing control to OS Kernel..."
-  ];
+  let kIdx = 0;
+  function printKernel() {
+    if (kIdx < kernelLines.length) {
+      const line = document.createElement('div');
+      line.className = 'kernel-log-line';
+      line.innerText = kernelLines[kIdx];
+      kernelText.appendChild(line);
 
-  let biosIdx = 0;
-  function printBIOS() {
-    if (biosIdx < biosLines.length) {
-      const newLine = document.createElement('div');
-      newLine.className = 'bios-line';
-      newLine.innerText = biosLines[biosIdx];
-      biosText.appendChild(newLine);
-      biosIdx++;
-      setTimeout(printBIOS, 70 + Math.random() * 60);
-    } else {
-      setTimeout(startKernelBoot, 200);
-    }
-  }
+      // 強制每行即時向下滾動
+      kernelScreen.scrollTop = kernelScreen.scrollHeight;
 
-  // --- Stage 2: Linux-like Kernel Boot 核心滾動文字階段 (確保平滑滾動) ---
-  function startKernelBoot() {
-    biosScreen.style.display = 'none';
-    const kernelScreen = document.getElementById('kernel-screen');
-    const kernelText = document.getElementById('kernel-text');
-    
-    // 強制設定為可視狀態
-    kernelScreen.style.display = 'block';
-    kernelText.innerHTML = '';
-
-    let kIdx = 0;
-    function printKernel() {
-      if (kIdx < kernelLines.length) {
-        const line = document.createElement('div');
-        line.className = 'kernel-log-line';
-        line.innerText = kernelLines[kIdx];
-        kernelText.appendChild(line);
-
-        // 強制捲動到底部
-        kernelScreen.scrollTop = kernelScreen.scrollHeight;
-        kIdx++;
-        setTimeout(printKernel, 40 + Math.random() * 35);
-      } else {
-        setTimeout(startGUIBoot, 500);
+      // 模擬 Linux 開機卡頓：在特定硬體檢測與掛載點卡 100~500ms
+      let delay = 35 + Math.random() * 25;
+      if (kIdx === 14 || kIdx === 28 || kIdx === 33 || kIdx === 40 || kIdx === 50) {
+        delay = 180 + Math.random() * 320; // 模擬硬體等待卡頓
       }
+
+      kIdx++;
+      setTimeout(printKernel, delay);
+    } else {
+      // 內核滾動完畢，切換至 Windows GUI Boot (隨機 2~4 秒)
+      const guiBootDuration = 2000 + Math.random() * 2000;
+      setTimeout(startGUIBoot, 300, guiBootDuration);
     }
-    printKernel();
   }
 
-  // --- Stage 3: GUI 開機載入 (紅色 Windows Logo) ---
-  function startGUIBoot() {
-    const kernelScreen = document.getElementById('kernel-screen');
+  // --- Stage 2: Windows GUI Boot (紅色 Windows Logo) ---
+  function startGUIBoot(duration) {
     kernelScreen.style.display = 'none';
-    
     const bootScreen = document.getElementById('boot-screen');
     bootScreen.style.display = 'flex';
 
     setTimeout(() => {
       bootScreen.style.display = 'none';
       document.getElementById('lock-screen').style.display = 'block';
-    }, 1500);
+    }, duration);
   }
 
-  printBIOS();
+  // 立即啟動內核滾動
+  printKernel();
   
   renderDesktop();
   renderFS();
@@ -774,6 +783,7 @@ function renderDesktop() {
     const iconItem = document.createElement('div');
     iconItem.className = 'icon';
 
+    // 支援 iPad 與桌面輕觸即時彈出 App
     iconItem.addEventListener('click', () => {
       openApp(app.id);
     });
@@ -1266,7 +1276,7 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   8. SPECIFIC APPS (SETTINGS, BROWSER, WEATHER, PAINT, STOPWATCH, SYNTH)
+   8. SPECIFIC APPS (FLUENT CALCULATOR, SETTINGS, BROWSER, PAINT, STOPWATCH)
    ========================================================================== */
 
 function initGuide() {
@@ -1603,42 +1613,70 @@ window.playTone = (freq) => {
   osc.stop(audioCtx.currentTime + 0.5);
 };
 
-// Calculator
-let calcV = "";
-window.calcIn = (k) => {
-  const display = document.getElementById('calc-display');
-  if (k === 'C') {
-    calcV = "";
-    display.value = "0";
-  } else if (k === '=') {
+/* --- 增強版 Windows 10 計算機核心邏輯 (Fluent Calculator) --- */
+let calcExpression = "";
+let calcCurrentVal = "0";
+
+function updateCalcUI() {
+  document.getElementById('calc-history-line').innerText = calcExpression;
+  document.getElementById('calc-display').value = calcCurrentVal;
+}
+
+window.handleCalcInput = (token) => {
+  if (token === 'C') {
+    calcExpression = "";
+    calcCurrentVal = "0";
+  } else if (token === 'CE') {
+    calcCurrentVal = "0";
+  } else if (token === '⌫') {
+    calcCurrentVal = calcCurrentVal.length > 1 ? calcCurrentVal.slice(0, -1) : "0";
+  } else if (token === '=') {
     try {
-      calcV = eval(calcV).toString();
-      display.value = calcV;
-    } catch {
-      display.value = "Error";
-      calcV = "";
+      const fullExp = (calcExpression + calcCurrentVal).replace(/×/g, '*').replace(/÷/g, '/');
+      const res = eval(fullExp);
+      calcExpression = "";
+      calcCurrentVal = String(res);
+    } catch (e) {
+      calcCurrentVal = "錯誤";
+      calcExpression = "";
     }
+  } else if (['+', '-', '×', '÷'].includes(token)) {
+    calcExpression += calcCurrentVal + " " + token + " ";
+    calcCurrentVal = "0";
+  } else if (token === '±') {
+    calcCurrentVal = String(parseFloat(calcCurrentVal) * -1);
+  } else if (token === '.') {
+    if (!calcCurrentVal.includes('.')) calcCurrentVal += '.';
   } else {
-    calcV += k;
-    display.value = calcV;
+    // 數字輸入
+    calcCurrentVal = (calcCurrentVal === "0") ? token : (calcCurrentVal + token);
   }
+  updateCalcUI();
 };
 
 function initCalc() {
   const grid = document.getElementById('calc-grid');
   grid.innerHTML = '';
-  const buttons = ['7','8','9','/','4','5','6','*','1','2','3','-','C','0','=','+'];
-  buttons.forEach(char => {
-    let btnStyle = "font-size:22px; border:none; border-radius:6px; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,0.1);";
-    if (char === '=' || char === '/' || char === '*' || char === '-' || char === '+') {
-      btnStyle += "background:#e0e0e0;";
-    } else if (char === '=') {
-      btnStyle += "background:var(--win-blue); color:white;";
-    } else {
-      btnStyle += "background:#ffffff;";
-    }
-    grid.innerHTML += `<button style="${btnStyle}" onclick="calcIn('${char}')">${char}</button>`;
+  
+  // Windows 10 標準 24 鍵佈局
+  const keys = [
+    { label: '%', op: true }, { label: 'CE', op: true }, { label: 'C', op: true }, { label: '⌫', op: true },
+    { label: '¹/x', op: true }, { label: 'x²', op: true }, { label: '√x', op: true }, { label: '÷', op: true },
+    { label: '7' }, { label: '8' }, { label: '9' }, { label: '×', op: true },
+    { label: '4' }, { label: '5' }, { label: '6' }, { label: '-', op: true },
+    { label: '1' }, { label: '2' }, { label: '3' }, { label: '+', op: true },
+    { label: '±' }, { label: '0' }, { label: '.' }, { label: '=', equal: true }
+  ];
+
+  keys.forEach(k => {
+    const btn = document.createElement('button');
+    btn.innerText = k.label;
+    if (k.op) btn.className = 'op-btn';
+    if (k.equal) btn.className = 'equal-btn';
+    btn.onclick = () => handleCalcInput(k.label);
+    grid.appendChild(btn);
   });
+  updateCalcUI();
 }
 
 // Clock Loop
