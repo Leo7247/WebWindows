@@ -546,7 +546,7 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
-/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 (完備細節) --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
@@ -598,7 +598,7 @@ window.openAboutPC = () => {
     lineVer.innerText = "Version 15.0 • Processor: Apple M4 • RAM: 16GB LPDDR5X";
     lineCopy.innerText = "™ and © 2026 Apple Inc. All rights reserved.";
     lineDesc.innerText = "macOS Sequoia is designed for optimal web computing and Apple Silicon spatial emulation.";
-    diskInfo.innerText = "Startup Disk: Macintosh HD (APFS)";
+    diskInfo.innerText = "開機磁碟: Macintosh HD (APFS)";
   } else if (sysTheme === 'theme-ubuntu') {
     winTitle.innerText = "About This PC (Ubuntu)";
     bannerTitle.innerText = "Ubuntu 22.04";
@@ -608,7 +608,7 @@ window.openAboutPC = () => {
     lineVer.innerText = "Kernel 6.6.0-webos-generic • RAM: 16GB NVME Subsystem";
     lineCopy.innerText = "© Canonical Ltd. Ubuntu and Canonical are registered trademarks.";
     lineDesc.innerText = "Ubuntu is an open source software operating system that runs from the desktop to the cloud.";
-    diskInfo.innerText = "Startup Disk: /dev/nvme0n1p1 (Disk Type: NVME)";
+    diskInfo.innerText = "開機磁碟: /dev/nvme0n1p1 (Disk Type: NVME)";
   } else {
     // Windows 10 winver 經典視窗 (完全還原圖片)
     winTitle.innerText = "About Windows";
@@ -1222,7 +1222,6 @@ function saveVFS() {
   localStorage.setItem('os_vfs_v4', JSON.stringify(vfs));
 }
 
-// 自動為當前登入者建立專屬 C:\Users\<username> 資料夾
 function ensureUserEnvironment(username) {
   if (!vfs["Users"]) vfs["Users"] = { isSystemProtected: false };
   if (!vfs["Users"][username]) {
@@ -1240,7 +1239,6 @@ function ensureUserEnvironment(username) {
 
   const allApps = getAllApps();
 
-  // 同步應用程式捷徑至 C:\Apps
   allApps.forEach(app => {
     const appKey = `${getAppName(app)}.app`;
     vfs["Apps"][appKey] = {
@@ -1251,7 +1249,6 @@ function ensureUserEnvironment(username) {
     };
   });
 
-  // 同步桌面捷徑至當前用戶的 Desktop 目錄
   allApps.forEach(app => {
     const lnkKey = `${getAppName(app)}.lnk`;
     vfs["Users"][username]["Desktop"][lnkKey] = {
@@ -1298,7 +1295,6 @@ function renderFS() {
   
   fsGrid.innerHTML = '';
 
-  // 動態磁碟標籤顯示
   let rootDisplayName = "C:\\";
   if (sysTheme === 'theme-macos') {
     rootDisplayName = "Macintosh HD/";
@@ -1313,7 +1309,6 @@ function renderFS() {
   let formattedPath = currentVFSPath.slice(1).join('\\');
   pathLabel.innerText = rootDisplayName + (formattedPath ? formattedPath + "\\" : "");
 
-  // 更新側邊欄文字提示
   document.getElementById('nav-side-desktop').innerText = `🖥️ 桌面 (${sysUser})`;
   document.getElementById('nav-side-documents').innerText = `📄 文件 (${sysUser})`;
 
@@ -1323,7 +1318,6 @@ function renderFS() {
   const isInsideBin = currentVFSPath.length === 2 && currentVFSPath[1] === "RubbishBin";
   const isInsideSystem = currentVFSPath.includes("System");
 
-  // 如果在資源回收筒內，頂部顯示清空按鈕
   if (isInsideBin) {
     const emptyBar = document.createElement('div');
     emptyBar.style.width = "100%";
@@ -1379,21 +1373,17 @@ function renderFS() {
       };
     }
 
-    // 右鍵選單：回收筒操作 vs 刪除至回收筒
     item.oncontextmenu = (e) => {
       e.preventDefault();
 
-      // 1. 系統檔案保護檢查
       if (isInsideSystem || name === "System" || name === "RubbishBin") {
         alert("🔒 系統核心檔案受到防護，無法被刪除或重新命名！");
         return;
       }
 
-      // 2. 如果在資源回收筒內：還原或徹底銷毀
       if (isInsideBin) {
         const binChoice = confirm(`檔案 [${name}] 正存放於資源回收筒中。\n點擊「確定」還原至桌面，點擊「取消」將其永久抹除！`);
         if (binChoice) {
-          // 還原到當前用戶的桌面
           vfs["Users"][sysUser]["Desktop"][name] = itemData;
           delete currentDir[name];
           saveVFS();
@@ -1410,10 +1400,8 @@ function renderFS() {
         return;
       }
 
-      // 3. 一般目錄檔案：重新命名或送至回收筒
       const action = prompt(`操作檔案 [${name}]\n輸入 'del' 將其丟入資源回收筒，或輸入新名稱進行更名:`, name);
       if (action === 'del') {
-        // 移動至資源回收筒
         vfs["RubbishBin"][name] = itemData;
         delete currentDir[name];
         saveVFS();
@@ -1436,7 +1424,6 @@ function renderFS() {
   statusCount.innerText = `${count} 個項目`;
 }
 
-// 清空資源回收筒
 window.emptyRubbishBin = () => {
   if (confirm("⚠️ 確定要清空資源回收筒？所有被刪除的檔案將被永久銷毀！")) {
     vfs["RubbishBin"] = { isSystemProtected: true };
@@ -1534,7 +1521,7 @@ document.getElementById('fs-search-input').oninput = (e) => {
 
 /* ==========================================================================
    8. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
-   ========================================================================= */
+   ========================================================================== */
 
 function toggleNpMenu(menuId, event) {
   event.stopPropagation();
