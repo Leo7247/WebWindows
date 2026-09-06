@@ -290,10 +290,8 @@ function initOS() {
       line.innerText = kernelLines[kIdx];
       kernelText.appendChild(line);
 
-      // 強制向下滾動
       kernelScreen.scrollTop = kernelScreen.scrollHeight;
 
-      // 模擬 Linux 開機卡頓：在特定硬體檢測與掛載點卡 100~500ms
       let delay = 35 + Math.random() * 25;
       if (kIdx === 14 || kIdx === 28 || kIdx === 33 || kIdx === 40 || kIdx === 50) {
         delay = 180 + Math.random() * 320;
@@ -302,20 +300,19 @@ function initOS() {
       kIdx++;
       setTimeout(printKernel, delay);
     } else {
-      // 內核滾動完畢，切換至 Windows GUI Boot (隨機 2~4 秒)
       const guiBootDuration = 2000 + Math.random() * 2000;
       setTimeout(startGUIBoot, 300, guiBootDuration);
     }
   }
 
-  // --- Stage 2: 主題動態 GUI Boot (同步替換為指定的 Logo) ---
+  // --- Stage 2: 主題動態 GUI Boot (套用指定 Apple 陰影圖標與各系統圖標) ---
   function startGUIBoot(duration) {
     kernelScreen.style.display = 'none';
     const bootScreen = document.getElementById('boot-screen');
     const bootLogo = document.getElementById('boot-logo');
     
     if (sysTheme === 'theme-macos') {
-      bootLogo.src = 'https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000';
+      bootLogo.src = 'https://icon.icepanel.io/Technology/png-shadow-512/Apple.png';
     } else if (sysTheme === 'theme-ubuntu') {
       bootLogo.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
     } else {
@@ -361,8 +358,8 @@ function updateStartIcon() {
     icon.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
     if (bootLogo) bootLogo.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
   } else if (sysTheme === 'theme-macos') {
-    icon.src = 'https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000';
-    if (bootLogo) bootLogo.src = 'https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000';
+    icon.src = 'https://icon.icepanel.io/Technology/png-shadow-512/Apple.png';
+    if (bootLogo) bootLogo.src = 'https://icon.icepanel.io/Technology/png-shadow-512/Apple.png';
   } else if (sysTheme === 'theme-ubuntu') {
     icon.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
     if (bootLogo) bootLogo.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
@@ -563,7 +560,7 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
-/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 (全要素實裝) --- */
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 (像素級還原圖片) --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
@@ -592,8 +589,11 @@ window.openAboutPC = () => {
     bIcon = "https://upload.wikimedia.org/wikipedia/commons/5/52/Safari_browser_logo.svg";
   }
 
+  // 同步瀏覽器偵測到 macOS 視窗與 Windows 視窗
   document.getElementById('about-browser-name').innerText = bName;
   document.getElementById('about-browser-icon').src = bIcon;
+  document.getElementById('about-mac-browser-name').innerText = bName;
+  document.getElementById('about-mac-browser-icon').src = bIcon;
   document.getElementById('about-user-name').innerText = sysUser;
 
   // 2. 主題動態適應
@@ -608,16 +608,21 @@ window.openAboutPC = () => {
   const diskInfo = document.getElementById('about-disk-info');
   const licenseSection = document.getElementById('about-license-section');
   const macSpecsList = document.getElementById('about-mac-specs-list');
+  const macBtnWrap = document.getElementById('about-mac-btn-wrap');
   const sp1 = document.getElementById('about-space-1');
   const sp2 = document.getElementById('about-space-2');
   const okBtn = document.getElementById('about-ok-btn');
+  const browserBox = document.getElementById('about-browser-box');
+  const copyrightText = document.getElementById('about-copyright-text');
 
   if (sysTheme === 'theme-macos') {
     winTitle.innerText = "About this Mac";
     bannerTitle.innerText = "MacBook Pro";
-    subTitle.innerText = "16-inch, 2026";
+    subTitle.innerText = "16-inch, 2021";
     subTitle.style.display = "block";
-    logoImg.src = "https://img.icons8.com/?size=100&id=vCiwbOh7Uo7G&format=png&color=000000";
+    
+    // 你指定的 MacBook 寫實圖片
+    logoImg.src = "https://img.icons8.com/?size=100&id=WPZvpTLUFPkq&format=png&color=000000";
     
     lineOs.style.display = "none";
     lineVer.style.display = "none";
@@ -626,16 +631,21 @@ window.openAboutPC = () => {
     licenseSection.style.display = "none";
     sp1.style.display = "none";
     sp2.style.display = "none";
-    macSpecsList.style.display = "block";
+    browserBox.style.display = "none";
+    okBtn.style.display = "none";
 
-    diskInfo.innerText = "開機磁碟: Macintosh HD (APFS)";
-    okBtn.innerText = "更多資訊...";
+    macSpecsList.style.display = "flex";
+    macBtnWrap.style.display = "block";
+
+    // 格式化指定版權字串
+    copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   } else if (sysTheme === 'theme-ubuntu') {
     winTitle.innerText = "About This PC (Ubuntu)";
     bannerTitle.innerText = "Ubuntu 22.04";
     bannerTitle.style.color = "#E95420";
     subTitle.style.display = "none";
     logoImg.src = "https://cdn-icons-png.flaticon.com/512/888/888879.png";
+    logoImg.style.width = "68px";
     
     lineOs.style.display = "block";
     lineVer.style.display = "block";
@@ -644,21 +654,26 @@ window.openAboutPC = () => {
     licenseSection.style.display = "block";
     sp1.style.display = "inline";
     sp2.style.display = "inline";
+    browserBox.style.display = "flex";
+    okBtn.style.display = "inline-block";
+
     macSpecsList.style.display = "none";
+    macBtnWrap.style.display = "none";
 
     lineOs.innerText = "Ubuntu Linux LTS (x86_64)";
     lineVer.innerText = "Kernel 6.6.0-webos-generic • RAM: 16GB NVME Subsystem";
     lineCopy.innerText = "© Canonical Ltd. Ubuntu and Canonical are registered trademarks.";
     lineDesc.innerText = "Ubuntu is an open source software operating system that runs from the desktop to the cloud.";
     diskInfo.innerText = "開機磁碟: /dev/nvme0n1p1 (Disk Type: NVME)";
-    okBtn.innerText = "OK";
+    copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   } else {
-    // Windows 10 winver 經典視窗 (完全還原圖片)
+    // Windows 10 winver 經典視窗
     winTitle.innerText = "About Windows";
     bannerTitle.innerText = "Windows 10";
     bannerTitle.style.color = "#0078D7";
     subTitle.style.display = "none";
     logoImg.src = "https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png";
+    logoImg.style.width = "68px";
 
     lineOs.style.display = "block";
     lineVer.style.display = "block";
@@ -667,14 +682,18 @@ window.openAboutPC = () => {
     licenseSection.style.display = "block";
     sp1.style.display = "inline";
     sp2.style.display = "inline";
+    browserBox.style.display = "flex";
+    okBtn.style.display = "inline-block";
+
     macSpecsList.style.display = "none";
+    macBtnWrap.style.display = "none";
 
     lineOs.innerText = "Microsoft Windows";
     lineVer.innerText = "Version 1909 (OS Build 18363.1082)";
     lineCopy.innerText = "© 2019 Microsoft Corporation. All rights reserved.";
     lineDesc.innerText = "The Windows 10 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
     diskInfo.innerText = "開機磁碟: C:Local Disk";
-    okBtn.innerText = "OK";
+    copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   }
 };
 
@@ -965,7 +984,6 @@ function getAllApps() {
   return [...coreApps, ...custom];
 }
 
-// 渲染桌面圖示（包含專屬回收筒捷徑，支援自由拖曳儲存座標）
 function renderDesktop() {
   const desktopBox = document.getElementById('desktop-icons');
   const startList = document.getElementById('start-app-list');
@@ -979,7 +997,6 @@ function renderDesktop() {
 
   const allApps = getAllApps();
 
-  // 1. 加入 Rubbish Bin 桌面圖示
   const rubbishBinIcon = {
     id: 'special-rubbish-bin',
     name: '資源回收筒',
@@ -1013,7 +1030,6 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
-    // 觸控與滑鼠拖曳擺位
     let iconDragging = false;
     let iconStartX, iconStartY, iconOffsetX, iconOffsetY;
     let hasMoved = false;
@@ -1278,7 +1294,6 @@ function saveVFS() {
   localStorage.setItem('os_vfs_v4', JSON.stringify(vfs));
 }
 
-// 自動為當前登入者建立專屬 C:\Users\<username> 資料夾
 function ensureUserEnvironment(username) {
   if (!vfs["Users"]) vfs["Users"] = { isSystemProtected: false };
   if (!vfs["Users"][username]) {
@@ -1296,7 +1311,6 @@ function ensureUserEnvironment(username) {
 
   const allApps = getAllApps();
 
-  // 同步應用程式捷徑至 C:\Apps
   allApps.forEach(app => {
     const appKey = `${getAppName(app)}.app`;
     vfs["Apps"][appKey] = {
@@ -1307,7 +1321,6 @@ function ensureUserEnvironment(username) {
     };
   });
 
-  // 同步桌面捷徑至當前用戶的 Desktop 目錄
   allApps.forEach(app => {
     const lnkKey = `${getAppName(app)}.lnk`;
     vfs["Users"][username]["Desktop"][lnkKey] = {
@@ -1354,7 +1367,6 @@ function renderFS() {
   
   fsGrid.innerHTML = '';
 
-  // 動態磁碟標籤顯示
   let rootDisplayName = "C:\\";
   if (sysTheme === 'theme-macos') {
     rootDisplayName = "Macintosh HD/";
@@ -1369,7 +1381,6 @@ function renderFS() {
   let formattedPath = currentVFSPath.slice(1).join('\\');
   pathLabel.innerText = rootDisplayName + (formattedPath ? formattedPath + "\\" : "");
 
-  // 更新側邊欄文字提示
   document.getElementById('nav-side-desktop').innerText = `🖥️ 桌面 (${sysUser})`;
   document.getElementById('nav-side-documents').innerText = `📄 文件 (${sysUser})`;
 
@@ -1379,7 +1390,6 @@ function renderFS() {
   const isInsideBin = currentVFSPath.length === 2 && currentVFSPath[1] === "RubbishBin";
   const isInsideSystem = currentVFSPath.includes("System");
 
-  // 如果在資源回收筒內，頂部顯示清空按鈕
   if (isInsideBin) {
     const emptyBar = document.createElement('div');
     emptyBar.style.width = "100%";
@@ -1435,21 +1445,17 @@ function renderFS() {
       };
     }
 
-    // 右鍵選單：回收筒操作 vs 刪除至回收筒
     item.oncontextmenu = (e) => {
       e.preventDefault();
 
-      // 1. 系統檔案保護檢查
       if (isInsideSystem || name === "System" || name === "RubbishBin") {
         alert("🔒 系統核心檔案受到防護，無法被刪除或重新命名！");
         return;
       }
 
-      // 2. 如果在資源回收筒內：還原或徹底銷毀
       if (isInsideBin) {
         const binChoice = confirm(`檔案 [${name}] 正存放於資源回收筒中。\n點擊「確定」還原至桌面，點擊「取消」將其永久抹除！`);
         if (binChoice) {
-          // 還原到當前用戶的桌面
           vfs["Users"][sysUser]["Desktop"][name] = itemData;
           delete currentDir[name];
           saveVFS();
@@ -1466,10 +1472,8 @@ function renderFS() {
         return;
       }
 
-      // 3. 一般目錄檔案：重新命名或送至回收筒
       const action = prompt(`操作檔案 [${name}]\n輸入 'del' 將其丟入資源回收筒，或輸入新名稱進行更名:`, name);
       if (action === 'del') {
-        // 移動至資源回收筒
         vfs["RubbishBin"][name] = itemData;
         delete currentDir[name];
         saveVFS();
@@ -1492,7 +1496,6 @@ function renderFS() {
   statusCount.innerText = `${count} 個項目`;
 }
 
-// 清空資源回收筒
 window.emptyRubbishBin = () => {
   if (confirm("⚠️ 確定要清空資源回收筒？所有被刪除的檔案將被永久銷毀！")) {
     vfs["RubbishBin"] = { isSystemProtected: true };
