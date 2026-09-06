@@ -1485,8 +1485,13 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   11. ABOUT WINDOW STYLING (WINDOWS 10 WINVER & MACOS ABOUT THIS MAC)
+   11. ABOUT WINDOW STYLING (WINDOWS 10 WINVER & EXACT MACOS ABOUT THIS MAC)
    ========================================================================== */
+
+#app-about-pc {
+  width: 550px;
+  height: 500px;
+}
 
 #about-win-content {
   background: #f0f0f0;
@@ -1495,6 +1500,7 @@ body.theme-ubuntu .ctrl-btn.close {
   display: flex;
   flex-direction: column;
   height: 100%;
+  box-sizing: border-box;
 }
 
 #about-banner-container {
@@ -1504,12 +1510,22 @@ body.theme-ubuntu .ctrl-btn.close {
   margin-bottom: 12px;
 }
 
+#about-logo-img {
+  width: 68px;
+  height: 68px;
+  object-fit: contain;
+}
+
 #about-sys-banner-title {
   margin: 0;
   font-size: 34px;
   font-weight: 300;
   color: #0078D7;
   font-family: 'Segoe UI', sans-serif;
+}
+
+#about-sys-sub-title {
+  display: none;
 }
 
 #about-specs-body {
@@ -1540,65 +1556,159 @@ body.theme-ubuntu .ctrl-btn.close {
   padding-top: 12px;
 }
 
-/* macOS 專屬 About This Mac 風格卡片 */
+/* -------------------------------------------------------------
+   macOS 主題專屬：100% 像素級還原圖片中的「About this Mac」
+   ------------------------------------------------------------- */
+body.theme-macos #app-about-pc {
+  width: 380px !important;
+  height: 580px !important;
+  border-radius: 18px !important;
+  box-shadow: 0 25px 60px rgba(0, 0, 0, 0.28) !important;
+  border: 1px solid rgba(0, 0, 0, 0.12) !important;
+  background: #fafafc !important;
+}
+
+body.theme-macos #app-about-pc .title-bar {
+  background: transparent !important;
+  border-bottom: none !important;
+  height: 32px !important;
+}
+
+body.theme-macos #app-about-pc .title-text {
+  display: none !important;
+}
+
 body.theme-macos #about-win-content {
-  background: #fbfbfd;
-  color: #1d1d1f;
-  padding: 28px;
+  background: #ffffff !important;
+  color: #1d1d1f !important;
+  padding: 10px 24px 22px 24px !important;
+  display: flex !important;
+  flex-direction: column !important;
+  align-items: center !important;
+  text-align: center !important;
+  border-radius: 0 0 18px 18px !important;
 }
 
 body.theme-macos #about-banner-container {
-  flex-direction: column;
-  text-align: center;
-  gap: 8px;
-  margin-bottom: 16px;
+  flex-direction: column !important;
+  align-items: center !important;
+  gap: 10px !important;
+  margin-bottom: 12px !important;
+}
+
+body.theme-macos #about-logo-img {
+  width: 170px !important;
+  height: auto !important;
+  filter: drop-shadow(0 12px 24px rgba(0, 0, 0, 0.12));
 }
 
 body.theme-macos #about-sys-banner-title {
-  font-size: 22px;
-  font-weight: 600;
-  color: #1d1d1f;
-  font-family: -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 26px !important;
+  font-weight: 700 !important;
+  color: #1d1d1f !important;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif !important;
+  letter-spacing: -0.4px !important;
 }
 
 body.theme-macos #about-sys-sub-title {
-  font-size: 13px;
-  color: #6e6e73;
+  display: block !important;
+  font-size: 12.5px !important;
+  color: #86868b !important;
+  margin-top: 3px !important;
 }
 
 body.theme-macos #about-divider {
-  display: none;
+  display: none !important;
+}
+
+body.theme-macos #about-specs-body {
+  width: 100% !important;
+  max-width: 290px !important;
+  margin: 0 auto !important;
+  flex: none !important;
+  overflow: visible !important;
+}
+
+#about-mac-specs-list {
+  display: flex;
+  flex-direction: column;
+  gap: 7px;
+  margin-top: 6px;
+  margin-bottom: 18px;
 }
 
 .mac-spec-row {
-  display: flex;
-  padding: 6px 0;
+  display: grid;
+  grid-template-columns: 105px 1fr;
+  text-align: left;
   font-size: 12.5px;
-  border-bottom: 1px solid rgba(0, 0, 0, 0.06);
+  line-height: 1.4;
 }
 
 .mac-spec-label {
-  width: 90px;
-  color: #86868b;
-  font-weight: 500;
+  color: #1d1d1f;
+  font-weight: 600;
+  text-align: right;
+  padding-right: 14px;
 }
 
 .mac-spec-val {
-  color: #1d1d1f;
+  color: #515154;
   font-weight: 400;
+  word-break: break-word;
 }
 
-body.theme-macos #about-ok-btn {
-  background: rgba(0, 0, 0, 0.05);
-  border: 1px solid rgba(0, 0, 0, 0.12);
-  border-radius: 14px;
-  padding: 4px 16px;
+.mac-browser-val {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+#about-mac-btn-wrap {
+  margin-bottom: 16px;
+}
+
+.mac-more-info-btn {
+  background: #f0f0f2;
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 7px;
+  padding: 6px 20px;
   font-size: 12px;
+  font-weight: 500;
   color: #1d1d1f;
+  cursor: pointer;
+  transition: all 0.15s ease;
 }
 
-body.theme-macos #about-ok-btn:hover {
-  background: rgba(0, 0, 0, 0.1);
+.mac-more-info-btn:hover {
+  background: #e4e4e8;
+}
+
+body.theme-macos #about-footer-bar {
+  border-top: none !important;
+  margin-top: auto !important;
+  padding-top: 0 !important;
+  flex-direction: column !important;
+  gap: 3px !important;
+  text-align: center !important;
+}
+
+#mac-regulatory-link {
+  display: none;
+  font-size: 11.5px;
+  color: #86868b;
+  text-decoration: underline;
+  cursor: pointer;
+}
+
+body.theme-macos #mac-regulatory-link {
+  display: block;
+}
+
+#about-copyright-text {
+  font-size: 10.5px;
+  color: #86868b;
+  font-weight: 400;
 }
 
 /* ==========================================================================
