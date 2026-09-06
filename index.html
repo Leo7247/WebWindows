@@ -76,9 +76,12 @@
         <p>• 預設提供訪客帳戶 <strong>「User」</strong>，<strong>無需密碼</strong>。<br>
            • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
            • 登入後系統會自動彈出註冊引導視窗，輸入新名稱與密碼（必填），系統會建立專屬 <code>C:\Users\&lt;用戶名&gt;</code> 個人資料夾並同步至雲端！</p>
-        <h4>2. Python IDE 儲存功能</h4>
-        <p>• <strong>原生 Save Dialog</strong>：點擊 Python IDE 的「💾 儲存」按鈕，系統會依據當前 Windows / macOS / Ubuntu 風格彈出專屬另存新檔視窗，並寫入檔案總管！</p>
-        <h4>3. 動態主題與 About This PC / Mac</h4>
+        <h4>2. Python IDE 儲存與開啟功能</h4>
+        <p>• <strong>原生 Save As / Open Dialog</strong>：點擊 Python IDE 的「💾 儲存」或「📂 開啟」按鈕，系統會依據當前 Windows / macOS / Ubuntu 風格彈出專屬另存新檔視窗，支援過濾 `.py` 檔案並寫入檔案總管！</p>
+        <h4>3. 小畫家多格式儲存與圖層保護</h4>
+        <p>• <strong>.paint 向量工程檔</strong>：重新開啟後的所有筆畫均可自由擦除。<br>
+           • <strong>.png 點陣圖像</strong>：開啟後將鎖定為背景底圖，橡皮擦無法擦除底圖內容。</p>
+        <h4>4. 動態主題與 About This PC / Mac</h4>
         <p>• <strong>Windows 主題</strong>：原生 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
            • <strong>macOS 主題</strong>：官方雙欄垂直風格「About this Mac」，具備 MacBook 專屬圖標、雙欄資訊及版權宣言。<br>
            • <strong>Ubuntu 主題</strong>：開機磁碟為 <code>/dev/nvme0n1p1</code> (NVME)。</p>
@@ -370,7 +373,6 @@ SOFTWARE.</pre>
         </div>
       </div>
       <div class="window-content" id="about-win-content">
-        <!-- 頂部圖片與大標題 (macOS 下為 MacBook 筆電卡片) -->
         <div id="about-banner-container">
           <img id="about-logo-img" src="https://img.icons8.com/?size=100&id=WPZvpTLUFPkq&format=png&color=000000" alt="OS Logo">
           <div id="about-banner-text-wrap">
@@ -381,7 +383,6 @@ SOFTWARE.</pre>
 
         <hr id="about-divider" style="border:0; border-top:1px solid #d0d0d0; margin:10px 0 16px 0; display:none;">
 
-        <!-- 規格與版本詳細訊息 -->
         <div id="about-specs-body">
           <div id="about-line-os" style="display:none;">Microsoft Windows</div>
           <div id="about-line-ver" style="display:none;">Version 1909 (OS Build 18363.1082)</div>
@@ -401,7 +402,6 @@ SOFTWARE.</pre>
             <br>
           </div>
 
-          <!-- macOS 官方極致雙欄規格清單 ( Chip / Memory / Startup Disk / Browser / macOS ) -->
           <div id="about-mac-specs-list">
             <div class="mac-spec-row"><span class="mac-spec-label">Chip</span><span class="mac-spec-val" id="mac-spec-chip">Apple M4</span></div>
             <div class="mac-spec-row"><span class="mac-spec-label">Memory</span><span class="mac-spec-val" id="mac-spec-mem">16 GB</span></div>
@@ -410,7 +410,6 @@ SOFTWARE.</pre>
             <div class="mac-spec-row"><span class="mac-spec-label">macOS</span><span class="mac-spec-val" id="mac-spec-os">Sequoia 15.0</span></div>
           </div>
 
-          <!-- Windows / Ubuntu 經典在線瀏覽器方塊 -->
           <div id="about-browser-box" style="display:none;">
             <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="22" height="22" alt="Browser">
             <div style="font-size:12px;">
@@ -420,12 +419,10 @@ SOFTWARE.</pre>
           </div>
         </div>
 
-        <!-- 官方 macOS 專屬 More Info 按鈕 -->
         <div id="about-mac-btn-wrap">
           <button class="mac-more-info-btn" onclick="openApp('app-settings')">More Info...</button>
         </div>
 
-        <!-- 底部版權與 Regulatory 宣告 -->
         <div id="about-footer-bar">
           <div id="mac-regulatory-link">Regulatory Certification</div>
           <div id="about-copyright-text">© 2026 iAnyFeature, All Right Reserved.</div>
@@ -450,7 +447,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: User Guide -->
+    <!-- APP: User Guide (100% 完整保留 5 大分頁) -->
     <div class="window" id="app-guide" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-guide">
         <div class="title-text" data-i18n="user_guide">用戶指南 (User Guide)</div>
@@ -524,12 +521,12 @@ SOFTWARE.</pre>
           <div id="guide-apps" class="guide-section" style="display:none;">
             <h2>內建應用程式特色</h2>
             <ul>
-              <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、完整調色盤以及匯出 PNG 圖檔功能。</li>
+              <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、完整調色盤以及匯出 PNG / .paint 向量工程檔。</li>
               <li><strong>Windows 10 全功能計算機</strong>：包含百分比、平方、開平方根、倒數、退格、全套記憶體 (MC/MR/M+/M-/MS) 實裝。</li>
-              <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需後端伺服器即可直接在瀏覽器本地直譯執行標準 Python 3 語法與演算法。</li>
+              <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，支援程式執行及自適應 Save As / Open 對話框。</li>
               <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
               <li><strong>音效合成器 (Audio Synth)</strong>：利用 HTML5 Web Audio API 本地即時產生電子音階。</li>
-              <li><strong>碼錶計時器 (Stopwatch)</strong>：精準毫秒計時、支援計圈 (Laps)。</li>
+              <li><strong>碼錶計時器 (Stopwatch)</strong>：精準毫秒計時、支援計圈 (Laps)、開始/暫停與重設。</li>
               <li><strong>檔案總管 (VFS)</strong>：Windows 10 介面、樹狀目錄瀏覽、文字建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
             </ul>
           </div>
@@ -627,7 +624,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: Python IDE (含檔案儲存按鈕) -->
+    <!-- APP: Python IDE (含 儲存 與 開啟 檔案按鈕) -->
     <div class="window" id="app-python" style="width: 900px; height: 650px;">
       <div class="title-bar" data-win="app-python">
         <div class="title-text">Python IDE (Brython Engine)</div>
@@ -640,7 +637,8 @@ SOFTWARE.</pre>
       <div class="window-content py-layout">
         <div class="py-toolbar">
           <button id="run-py-btn" class="py-btn">▶ 執行 (Run)</button>
-          <button id="save-py-btn" class="py-btn" style="background:#0078D7;" onclick="openPythonSaveDialog()">💾 儲存 (Save)...</button>
+          <button id="save-py-btn" class="py-btn" style="background:#0078D7;" onclick="openGenericFileDialog('save', 'python')">💾 另存為 (Save As)...</button>
+          <button id="open-py-btn" class="py-btn" style="background:#17a2b8;" onclick="openGenericFileDialog('open', 'python')">📂 開啟 (Open)...</button>
           <button id="clear-py-btn" class="py-btn" style="background:#d9534f;">🗑️ 清除輸出</button>
         </div>
         <div style="flex:1; display:flex;">
@@ -664,7 +662,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- 全新 APP: 原生自適應另存新檔視窗 (Native Save As Dialog) -->
+    <!-- 全局通用自適應另存新檔 / 開啟對話框 (Save As / Open Dialog) -->
     <div class="window" id="app-save-dialog">
       <div class="title-bar" data-win="app-save-dialog">
         <div class="title-text" id="save-dialog-title">Save As</div>
@@ -675,7 +673,7 @@ engine.simulate(30)
       <div class="window-content" id="save-dialog-content">
         <!-- 頂部輸入區 (macOS Style: Save As / Tags) -->
         <div id="sd-mac-header">
-          <div class="sd-mac-field"><label>Save As:</label><input type="text" id="sd-mac-filename" value="script.py"></div>
+          <div class="sd-mac-field"><label id="sd-mac-action-label">Save As:</label><input type="text" id="sd-mac-filename" value="script.py"></div>
           <div class="sd-mac-field"><label>Tags:</label><input type="text" placeholder="Tags"></div>
         </div>
 
@@ -705,24 +703,24 @@ engine.simulate(30)
           </div>
         </div>
 
-        <!-- 底部檔名與存檔確認區 (Windows / Ubuntu 樣式) -->
+        <!-- 底部檔名與格式選擇區 (Windows / Ubuntu 樣式) -->
         <div id="sd-win-footer">
           <div class="sd-form-row">
-            <label>File name:</label>
+            <label id="sd-win-file-label">File name:</label>
             <input type="text" id="sd-win-filename" value="script.py">
           </div>
           <div class="sd-form-row">
-            <label>Save as type:</label>
-            <select><option>Python Files (*.py)</option><option>All Files (*.*)</option></select>
+            <label>Files of type:</label>
+            <select id="sd-type-select" onchange="onFileTypeSelectChange()"></select>
           </div>
         </div>
 
         <!-- 最底層確認與取消按鈕區 -->
         <div id="sd-action-bar">
-          <div id="sd-mac-format-hint">File Format: Python Script (.py)</div>
+          <div id="sd-mac-format-hint">File Format: Supported Files</div>
           <div style="flex:1;"></div>
           <button class="set-btn" onclick="closeSaveDialog()">Cancel</button>
-          <button class="set-btn primary" id="sd-confirm-btn" onclick="confirmSavePythonFile()">Save</button>
+          <button class="set-btn primary" id="sd-confirm-btn" onclick="confirmGenericFileAction()">Save</button>
         </div>
       </div>
     </div>
@@ -801,8 +799,8 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Paint -->
-    <div class="window" id="app-paint" style="width: 800px; height: 580px;">
+    <!-- APP: Paint (已加入另存為、開啟舊檔與 .paint 向量擦除還原支援) -->
+    <div class="window" id="app-paint" style="width: 850px; height: 600px;">
       <div class="title-bar" data-win="app-paint">
         <div class="title-text" data-i18n="paint">小畫家 (Paint)</div>
         <div class="window-controls">
@@ -819,7 +817,9 @@ engine.simulate(30)
           <input type="range" id="p-brush-size" min="1" max="40" value="4" style="width:70px;">
           <input type="color" id="p-color-picker" value="#000000" style="cursor:pointer; width:32px; height:32px; padding:0; border:none;">
           <button id="p-clear" class="paint-tool-btn">🗑️ 清除</button>
-          <button id="p-save" class="paint-tool-btn" style="background:#28a745; color:white;">💾 匯出 PNG</button>
+          <button class="paint-tool-btn" style="background:#0078D7; color:white;" onclick="openGenericFileDialog('save', 'paint')">💾 另存為 (Save As)...</button>
+          <button class="paint-tool-btn" style="background:#17a2b8; color:white;" onclick="openGenericFileDialog('open', 'paint')">📂 開啟 (Open)...</button>
+          <button id="p-save" class="paint-tool-btn" style="background:#28a745; color:white;">⬇️ 匯出 PNG</button>
         </div>
         <div style="flex:1; overflow:auto; display:flex; justify-content:center; align-items:center; padding:10px;">
           <canvas id="paint-canvas" width="1200" height="800" style="background: white; box-shadow: 0 4px 12px rgba(0,0,0,0.25);"></canvas>
@@ -866,7 +866,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Notepad (帶有真實可點擊 File / Edit / View 選單列) -->
+    <!-- APP: Notepad (具有頂部選單列及自適應另存新檔) -->
     <div class="window" id="app-notepad" style="width: 600px; height: 480px;">
       <div class="title-bar" data-win="app-notepad">
         <div class="title-text" data-i18n="notepad">記事本 (Notepad)</div>
@@ -882,9 +882,9 @@ engine.simulate(30)
           <div class="np-menu-item" onclick="toggleNpMenu('np-drop-file', event)">檔案 (File)
             <div id="np-drop-file" class="np-dropdown">
               <div class="np-drop-opt" onclick="npNewFile()">新增 (New)</div>
-              <div class="np-drop-opt" onclick="npOpenFile()">開啟 (Open)...</div>
+              <div class="np-drop-opt" onclick="openGenericFileDialog('open', 'notepad')">開啟 (Open)...</div>
               <div class="np-drop-opt" onclick="npSaveFile()">儲存 (Save)</div>
-              <div class="np-drop-opt" onclick="npSaveAsFile()">另存新檔 (Save As)...</div>
+              <div class="np-drop-opt" onclick="openGenericFileDialog('save', 'notepad')">另存新檔 (Save As)...</div>
             </div>
           </div>
           <div class="np-menu-item" onclick="toggleNpMenu('np-drop-edit', event)">編輯 (Edit)
@@ -904,7 +904,7 @@ engine.simulate(30)
       </div>
     </div>
 
-    <!-- APP: Stopwatch -->
+    <!-- APP: Stopwatch (功能 100% 完備) -->
     <div class="window" id="app-clock" style="width: 400px; height: 450px;">
       <div class="title-bar" data-win="app-clock">
         <div class="title-text">碼錶計時器 (Stopwatch)</div>
