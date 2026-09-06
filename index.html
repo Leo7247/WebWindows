@@ -76,12 +76,12 @@
         <p>• 預設提供訪客帳戶 <strong>「User」</strong>，<strong>無需密碼</strong>。<br>
            • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
            • 登入後系統會自動彈出註冊引導視窗，輸入新名稱與密碼（必填），系統會建立專屬 <code>C:\Users\&lt;用戶名&gt;</code> 個人資料夾並同步至雲端！</p>
-        <h4>2. 動態主題與 About This PC / Mac</h4>
-        <p>• <strong>Windows 主題</strong>：還原原生 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
-           • <strong>macOS 主題</strong>：完全依據真實 macOS 官方卡片排版「About this Mac」，具備 MacBook 專屬圖標、雙欄資訊（Chip、Memory、Startup Disk、Browser、macOS）、More Info... 膠囊按鈕與版權聲明。<br>
+        <h4>2. Python IDE 儲存功能</h4>
+        <p>• <strong>原生 Save Dialog</strong>：點擊 Python IDE 的「💾 儲存」按鈕，系統會依據當前 Windows / macOS / Ubuntu 風格彈出專屬另存新檔視窗，並寫入檔案總管！</p>
+        <h4>3. 動態主題與 About This PC / Mac</h4>
+        <p>• <strong>Windows 主題</strong>：原生 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
+           • <strong>macOS 主題</strong>：官方雙欄垂直風格「About this Mac」，具備 MacBook 專屬圖標、雙欄資訊及版權宣言。<br>
            • <strong>Ubuntu 主題</strong>：開機磁碟為 <code>/dev/nvme0n1p1</code> (NVME)。</p>
-        <h4>3. 記事本功能</h4>
-        <p>• 記事本內建完整 File / Edit / View 頂部選單，支援檔案開啓、儲存、另存新檔與字型調整。</p>
       </div>
     </div>
 
@@ -361,7 +361,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: About This PC / About Windows / About this Mac (動態全能還原視窗) -->
+    <!-- APP: About This PC / About Windows / About this Mac -->
     <div class="window" id="app-about-pc">
       <div class="title-bar" data-win="app-about-pc">
         <div class="title-text" id="about-win-title">About Windows</div>
@@ -370,29 +370,29 @@ SOFTWARE.</pre>
         </div>
       </div>
       <div class="window-content" id="about-win-content">
-        <!-- 頂部大標題 / Logo -->
+        <!-- 頂部圖片與大標題 (macOS 下為 MacBook 筆電卡片) -->
         <div id="about-banner-container">
-          <img id="about-logo-img" src="https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png" alt="OS Logo">
+          <img id="about-logo-img" src="https://img.icons8.com/?size=100&id=WPZvpTLUFPkq&format=png&color=000000" alt="OS Logo">
           <div id="about-banner-text-wrap">
-            <h1 id="about-sys-banner-title">Windows 10</h1>
+            <h1 id="about-sys-banner-title">MacBook Pro</h1>
             <div id="about-sys-sub-title">16-inch, 2021</div>
           </div>
         </div>
 
-        <hr id="about-divider" style="border:0; border-top:1px solid #d0d0d0; margin:10px 0 16px 0;">
+        <hr id="about-divider" style="border:0; border-top:1px solid #d0d0d0; margin:10px 0 16px 0; display:none;">
 
-        <!-- 規格與版本詳細訊息 (Windows / Ubuntu) -->
+        <!-- 規格與版本詳細訊息 -->
         <div id="about-specs-body">
-          <div id="about-line-os">Microsoft Windows</div>
-          <div id="about-line-ver">Version 1909 (OS Build 18363.1082)</div>
-          <div id="about-line-copy">© Microsoft Corporation. All rights reserved.</div>
-          <br id="about-space-1">
-          <div id="about-line-desc">
+          <div id="about-line-os" style="display:none;">Microsoft Windows</div>
+          <div id="about-line-ver" style="display:none;">Version 1909 (OS Build 18363.1082)</div>
+          <div id="about-line-copy" style="display:none;">© Microsoft Corporation. All rights reserved.</div>
+          <br id="about-space-1" style="display:none;">
+          <div id="about-line-desc" style="display:none;">
             The Windows 10 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.
           </div>
-          <br id="about-space-2">
+          <br id="about-space-2" style="display:none;">
           
-          <div id="about-license-section">
+          <div id="about-license-section" style="display:none;">
             <div>This product is licensed under the <a href="#" onclick="openApp('app-guide'); return false;" style="color:#0066cc;">Software License Terms</a> to:</div>
             <div style="margin-left:20px; margin-top:4px;">
               <strong id="about-user-name">Admin</strong><br>
@@ -401,8 +401,8 @@ SOFTWARE.</pre>
             <br>
           </div>
 
-          <!-- macOS 官方雙欄卡片規格清單 ( Chip / Memory / Startup Disk / Browser / macOS ) -->
-          <div id="about-mac-specs-list" style="display:none;">
+          <!-- macOS 官方極致雙欄規格清單 ( Chip / Memory / Startup Disk / Browser / macOS ) -->
+          <div id="about-mac-specs-list">
             <div class="mac-spec-row"><span class="mac-spec-label">Chip</span><span class="mac-spec-val" id="mac-spec-chip">Apple M4</span></div>
             <div class="mac-spec-row"><span class="mac-spec-label">Memory</span><span class="mac-spec-val" id="mac-spec-mem">16 GB</span></div>
             <div class="mac-spec-row"><span class="mac-spec-label">Startup Disk</span><span class="mac-spec-val" id="mac-spec-disk">Macintosh HD</span></div>
@@ -410,8 +410,8 @@ SOFTWARE.</pre>
             <div class="mac-spec-row"><span class="mac-spec-label">macOS</span><span class="mac-spec-val" id="mac-spec-os">Sequoia 15.0</span></div>
           </div>
 
-          <!-- 線上瀏覽器精確偵測區塊 (Windows / Ubuntu) -->
-          <div id="about-browser-box">
+          <!-- Windows / Ubuntu 經典在線瀏覽器方塊 -->
+          <div id="about-browser-box" style="display:none;">
             <img id="about-browser-icon" src="https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/microsoft-edge-icon.png" width="22" height="22" alt="Browser">
             <div style="font-size:12px;">
               <strong>當前線上瀏覽器:</strong> <span id="about-browser-name">Microsoft Edge</span><br>
@@ -421,15 +421,15 @@ SOFTWARE.</pre>
         </div>
 
         <!-- 官方 macOS 專屬 More Info 按鈕 -->
-        <div id="about-mac-btn-wrap" style="display:none;">
+        <div id="about-mac-btn-wrap">
           <button class="mac-more-info-btn" onclick="openApp('app-settings')">More Info...</button>
         </div>
 
-        <!-- 底部版權與按鈕欄 -->
+        <!-- 底部版權與 Regulatory 宣告 -->
         <div id="about-footer-bar">
           <div id="mac-regulatory-link">Regulatory Certification</div>
           <div id="about-copyright-text">© 2026 iAnyFeature, All Right Reserved.</div>
-          <button class="set-btn" id="about-ok-btn" onclick="closeApp('app-about-pc')">OK</button>
+          <button class="set-btn" id="about-ok-btn" style="display:none;" onclick="closeApp('app-about-pc')">OK</button>
         </div>
       </div>
     </div>
@@ -627,7 +627,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: Python IDE -->
+    <!-- APP: Python IDE (含檔案儲存按鈕) -->
     <div class="window" id="app-python" style="width: 900px; height: 650px;">
       <div class="title-bar" data-win="app-python">
         <div class="title-text">Python IDE (Brython Engine)</div>
@@ -640,6 +640,7 @@ SOFTWARE.</pre>
       <div class="window-content py-layout">
         <div class="py-toolbar">
           <button id="run-py-btn" class="py-btn">▶ 執行 (Run)</button>
+          <button id="save-py-btn" class="py-btn" style="background:#0078D7;" onclick="openPythonSaveDialog()">💾 儲存 (Save)...</button>
           <button id="clear-py-btn" class="py-btn" style="background:#d9534f;">🗑️ 清除輸出</button>
         </div>
         <div style="flex:1; display:flex;">
@@ -659,6 +660,69 @@ engine = PhysicsEngine(9.81)
 engine.simulate(30)
 </textarea>
           <pre id="py-output" class="py-output">>>> Python 引擎已就緒。</pre>
+        </div>
+      </div>
+    </div>
+
+    <!-- 全新 APP: 原生自適應另存新檔視窗 (Native Save As Dialog) -->
+    <div class="window" id="app-save-dialog">
+      <div class="title-bar" data-win="app-save-dialog">
+        <div class="title-text" id="save-dialog-title">Save As</div>
+        <div class="window-controls">
+          <div class="ctrl-btn close" onclick="closeSaveDialog()">✕</div>
+        </div>
+      </div>
+      <div class="window-content" id="save-dialog-content">
+        <!-- 頂部輸入區 (macOS Style: Save As / Tags) -->
+        <div id="sd-mac-header">
+          <div class="sd-mac-field"><label>Save As:</label><input type="text" id="sd-mac-filename" value="script.py"></div>
+          <div class="sd-mac-field"><label>Tags:</label><input type="text" placeholder="Tags"></div>
+        </div>
+
+        <!-- 頂部導覽列 (Windows / Ubuntu 導航) -->
+        <div id="sd-win-nav">
+          <button class="nav-arrow-btn" onclick="sdNavUp()">⬆</button>
+          <div class="address-bar" id="sd-address-bar">
+            <span>This PC &gt; Documents</span>
+          </div>
+        </div>
+
+        <!-- 中間主檔案瀏覽格區 -->
+        <div id="sd-body">
+          <div id="sd-sidebar">
+            <div class="sd-side-group" id="sd-side-title">Places / 快速存取</div>
+            <div class="sd-side-item" onclick="sdNavigate(['C:', 'Users', sysUser, 'Desktop'])">🖥️ Desktop</div>
+            <div class="sd-side-item active" onclick="sdNavigate(['C:', 'Users', sysUser, 'Documents'])">📄 Documents</div>
+            <div class="sd-side-item" onclick="sdNavigate(['C:', 'Apps'])">📦 Apps</div>
+            <div class="sd-side-item" onclick="sdNavigate(['C:'])">💽 <span id="sd-side-root-name">C: Local Disk</span></div>
+          </div>
+          <div id="sd-file-list">
+            <div class="sd-table-head">
+              <span style="flex:2;">Name</span>
+              <span style="flex:1;">Type</span>
+            </div>
+            <div id="sd-files-container"></div>
+          </div>
+        </div>
+
+        <!-- 底部檔名與存檔確認區 (Windows / Ubuntu 樣式) -->
+        <div id="sd-win-footer">
+          <div class="sd-form-row">
+            <label>File name:</label>
+            <input type="text" id="sd-win-filename" value="script.py">
+          </div>
+          <div class="sd-form-row">
+            <label>Save as type:</label>
+            <select><option>Python Files (*.py)</option><option>All Files (*.*)</option></select>
+          </div>
+        </div>
+
+        <!-- 最底層確認與取消按鈕區 -->
+        <div id="sd-action-bar">
+          <div id="sd-mac-format-hint">File Format: Python Script (.py)</div>
+          <div style="flex:1;"></div>
+          <button class="set-btn" onclick="closeSaveDialog()">Cancel</button>
+          <button class="set-btn primary" id="sd-confirm-btn" onclick="confirmSavePythonFile()">Save</button>
         </div>
       </div>
     </div>
