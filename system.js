@@ -305,7 +305,7 @@ function initOS() {
     }
   }
 
-  // --- Stage 2: 主題動態 GUI Boot (套用指定 Apple 陰影圖標與各系統圖標) ---
+  // --- Stage 2: 主題動態 GUI Boot ---
   function startGUIBoot(duration) {
     kernelScreen.style.display = 'none';
     const bootScreen = document.getElementById('boot-screen');
@@ -560,12 +560,11 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
-/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 (像素級還原圖片) --- */
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
 
-  // 1. 偵測線上真實瀏覽器名稱與精確圖標
   const ua = navigator.userAgent;
   let bName = "Web Browser";
   let bIcon = "https://uxwing.com/wp-content/themes/uxwing/download/brands-and-social-media/internet-explorer-icon.png";
@@ -589,14 +588,12 @@ window.openAboutPC = () => {
     bIcon = "https://upload.wikimedia.org/wikipedia/commons/5/52/Safari_browser_logo.svg";
   }
 
-  // 同步瀏覽器偵測到 macOS 視窗與 Windows 視窗
   document.getElementById('about-browser-name').innerText = bName;
   document.getElementById('about-browser-icon').src = bIcon;
   document.getElementById('about-mac-browser-name').innerText = bName;
   document.getElementById('about-mac-browser-icon').src = bIcon;
   document.getElementById('about-user-name').innerText = sysUser;
 
-  // 2. 主題動態適應
   const winTitle = document.getElementById('about-win-title');
   const bannerTitle = document.getElementById('about-sys-banner-title');
   const subTitle = document.getElementById('about-sys-sub-title');
@@ -618,10 +615,10 @@ window.openAboutPC = () => {
   if (sysTheme === 'theme-macos') {
     winTitle.innerText = "About this Mac";
     bannerTitle.innerText = "MacBook Pro";
+    bannerTitle.style.color = "#1d1d1f";
     subTitle.innerText = "16-inch, 2021";
     subTitle.style.display = "block";
     
-    // 你指定的 MacBook 寫實圖片
     logoImg.src = "https://img.icons8.com/?size=100&id=WPZvpTLUFPkq&format=png&color=000000";
     
     lineOs.style.display = "none";
@@ -637,7 +634,6 @@ window.openAboutPC = () => {
     macSpecsList.style.display = "flex";
     macBtnWrap.style.display = "block";
 
-    // 格式化指定版權字串
     copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   } else if (sysTheme === 'theme-ubuntu') {
     winTitle.innerText = "About This PC (Ubuntu)";
@@ -735,6 +731,8 @@ function openApp(id) {
     document.getElementById('macos-active-app-name').innerText = "檔案總管";
   } else if (id === 'app-about-pc') {
     document.getElementById('macos-active-app-name').innerText = sysTheme === 'theme-macos' ? "關於此 Mac" : "關於此 PC";
+  } else if (id === 'app-save-dialog') {
+    document.getElementById('macos-active-app-name').innerText = "Save";
   }
 
   if (id === 'app-cmd') {
@@ -1424,6 +1422,8 @@ function renderFS() {
       iconSrc = itemData.icon || 'https://cdn-icons-png.flaticon.com/512/888/888846.png';
     } else if (name.endsWith('.txt')) {
       iconSrc = 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png';
+    } else if (name.endsWith('.py')) {
+      iconSrc = 'https://cdn-icons-png.flaticon.com/512/5968/5968350.png';
     }
 
     const item = document.createElement('div');
@@ -1437,6 +1437,11 @@ function renderFS() {
     } else if (isApp) {
       item.onclick = () => {
         openApp(itemData.appId);
+      };
+    } else if (name.endsWith('.py')) {
+      item.onclick = () => {
+        openApp('app-python');
+        document.getElementById('py-code').value = currentDir[name];
       };
     } else {
       item.onclick = () => {
@@ -1592,7 +1597,117 @@ document.getElementById('fs-search-input').oninput = (e) => {
 };
 
 /* ==========================================================================
-   8. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
+   8. NATIVE SAVE DIALOG FOR PYTHON IDE (全主題自適應存檔視窗)
+   ========================================================================== */
+
+let saveDialogCurrentPath = ["C:", "Users", sysUser, "Documents"];
+
+window.openPythonSaveDialog = () => {
+  saveDialogCurrentPath = ["C:", "Users", sysUser, "Documents"];
+  openApp('app-save-dialog');
+  updateSaveDialogUI();
+};
+
+window.closeSaveDialog = () => {
+  closeApp('app-save-dialog');
+};
+
+function updateSaveDialogUI() {
+  const rootLabel = document.getElementById('sd-side-root-name');
+  const winTitle = document.getElementById('save-dialog-title');
+  const confirmBtn = document.getElementById('sd-confirm-btn');
+
+  if (sysTheme === 'theme-macos') {
+    winTitle.innerText = "Save";
+    if (rootLabel) rootLabel.innerText = "Macintosh HD";
+    confirmBtn.innerText = "Save";
+  } else if (sysTheme === 'theme-ubuntu') {
+    winTitle.innerText = "Enregistrer le fichier";
+    if (rootLabel) rootLabel.innerText = "/dev/nvme0n1p1";
+    confirmBtn.innerText = "Enregistrer";
+  } else {
+    winTitle.innerText = "Save As";
+    if (rootLabel) rootLabel.innerText = "C: Local Disk";
+    confirmBtn.innerText = "Save";
+  }
+
+  // 渲染路徑列
+  const addrBar = document.getElementById('sd-address-bar');
+  addrBar.innerHTML = `<span>${saveDialogCurrentPath.join(' &gt; ')}</span>`;
+
+  // 渲染檔案清單
+  const container = document.getElementById('sd-files-container');
+  container.innerHTML = '';
+
+  const dir = getNodeByPath(saveDialogCurrentPath);
+  if (!dir) return;
+
+  for (let key in dir) {
+    if (key === "isSystemProtected") continue;
+    const isFolder = typeof dir[key] === 'object' && !dir[key].isAppShortcut;
+    const row = document.createElement('div');
+    row.className = 'sd-file-row';
+
+    let icon = isFolder ? '📁' : (key.endsWith('.py') ? '🐍' : '📄');
+    row.innerHTML = `
+      <span style="flex:2; display:flex; align-items:center; gap:6px;">${icon} ${key}</span>
+      <span style="flex:1; color:#888;">${isFolder ? 'Folder' : 'File'}</span>
+    `;
+
+    row.onclick = () => {
+      document.querySelectorAll('.sd-file-row').forEach(r => r.classList.remove('selected'));
+      row.classList.add('selected');
+      if (isFolder) {
+        saveDialogCurrentPath.push(key);
+        updateSaveDialogUI();
+      } else {
+        document.getElementById('sd-mac-filename').value = key;
+        document.getElementById('sd-win-filename').value = key;
+      }
+    };
+    container.appendChild(row);
+  }
+}
+
+window.sdNavigate = (targetPath) => {
+  saveDialogCurrentPath = [...targetPath];
+  updateSaveDialogUI();
+};
+
+window.sdNavUp = () => {
+  if (saveDialogCurrentPath.length > 1) {
+    saveDialogCurrentPath.pop();
+    updateSaveDialogUI();
+  }
+};
+
+window.confirmSavePythonFile = () => {
+  let fname = (sysTheme === 'theme-macos')
+    ? document.getElementById('sd-mac-filename').value.trim()
+    : document.getElementById('sd-win-filename').value.trim();
+
+  if (!fname) {
+    alert("請輸入有效的檔案名稱！");
+    return;
+  }
+  if (!fname.endsWith('.py') && !fname.includes('.')) {
+    fname += '.py';
+  }
+
+  const dir = getNodeByPath(saveDialogCurrentPath);
+  if (dir) {
+    const code = document.getElementById('py-code').value;
+    dir[fname] = code;
+    saveVFS();
+    renderFS();
+    renderDesktop();
+    alert(`🎉 Python 檔案 [${fname}] 已成功儲存至 ${saveDialogCurrentPath.join('\\')}！`);
+    closeSaveDialog();
+  }
+};
+
+/* ==========================================================================
+   9. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
    ========================================================================== */
 
 function toggleNpMenu(menuId, event) {
@@ -1656,7 +1771,7 @@ window.npZoom = (direction) => {
 };
 
 /* ==========================================================================
-   9. COMMAND PROMPT (支援回收筒與系統保護)
+   10. COMMAND PROMPT (支援回收筒與系統保護)
    ========================================================================== */
 
 let cmdHistory = [];
@@ -1882,7 +1997,7 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   10. ENHANCED WINDOWS 10 CALCULATOR LOGIC (WITH REAL FLYOUT)
+   11. ENHANCED WINDOWS 10 CALCULATOR LOGIC (WITH REAL FLYOUT)
    ========================================================================== */
 
 let calcExpr = "";
@@ -2102,7 +2217,7 @@ function initCalc() {
 }
 
 /* ==========================================================================
-   11. SETTINGS & APP LAUNCHERS
+   12. SETTINGS & APP LAUNCHERS
    ========================================================================== */
 
 function initGuide() {
