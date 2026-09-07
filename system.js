@@ -183,7 +183,7 @@ async function pushUserToCloud(username, password, avatar) {
 }
 
 /* ==========================================================================
-   3. STRICT PIPELINE: 50+ LINES KERNEL SCROLLING -> RED GUI -> LOCK SCREEN
+   3. STRICT PIPELINE: KERNEL SCROLLING -> RED GUI -> LOCK SCREEN
    ========================================================================== */
 
 const kernelLines = [
@@ -276,7 +276,6 @@ function initOS() {
     };
   }
 
-  // --- 開機狀態機：Stage 1: Linux 內核文字滾動 (3-5 秒 + 隨機卡頓) ---
   const kernelScreen = document.getElementById('kernel-screen');
   const kernelText = document.getElementById('kernel-text');
   kernelScreen.style.display = 'block';
@@ -305,7 +304,6 @@ function initOS() {
     }
   }
 
-  // --- Stage 2: 主題動態 GUI Boot ---
   function startGUIBoot(duration) {
     kernelScreen.style.display = 'none';
     const bootScreen = document.getElementById('boot-screen');
@@ -732,7 +730,7 @@ function openApp(id) {
   } else if (id === 'app-about-pc') {
     document.getElementById('macos-active-app-name').innerText = sysTheme === 'theme-macos' ? "關於此 Mac" : "關於此 PC";
   } else if (id === 'app-save-dialog') {
-    document.getElementById('macos-active-app-name').innerText = "Save";
+    document.getElementById('macos-active-app-name').innerText = (dialogMode === 'open') ? "Open" : "Save";
   }
 
   if (id === 'app-cmd') {
@@ -970,7 +968,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
-   5. DESKTOP & REAL USER DESKTOP VFS FOLDER ENGINE
+   5. DESKTOP & REAL USER DESKTOP VFS FOLDER ENGINE (修復單擊與拖曳判斷)
    ========================================================================== */
 
 function getAppName(app) {
@@ -1028,8 +1026,9 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
+    // 觸控與滑鼠拖曳擺位防抖判斷（閥值 6px，保證單擊即開）
     let iconDragging = false;
-    let iconStartX, iconStartY, iconOffsetX, iconOffsetY;
+    let iconStartX = 0, iconStartY = 0, iconOffsetX = 0, iconOffsetY = 0;
     let hasMoved = false;
 
     iconItem.addEventListener('pointerdown', (e) => {
@@ -1039,12 +1038,12 @@ function renderDesktop() {
       iconStartY = e.clientY;
       iconOffsetX = e.clientX - iconItem.offsetLeft;
       iconOffsetY = e.clientY - iconItem.offsetTop;
-      iconItem.setPointerCapture(e.pointerId);
+      try { iconItem.setPointerCapture(e.pointerId); } catch(err) {}
     });
 
     iconItem.addEventListener('pointermove', (e) => {
       if (!iconDragging) return;
-      if (Math.abs(e.clientX - iconStartX) > 5 || Math.abs(e.clientY - iconStartY) > 5) {
+      if (Math.hypot(e.clientX - iconStartX, e.clientY - iconStartY) > 6) {
         hasMoved = true;
       }
       if (hasMoved) {
@@ -1069,6 +1068,7 @@ function renderDesktop() {
           };
           localStorage.setItem('os_desktop_pos', JSON.stringify(desktopPositions));
         } else {
+          // 單擊點擊事件，直接開啟程式
           if (item.action) {
             item.action();
           } else {
@@ -1424,6 +1424,8 @@ function renderFS() {
       iconSrc = 'https://cdn-icons-png.flaticon.com/512/3224/3224410.png';
     } else if (name.endsWith('.py')) {
       iconSrc = 'https://cdn-icons-png.flaticon.com/512/5968/5968350.png';
+    } else if (name.endsWith('.paint') || name.endsWith('.png')) {
+      iconSrc = 'https://cdn-icons-png.flaticon.com/512/3003/3003102.png';
     }
 
     const item = document.createElement('div');
@@ -1442,6 +1444,11 @@ function renderFS() {
       item.onclick = () => {
         openApp('app-python');
         document.getElementById('py-code').value = currentDir[name];
+      };
+    } else if (name.endsWith('.paint') || name.endsWith('.png')) {
+      item.onclick = () => {
+        openApp('app-paint');
+        loadPaintFileDirectly(name, currentDir[name]);
       };
     } else {
       item.onclick = () => {
@@ -1597,14 +1604,19 @@ document.getElementById('fs-search-input').oninput = (e) => {
 };
 
 /* ==========================================================================
-   8. NATIVE SAVE DIALOG FOR PYTHON IDE (全主題自適應存檔視窗)
+   8. UNIVERSAL NATIVE SAVE AS & OPEN DIALOG ENGINE
    ========================================================================== */
 
+let dialogMode = 'save'; // 'save' | 'open'
+let dialogCaller = 'python'; // 'python' | 'notepad' | 'paint'
 let saveDialogCurrentPath = ["C:", "Users", sysUser, "Documents"];
 
-window.openPythonSaveDialog = () => {
+window.openGenericFileDialog = (mode, caller) => {
+  dialogMode = mode;
+  dialogCaller = caller;
   saveDialogCurrentPath = ["C:", "Users", sysUser, "Documents"];
   openApp('app-save-dialog');
+  setupFileTypeOptions();
   updateSaveDialogUI();
 };
 
@@ -1612,31 +1624,90 @@ window.closeSaveDialog = () => {
   closeApp('app-save-dialog');
 };
 
+function setupFileTypeOptions() {
+  const sel = document.getElementById('sd-type-select');
+  if (!sel) return;
+  sel.innerHTML = '';
+  
+  if (dialogCaller === 'python') {
+    sel.innerHTML = '<option value=".py">Python Files (*.py)</option>';
+  } else if (dialogCaller === 'notepad') {
+    sel.innerHTML = '<option value=".txt">Text Documents (*.txt)</option><option value=".*">All Files (*.*)</option>';
+  } else if (dialogCaller === 'paint') {
+    if (dialogMode === 'save') {
+      sel.innerHTML = '<option value=".paint">Paint Project (*.paint)</option><option value=".png">PNG Image (*.png)</option>';
+    } else {
+      sel.innerHTML = '<option value="paint_all">Supported Images (*.paint, *.png)</option><option value=".paint">Paint Project (*.paint)</option><option value=".png">PNG Image (*.png)</option>';
+    }
+  }
+
+  let defaultName = "untitled";
+  if (dialogCaller === 'python') defaultName = "script.py";
+  else if (dialogCaller === 'notepad') defaultName = "note.txt";
+  else if (dialogCaller === 'paint') defaultName = "drawing.paint";
+
+  const macFname = document.getElementById('sd-mac-filename');
+  const winFname = document.getElementById('sd-win-filename');
+  if (macFname) macFname.value = defaultName;
+  if (winFname) winFname.value = defaultName;
+  onFileTypeSelectChange();
+}
+
+window.onFileTypeSelectChange = () => {
+  const sel = document.getElementById('sd-type-select');
+  if (!sel || !sel.options || sel.selectedIndex < 0) return;
+  const ext = sel.value;
+  const hint = document.getElementById('sd-mac-format-hint');
+  if (hint) hint.innerText = `File Format: ${sel.options[sel.selectedIndex].text}`;
+
+  const winFname = document.getElementById('sd-win-filename');
+  const macFname = document.getElementById('sd-mac-filename');
+  if (!winFname) return;
+  let currName = winFname.value;
+  let base = currName.split('.')[0] || 'untitled';
+  if (ext.startsWith('.')) {
+    winFname.value = base + ext;
+    if (macFname) macFname.value = base + ext;
+  }
+};
+
 function updateSaveDialogUI() {
   const rootLabel = document.getElementById('sd-side-root-name');
   const winTitle = document.getElementById('save-dialog-title');
   const confirmBtn = document.getElementById('sd-confirm-btn');
+  const actionLabel = document.getElementById('sd-mac-action-label');
+  const winFileLabel = document.getElementById('sd-win-file-label');
 
-  if (sysTheme === 'theme-macos') {
-    winTitle.innerText = "Save";
-    if (rootLabel) rootLabel.innerText = "Macintosh HD";
-    confirmBtn.innerText = "Save";
-  } else if (sysTheme === 'theme-ubuntu') {
-    winTitle.innerText = "Enregistrer le fichier";
-    if (rootLabel) rootLabel.innerText = "/dev/nvme0n1p1";
-    confirmBtn.innerText = "Enregistrer";
+  if (dialogMode === 'open') {
+    if (winTitle) winTitle.innerText = "Open";
+    if (actionLabel) actionLabel.innerText = "Open:";
+    if (winFileLabel) winFileLabel.innerText = "File name:";
+    if (confirmBtn) confirmBtn.innerText = "Open";
   } else {
-    winTitle.innerText = "Save As";
-    if (rootLabel) rootLabel.innerText = "C: Local Disk";
-    confirmBtn.innerText = "Save";
+    if (sysTheme === 'theme-macos') {
+      if (winTitle) winTitle.innerText = "Save";
+    } else if (sysTheme === 'theme-ubuntu') {
+      if (winTitle) winTitle.innerText = "Enregistrer";
+    } else {
+      if (winTitle) winTitle.innerText = "Save As";
+    }
+    
+    if (actionLabel) actionLabel.innerText = "Save As:";
+    if (winFileLabel) winFileLabel.innerText = "File name:";
+    if (confirmBtn) confirmBtn.innerText = (sysTheme === 'theme-ubuntu') ? "Enregistrer" : "Save";
   }
 
-  // 渲染路徑列
-  const addrBar = document.getElementById('sd-address-bar');
-  addrBar.innerHTML = `<span>${saveDialogCurrentPath.join(' &gt; ')}</span>`;
+  if (rootLabel) {
+    if (sysTheme === 'theme-macos') rootLabel.innerText = "Macintosh HD";
+    else if (sysTheme === 'theme-ubuntu') rootLabel.innerText = "/dev/nvme0n1p1";
+    else rootLabel.innerText = "C: Local Disk";
+  }
 
-  // 渲染檔案清單
+  const addrBar = document.getElementById('sd-address-bar');
+  if (addrBar) addrBar.innerHTML = `<span>${saveDialogCurrentPath.join(' &gt; ')}</span>`;
+
   const container = document.getElementById('sd-files-container');
+  if (!container) return;
   container.innerHTML = '';
 
   const dir = getNodeByPath(saveDialogCurrentPath);
@@ -1645,10 +1716,19 @@ function updateSaveDialogUI() {
   for (let key in dir) {
     if (key === "isSystemProtected") continue;
     const isFolder = typeof dir[key] === 'object' && !dir[key].isAppShortcut;
+    
+    // 副檔名過濾：在 Python Open 模式下只過濾出 .py
+    if (dialogMode === 'open' && dialogCaller === 'python' && !isFolder && !key.endsWith('.py')) {
+      continue;
+    }
+    if (dialogMode === 'open' && dialogCaller === 'paint' && !isFolder && !key.endsWith('.png') && !key.endsWith('.paint')) {
+      continue;
+    }
+
     const row = document.createElement('div');
     row.className = 'sd-file-row';
 
-    let icon = isFolder ? '📁' : (key.endsWith('.py') ? '🐍' : '📄');
+    let icon = isFolder ? '📁' : (key.endsWith('.py') ? '🐍' : (key.endsWith('.paint') || key.endsWith('.png') ? '🎨' : '📄'));
     row.innerHTML = `
       <span style="flex:2; display:flex; align-items:center; gap:6px;">${icon} ${key}</span>
       <span style="flex:1; color:#888;">${isFolder ? 'Folder' : 'File'}</span>
@@ -1661,8 +1741,10 @@ function updateSaveDialogUI() {
         saveDialogCurrentPath.push(key);
         updateSaveDialogUI();
       } else {
-        document.getElementById('sd-mac-filename').value = key;
-        document.getElementById('sd-win-filename').value = key;
+        const macFname = document.getElementById('sd-mac-filename');
+        const winFname = document.getElementById('sd-win-filename');
+        if (macFname) macFname.value = key;
+        if (winFname) winFname.value = key;
       }
     };
     container.appendChild(row);
@@ -1681,33 +1763,64 @@ window.sdNavUp = () => {
   }
 };
 
-window.confirmSavePythonFile = () => {
+window.confirmGenericFileAction = () => {
+  const macFname = document.getElementById('sd-mac-filename');
+  const winFname = document.getElementById('sd-win-filename');
   let fname = (sysTheme === 'theme-macos')
-    ? document.getElementById('sd-mac-filename').value.trim()
-    : document.getElementById('sd-win-filename').value.trim();
+    ? (macFname ? macFname.value.trim() : '')
+    : (winFname ? winFname.value.trim() : '');
 
   if (!fname) {
     alert("請輸入有效的檔案名稱！");
     return;
   }
-  if (!fname.endsWith('.py') && !fname.includes('.')) {
-    fname += '.py';
-  }
 
   const dir = getNodeByPath(saveDialogCurrentPath);
-  if (dir) {
-    const code = document.getElementById('py-code').value;
-    dir[fname] = code;
+  if (!dir) return;
+
+  if (dialogMode === 'save') {
+    if (dialogCaller === 'python') {
+      if (!fname.endsWith('.py')) fname += '.py';
+      dir[fname] = document.getElementById('py-code').value;
+    } else if (dialogCaller === 'notepad') {
+      if (!fname.includes('.')) fname += '.txt';
+      dir[fname] = document.getElementById('np-text').value;
+    } else if (dialogCaller === 'paint') {
+      const selType = document.getElementById('sd-type-select').value;
+      if (selType === '.paint' || fname.endsWith('.paint')) {
+        if (!fname.endsWith('.paint')) fname += '.paint';
+        dir[fname] = JSON.stringify({ type: 'paint_project', strokes: paintStrokesList });
+      } else {
+        if (!fname.endsWith('.png')) fname += '.png';
+        dir[fname] = paintCanvas.toDataURL('image/png');
+      }
+    }
     saveVFS();
     renderFS();
     renderDesktop();
-    alert(`🎉 Python 檔案 [${fname}] 已成功儲存至 ${saveDialogCurrentPath.join('\\')}！`);
+    alert(`💾 檔案 [${fname}] 已成功儲存至 ${saveDialogCurrentPath.join('\\')}！`);
+    closeSaveDialog();
+  } else {
+    if (dir[fname] === undefined) {
+      alert("找不到指定的檔案！");
+      return;
+    }
+    const fileContent = dir[fname];
+    if (dialogCaller === 'python') {
+      document.getElementById('py-code').value = fileContent;
+      alert(`📂 已載入 Python 腳本：${fname}`);
+    } else if (dialogCaller === 'notepad') {
+      document.getElementById('np-text').value = fileContent;
+      alert(`📂 已載入文字檔：${fname}`);
+    } else if (dialogCaller === 'paint') {
+      loadPaintFileDirectly(fname, fileContent);
+    }
     closeSaveDialog();
   }
 };
 
 /* ==========================================================================
-   9. NOTEPAD MENU ACTIONS (File, Edit, View 完整實現)
+   9. NOTEPAD MENU ACTIONS
    ========================================================================== */
 
 function toggleNpMenu(menuId, event) {
@@ -1716,7 +1829,7 @@ function toggleNpMenu(menuId, event) {
     if (d.id !== menuId) d.style.display = 'none';
   });
   const dropdown = document.getElementById(menuId);
-  dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+  if (dropdown) dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
 }
 
 document.addEventListener('click', () => {
@@ -1729,28 +1842,12 @@ window.npNewFile = () => {
   }
 };
 
-window.npOpenFile = () => {
-  openApp('app-explorer');
-  navigateVFS(['C:', 'Users', sysUser, 'Documents']);
-};
-
 window.npSaveFile = () => {
   const content = document.getElementById('np-text').value;
   const docDir = vfs["Users"][sysUser]["Documents"];
   docDir["Untitled.txt"] = content;
   saveVFS();
   alert("💾 已自動儲存至您的 Documents 資料夾！");
-};
-
-window.npSaveAsFile = () => {
-  const filename = prompt("請輸入另存新檔檔名:", "MyNote.txt");
-  if (filename) {
-    const content = document.getElementById('np-text').value;
-    vfs["Users"][sysUser]["Documents"][filename] = content;
-    saveVFS();
-    alert(`💾 檔案已成功另存為 ${filename}！`);
-    renderFS();
-  }
 };
 
 window.npSelectAll = () => {
@@ -1771,7 +1868,7 @@ window.npZoom = (direction) => {
 };
 
 /* ==========================================================================
-   10. COMMAND PROMPT (支援回收筒與系統保護)
+   10. COMMAND PROMPT
    ========================================================================== */
 
 let cmdHistory = [];
@@ -1997,7 +2094,7 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   11. ENHANCED WINDOWS 10 CALCULATOR LOGIC (WITH REAL FLYOUT)
+   11. ENHANCED WINDOWS 10 CALCULATOR LOGIC
    ========================================================================== */
 
 let calcExpr = "";
@@ -2397,12 +2494,40 @@ document.getElementById('w-gps').onclick = () => {
   }
 };
 
-// Paint (支援觸控與滑鼠)
+/* ==========================================================================
+   13. PAINT ENGINE (向量可擦除 .paint + 唯讀底圖保護 .png)
+   ========================================================================== */
+
 let paintCanvas, ctx;
 let painting = false;
 let paintColor = '#000000';
 let brushSize = 4;
 let isEraser = false;
+let paintStrokesList = [];
+let currentStroke = null;
+let bakedImage = null;
+
+function redrawPaintCanvas() {
+  ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+  if (bakedImage) {
+    ctx.drawImage(bakedImage, 0, 0);
+  }
+  paintStrokesList.forEach(stroke => {
+    if (!stroke.points || stroke.points.length === 0) return;
+    ctx.save();
+    ctx.lineWidth = stroke.size;
+    ctx.lineCap = 'round';
+    ctx.lineJoin = 'round';
+    ctx.strokeStyle = stroke.isEraser ? '#ffffff' : stroke.color;
+    ctx.beginPath();
+    ctx.moveTo(stroke.points[0].x, stroke.points[0].y);
+    for (let i = 1; i < stroke.points.length; i++) {
+      ctx.lineTo(stroke.points[i].x, stroke.points[i].y);
+    }
+    ctx.stroke();
+    ctx.restore();
+  });
+}
 
 function initPaint() {
   paintCanvas = document.getElementById('paint-canvas');
@@ -2421,16 +2546,32 @@ function initPaint() {
   paintCanvas.addEventListener('pointerdown', (e) => {
     painting = true;
     const pos = getCanvasCoords(e);
+    
+    currentStroke = {
+      isEraser: isEraser,
+      color: paintColor,
+      size: brushSize,
+      points: [pos]
+    };
+    paintStrokesList.push(currentStroke);
+
     ctx.beginPath();
     ctx.moveTo(pos.x, pos.y);
-    paintCanvas.setPointerCapture(e.pointerId);
+    try { paintCanvas.setPointerCapture(e.pointerId); } catch(err) {}
   });
 
   paintCanvas.addEventListener('pointermove', (e) => {
-    if (!painting) return;
+    if (!painting || !currentStroke) return;
     const pos = getCanvasCoords(e);
+    currentStroke.points.push(pos);
+
     ctx.lineWidth = brushSize;
-    ctx.strokeStyle = isEraser ? '#ffffff' : paintColor;
+    if (isEraser) {
+      ctx.strokeStyle = '#ffffff';
+    } else {
+      ctx.strokeStyle = paintColor;
+    }
+
     ctx.lineTo(pos.x, pos.y);
     ctx.stroke();
     ctx.beginPath();
@@ -2440,10 +2581,9 @@ function initPaint() {
   const stopPaintHandler = (e) => {
     if (painting) {
       painting = false;
+      currentStroke = null;
       ctx.beginPath();
-      try {
-        paintCanvas.releasePointerCapture(e.pointerId);
-      } catch (err) {}
+      try { paintCanvas.releasePointerCapture(e.pointerId); } catch (err) {}
     }
   };
 
@@ -2478,6 +2618,8 @@ function initPaint() {
   document.getElementById('p-clear').onclick = () => {
     if (confirm("確定清除整張畫布？")) {
       ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+      paintStrokesList = [];
+      bakedImage = null;
     }
   };
 
@@ -2489,7 +2631,34 @@ function initPaint() {
   };
 }
 
-// Stopwatch App
+window.loadPaintFileDirectly = (filename, fileData) => {
+  ctx.clearRect(0, 0, paintCanvas.width, paintCanvas.height);
+  if (filename.endsWith('.paint')) {
+    try {
+      const proj = JSON.parse(fileData);
+      paintStrokesList = proj.strokes || [];
+      bakedImage = null;
+      redrawPaintCanvas();
+      alert(`🎨 已載入可擦除的向量專案檔：${filename}`);
+    } catch (e) {
+      alert("載入專案檔失敗，檔案可能已損毀。");
+    }
+  } else if (filename.endsWith('.png') || fileData.startsWith('data:image')) {
+    const img = new Image();
+    img.onload = () => {
+      bakedImage = img;
+      paintStrokesList = [];
+      redrawPaintCanvas();
+      alert(`🖼️ 已載入唯讀底圖 PNG：${filename}（底圖筆劃受保護不可擦除）`);
+    };
+    img.src = fileData;
+  }
+};
+
+/* ==========================================================================
+   14. STOPWATCH ENGINE (按鈕操作 100% 完整支援)
+   ========================================================================== */
+
 let swTimer = null;
 let swStartTime = 0;
 let swElapsedTime = 0;
@@ -2547,7 +2716,6 @@ function initStopwatch() {
   };
 }
 
-// Audio Synth App
 let audioCtx = null;
 window.playTone = (freq) => {
   if (!audioCtx) {
@@ -2565,7 +2733,6 @@ window.playTone = (freq) => {
   osc.stop(audioCtx.currentTime + 0.5);
 };
 
-// Clock Loop
 function updateTime() {
   const now = new Date();
   const timeStr = now.toLocaleTimeString(curLang === 'zh' ? 'zh-HK' : 'en-US', {
