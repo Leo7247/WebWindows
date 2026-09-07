@@ -502,6 +502,8 @@ SOFTWARE.</pre>
                 <tr><td><code>color [代碼]</code></td><td>設定色彩 (0a 亮綠, 0c 亮紅, 0f 亮白, 0e 亮黃)</td><td><code>color 0a</code></td></tr>
                 <tr><td><code>cls</code> / <code>clear</code></td><td>清除終端機螢幕上所有文字紀錄</td><td><code>cls</code></td></tr>
                 <tr><td><code>ver</code></td><td>顯示當前 Windows 作業系統核心版本號</td><td><code>ver</code></td></tr>
+                <tr><td><code>python [引數]</code></td><td>執行 Python 腳本或單行代碼 (支援 -c / --version)</td><td><code>python script.py</code></td></tr>
+                <tr><td><code>py [引數]</code></td><td>PYTHON 命令之縮寫快捷指令</td><td><code>py -c "print(123)"</code></td></tr>
                 <tr><td><code>date</code> / <code>time</code></td><td>檢視當前系統日期或時間</td><td><code>date</code></td></tr>
                 <tr><td><code>exit</code></td><td>安全關閉命令提示字元視窗</td><td><code>exit</code></td></tr>
               </tbody>
@@ -526,7 +528,7 @@ SOFTWARE.</pre>
           <div id="guide-apps" class="guide-section" style="display:none;">
             <h2>內建應用程式特色</h2>
             <ul>
-              <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、調色盤，支援另存 <code>.paint</code>（向量工程檔）與 <code>.png</code>（唯讀靜態圖）。</li>
+              <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、調色盤，支援另存 <code>.paint</code>（向量工程檔，開檔可擦除）與 <code>.png</code>（唯讀靜態圖，底圖受保護）。</li>
               <li><strong>Windows 10 全功能計算機</strong>：包含百分比、平方、開平方根、倒數、退格、全套記憶體 (MC/MR/M+/M-/MS) 實裝。</li>
               <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需後端伺服器即可直接在瀏覽器本地直譯執行標準 Python 3 語法與演算法，支援另存與開啟 <code>.py</code> 檔案。</li>
               <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
