@@ -172,9 +172,7 @@ async function pushUserToCloud(username, password, avatar) {
   try {
     await fetch(CLOUD_API, {
       method: 'PATCH',
-      headers: {
-        'Content-Type': 'application/json'
-      },
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ data: usersDB })
     });
   } catch (error) {
@@ -527,7 +525,6 @@ document.getElementById('pwr-shutdown').onclick = () => {
   document.getElementById('black-screen').style.display = 'block';
 };
 
-// macOS 頂部選單事件
 document.getElementById('macos-apple-btn').onclick = (e) => {
   e.stopPropagation();
   const dropdown = document.getElementById('macos-apple-dropdown');
@@ -558,7 +555,6 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
-/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
@@ -616,9 +612,7 @@ window.openAboutPC = () => {
     bannerTitle.style.color = "#1d1d1f";
     subTitle.innerText = "16-inch, 2021";
     subTitle.style.display = "block";
-    
     logoImg.src = "https://img.icons8.com/?size=100&id=WPZvpTLUFPkq&format=png&color=000000";
-    
     lineOs.style.display = "none";
     lineVer.style.display = "none";
     lineCopy.style.display = "none";
@@ -628,10 +622,8 @@ window.openAboutPC = () => {
     sp2.style.display = "none";
     browserBox.style.display = "none";
     okBtn.style.display = "none";
-
     macSpecsList.style.display = "flex";
     macBtnWrap.style.display = "block";
-
     copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   } else if (sysTheme === 'theme-ubuntu') {
     winTitle.innerText = "About This PC (Ubuntu)";
@@ -640,7 +632,6 @@ window.openAboutPC = () => {
     subTitle.style.display = "none";
     logoImg.src = "https://cdn-icons-png.flaticon.com/512/888/888879.png";
     logoImg.style.width = "68px";
-    
     lineOs.style.display = "block";
     lineVer.style.display = "block";
     lineCopy.style.display = "block";
@@ -650,10 +641,8 @@ window.openAboutPC = () => {
     sp2.style.display = "inline";
     browserBox.style.display = "flex";
     okBtn.style.display = "inline-block";
-
     macSpecsList.style.display = "none";
     macBtnWrap.style.display = "none";
-
     lineOs.innerText = "Ubuntu Linux LTS (x86_64)";
     lineVer.innerText = "Kernel 6.6.0-webos-generic • RAM: 16GB NVME Subsystem";
     lineCopy.innerText = "© Canonical Ltd. Ubuntu and Canonical are registered trademarks.";
@@ -661,14 +650,12 @@ window.openAboutPC = () => {
     diskInfo.innerText = "開機磁碟: /dev/nvme0n1p1 (Disk Type: NVME)";
     copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   } else {
-    // Windows 10 winver 經典視窗
     winTitle.innerText = "About Windows";
     bannerTitle.innerText = "Windows 10";
     bannerTitle.style.color = "#0078D7";
     subTitle.style.display = "none";
     logoImg.src = "https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png";
     logoImg.style.width = "68px";
-
     lineOs.style.display = "block";
     lineVer.style.display = "block";
     lineCopy.style.display = "block";
@@ -678,10 +665,8 @@ window.openAboutPC = () => {
     sp2.style.display = "inline";
     browserBox.style.display = "flex";
     okBtn.style.display = "inline-block";
-
     macSpecsList.style.display = "none";
     macBtnWrap.style.display = "none";
-
     lineOs.innerText = "Microsoft Windows";
     lineVer.innerText = "Version 1909 (OS Build 18363.1082)";
     lineCopy.innerText = "© 2019 Microsoft Corporation. All rights reserved.";
@@ -1687,14 +1672,14 @@ function updateSaveDialogUI() {
     if (sysTheme === 'theme-macos') {
       if (winTitle) winTitle.innerText = "Save";
     } else if (sysTheme === 'theme-ubuntu') {
-      if (winTitle) winTitle.innerText = "Enregistrer";
+      if (winTitle) winTitle.innerText = "Save File";
     } else {
       if (winTitle) winTitle.innerText = "Save As";
     }
     
     if (actionLabel) actionLabel.innerText = "Save As:";
     if (winFileLabel) winFileLabel.innerText = "File name:";
-    if (confirmBtn) confirmBtn.innerText = (sysTheme === 'theme-ubuntu') ? "Enregistrer" : "Save";
+    if (confirmBtn) confirmBtn.innerText = "Save";
   }
 
   if (rootLabel) {
@@ -1789,6 +1774,7 @@ window.confirmGenericFileAction = () => {
       const selType = document.getElementById('sd-type-select').value;
       if (selType === '.paint' || fname.endsWith('.paint')) {
         if (!fname.endsWith('.paint')) fname += '.paint';
+        // 向量工程檔儲存為 JSON 筆劃格式，方便日後 Eraser 擦除
         dir[fname] = JSON.stringify({ type: 'paint_project', strokes: paintStrokesList });
       } else {
         if (!fname.endsWith('.png')) fname += '.png';
@@ -1801,6 +1787,7 @@ window.confirmGenericFileAction = () => {
     alert(`💾 檔案 [${fname}] 已成功儲存至 ${saveDialogCurrentPath.join('\\')}！`);
     closeSaveDialog();
   } else {
+    // 開啟舊檔模式
     if (dir[fname] === undefined) {
       alert("找不到指定的檔案！");
       return;
