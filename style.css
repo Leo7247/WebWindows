@@ -1712,7 +1712,7 @@ body.theme-macos #mac-regulatory-link {
 }
 
 /* ==========================================================================
-   12. NATIVE SAVE AS & OPEN DIALOG STYLES (根據 3 張實體截圖精準適配)
+   12. NATIVE SAVE AS & OPEN DIALOG STYLES (根據 3 款系統原生風格動態適配)
    ========================================================================== */
 
 #app-save-dialog {
@@ -1945,11 +1945,12 @@ body.theme-win10 #sd-confirm-btn:hover {
 }
 
 /* -------------------------------------------------------------
-   (C) Ubuntu Theme Save Dialog (完全依據 image_6.png 像素級排版)
+   (C) Ubuntu Theme Save Dialog (標準個人目錄 + GNOME 橘色高亮 GTK 風格)
    ------------------------------------------------------------- */
 body.theme-ubuntu #app-save-dialog {
   border-radius: 8px !important;
   border: 1px solid #3d3d3d !important;
+  box-shadow: 0 16px 45px rgba(0, 0, 0, 0.45) !important;
 }
 
 body.theme-ubuntu #sd-mac-header {
@@ -1960,12 +1961,61 @@ body.theme-ubuntu #sd-win-nav {
   display: flex !important;
   background: #ececec;
   border-bottom: 1px solid #ccc;
+  padding: 6px 10px;
+  align-items: center;
+}
+
+body.theme-ubuntu #sd-win-nav .address-bar {
+  background: #ffffff;
+  border: 1px solid #c0c0c0;
+  border-radius: 16px;
+  padding: 3px 12px;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+body.theme-ubuntu #sd-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+  background: #ffffff;
+}
+
+body.theme-ubuntu #sd-sidebar {
+  width: 180px;
+  background: #f2f2f2;
+  border-right: 1px solid #d0d0d0;
+  padding: 8px 0;
+  font-size: 12.5px;
+}
+
+body.theme-ubuntu .sd-side-item {
+  padding: 7px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+body.theme-ubuntu .sd-side-item:hover {
+  background: #e0e0e0;
+}
+
+body.theme-ubuntu .sd-side-item.active {
+  background: #E95420 !important;
+  color: #ffffff !important;
+  border-radius: 4px;
+  margin: 0 6px;
+  font-weight: bold;
 }
 
 body.theme-ubuntu #sd-win-footer {
   display: flex !important;
-  background: #f6f6f6;
-  border-top: 1px solid #ddd;
+  flex-direction: column;
+  gap: 8px;
+  padding: 10px 16px;
+  background: #f7f7f7;
+  border-top: 1px solid #dddddd;
 }
 
 body.theme-ubuntu #sd-win-footer .sd-form-row input {
@@ -1973,33 +2023,43 @@ body.theme-ubuntu #sd-win-footer .sd-form-row input {
   outline: none;
   box-shadow: 0 0 0 2px rgba(233, 84, 32, 0.25);
   border-radius: 4px;
+  padding: 6px 10px;
+  font-size: 12.5px;
 }
 
-body.theme-ubuntu #sd-sidebar {
-  background: #eaeaea;
-  border-right: 1px solid #d0d0d0;
-}
-
-body.theme-ubuntu .sd-side-item.active {
-  background: #E95420 !important;
-  color: #ffffff !important;
+body.theme-ubuntu #sd-win-footer .sd-form-row select {
+  border: 1px solid #cccccc;
   border-radius: 4px;
+  padding: 5px 8px;
+  outline: none;
+  background: #ffffff;
 }
 
 body.theme-ubuntu #sd-action-bar {
   display: flex;
+  align-items: center;
+  justify-content: flex-end;
   background: #ebebeb;
   padding: 10px 16px;
-  gap: 10px;
+  border-top: 1px solid #d5d5d5;
+  gap: 12px;
+}
+
+body.theme-ubuntu #sd-action-bar .set-btn {
+  border-radius: 5px !important;
+  padding: 6px 22px;
+  font-weight: 600;
+  border: 1px solid #c0c0c0;
 }
 
 body.theme-ubuntu #sd-confirm-btn {
   background: #E95420 !important;
   color: #ffffff !important;
-  border: none;
-  border-radius: 5px !important;
-  padding: 6px 20px;
-  font-weight: bold;
+  border: 1px solid #d44310 !important;
+}
+
+body.theme-ubuntu #sd-confirm-btn:hover {
+  background: #ff6832 !important;
 }
 
 /* 中間共用檔案列表清單樣式 */
@@ -2041,6 +2101,11 @@ body.theme-ubuntu #sd-confirm-btn {
 .sd-file-row.selected {
   background: #0078D7;
   color: white;
+}
+
+body.theme-ubuntu .sd-file-row.selected {
+  background: #E95420 !important;
+  color: white !important;
 }
 
 /* ==========================================================================
