@@ -525,6 +525,7 @@ document.getElementById('pwr-shutdown').onclick = () => {
   document.getElementById('black-screen').style.display = 'block';
 };
 
+// macOS 頂部選單事件
 document.getElementById('macos-apple-btn').onclick = (e) => {
   e.stopPropagation();
   const dropdown = document.getElementById('macos-apple-dropdown');
@@ -555,6 +556,7 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
@@ -953,7 +955,7 @@ document.getElementById('cm-theme').onclick = () => {
 document.getElementById('cm-fs').onclick = () => openApp('app-explorer');
 
 /* ==========================================================================
-   5. DESKTOP & REAL USER DESKTOP VFS FOLDER ENGINE (修復單擊與拖曳判斷)
+   5. DESKTOP & REAL USER DESKTOP VFS FOLDER ENGINE (修復單擊判定)
    ========================================================================== */
 
 function getAppName(app) {
@@ -1011,7 +1013,6 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
-    // 觸控與滑鼠拖曳擺位防抖判斷（閥值 6px，保證單擊即開）
     let iconDragging = false;
     let iconStartX = 0, iconStartY = 0, iconOffsetX = 0, iconOffsetY = 0;
     let hasMoved = false;
@@ -1053,7 +1054,6 @@ function renderDesktop() {
           };
           localStorage.setItem('os_desktop_pos', JSON.stringify(desktopPositions));
         } else {
-          // 單擊點擊事件，直接開啟程式
           if (item.action) {
             item.action();
           } else {
@@ -1774,7 +1774,6 @@ window.confirmGenericFileAction = () => {
       const selType = document.getElementById('sd-type-select').value;
       if (selType === '.paint' || fname.endsWith('.paint')) {
         if (!fname.endsWith('.paint')) fname += '.paint';
-        // 向量工程檔儲存為 JSON 筆劃格式，方便日後 Eraser 擦除
         dir[fname] = JSON.stringify({ type: 'paint_project', strokes: paintStrokesList });
       } else {
         if (!fname.endsWith('.png')) fname += '.png';
@@ -1787,7 +1786,6 @@ window.confirmGenericFileAction = () => {
     alert(`💾 檔案 [${fname}] 已成功儲存至 ${saveDialogCurrentPath.join('\\')}！`);
     closeSaveDialog();
   } else {
-    // 開啟舊檔模式
     if (dir[fname] === undefined) {
       alert("找不到指定的檔案！");
       return;
@@ -1855,8 +1853,55 @@ window.npZoom = (direction) => {
 };
 
 /* ==========================================================================
-   10. COMMAND PROMPT
+   10. PYTHON EXECUTION BRIDGE & COMMAND PROMPT (含 Python 終端指令實裝)
    ========================================================================== */
+
+function escapeHtml(str) {
+  if (typeof str !== 'string') return String(str);
+  return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+}
+
+function runPythonInTerminal(sourceCode) {
+  if (typeof __BRYTHON__ === 'undefined') {
+    return "錯誤: Brython Python 3 引擎尚未就緒。";
+  }
+  window._current_py_source = sourceCode;
+  window._cmdPyOutput = "";
+  window._cmdPyPrint = function(text) {
+    window._cmdPyOutput += text;
+  };
+  
+  const runnerPy = `
+import sys
+from browser import window
+
+class _CmdOutputBridge:
+    def write(self, text):
+        window._cmdPyPrint(str(text))
+    def flush(self):
+        pass
+
+_prev_stdout = sys.stdout
+_prev_stderr = sys.stderr
+sys.stdout = _CmdOutputBridge()
+sys.stderr = _CmdOutputBridge()
+
+try:
+    _src = window._current_py_source
+    exec(_src, {'__name__': '__main__'})
+except Exception as _e:
+    sys.stderr.write(f"\\nPython 執行錯誤: {_e}\\n")
+finally:
+    sys.stdout = _prev_stdout
+    sys.stderr = _prev_stderr
+`;
+  try {
+    __BRYTHON__.run_script(runnerPy, 'cmd_run_' + Date.now());
+    return window._cmdPyOutput;
+  } catch (err) {
+    return "Python 核心直譯失敗: " + err.message;
+  }
+}
 
 let cmdHistory = [];
 let historyIndex = -1;
@@ -1945,10 +1990,52 @@ ECHO [文字]    輸出訊息，或將輸出重定向至指定檔案。<br>
 EXIT           關閉終端機視窗。<br>
 HELP           列出所有命令支援清單。<br>
 MD [名稱]      在當前目錄建立新資料夾。<br>
+PYTHON [引數]  執行 Python 腳本或單行代碼 (支援 -c / --version)。<br>
+PY [引數]      PYTHON 命令之縮寫快捷指令。<br>
 TIME           顯示當前系統時間。<br>
 TYPE [檔案]    印出文字檔案之內容。<br>
 VER            顯示 Windows 版本號碼。<br>
 </div>`;
+      break;
+
+    case 'python':
+    case 'py':
+      if (args.length === 0) {
+        cmdOutput.innerHTML += `<div>Python 3.12.0 (tags/v3.12.0:0fb18b0) [Brython Kernel on WebOS] on x86_64<br>Type "help", "copyright", "credits" or "license" for more information.<br><span style="color:#aaa;">💡 執行檔案: python &lt;檔名.py&gt; | 執行代碼: python -c "&lt;代碼&gt;"</span></div>`;
+      } else if (args[0] === '--version' || args[0] === '-V' || args[0] === '-v') {
+        cmdOutput.innerHTML += `<div>Python 3.12.0 (Brython WebOS Kernel Generic)</div>`;
+      } else if (args[0] === '-c') {
+        const pySnippet = rawLine.substring(rawLine.indexOf('-c') + 2).trim().replace(/^["']|["']$/g, '');
+        if (!pySnippet) {
+          cmdOutput.innerHTML += `<div>引數錯誤: -c 需要指定執行的 Python 代碼。</div>`;
+        } else {
+          const res = runPythonInTerminal(pySnippet);
+          if (res) {
+            cmdOutput.innerHTML += `<div style="white-space:pre-wrap;">${escapeHtml(res)}</div>`;
+          }
+        }
+      } else {
+        let targetFile = args[0];
+        let fileContent = null;
+        if (currentDir) {
+          if (currentDir[targetFile] !== undefined && typeof currentDir[targetFile] === 'string') {
+            fileContent = currentDir[targetFile];
+          } else if (!targetFile.endsWith('.py') && currentDir[targetFile + '.py'] !== undefined && typeof currentDir[targetFile + '.py'] === 'string') {
+            targetFile = targetFile + '.py';
+            fileContent = currentDir[targetFile];
+          }
+        }
+        
+        if (fileContent !== null) {
+          cmdOutput.innerHTML += `<div>[正在透過 Brython 核心執行 ${targetFile}...]</div>`;
+          const res = runPythonInTerminal(fileContent);
+          if (res) {
+            cmdOutput.innerHTML += `<div style="white-space:pre-wrap;">${escapeHtml(res)}</div>`;
+          }
+        } else {
+          cmdOutput.innerHTML += `<div>python: 無法開啟檔案 '${targetFile}': [Errno 2] No such file or directory</div>`;
+        }
+      }
       break;
 
     case 'dir':
@@ -2022,7 +2109,7 @@ VER            顯示 Windows 版本號碼。<br>
       if (!args[0]) {
         cmdOutput.innerHTML += `<div>命令語法不正確。</div>`;
       } else if (currentDir && typeof currentDir[args[0]] === 'string') {
-        cmdOutput.innerHTML += `<div style="white-space:pre-wrap;">${currentDir[args[0]]}</div>`;
+        cmdOutput.innerHTML += `<div style="white-space:pre-wrap;">${escapeHtml(currentDir[args[0]])}</div>`;
       } else {
         cmdOutput.innerHTML += `<div>系統找不到指定的檔案。</div>`;
       }
