@@ -525,6 +525,7 @@ document.getElementById('pwr-shutdown').onclick = () => {
   document.getElementById('black-screen').style.display = 'block';
 };
 
+// macOS 頂部選單事件
 document.getElementById('macos-apple-btn').onclick = (e) => {
   e.stopPropagation();
   const dropdown = document.getElementById('macos-apple-dropdown');
@@ -555,6 +556,7 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
+/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
@@ -675,6 +677,10 @@ window.openAboutPC = () => {
     copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   }
 };
+
+/* ==========================================================================
+   4. WINDOW MANAGER (TOUCH & RESIZE ENGINE)
+   ========================================================================== */
 
 let zIndex = 100;
 
