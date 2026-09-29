@@ -270,7 +270,7 @@ html, body {
 }
 
 /* ==========================================================================
-   4. OVERLAYS (KERNEL LOGS, RED GUI BOOT, LOCK SCREEN)
+   4. OVERLAYS (KERNEL LOGS, RED GUI BOOT, WINDOWS 11 LOCK SCREEN & WIDGETS)
    ========================================================================== */
 
 .sys-screen {
@@ -402,6 +402,9 @@ html, body {
   margin-top: 0;
 }
 
+/* -------------------------------------------------------------
+   Windows 11 現代化鎖定畫面：上方置中大時鐘與毛玻璃數據塊
+   ------------------------------------------------------------- */
 #lock-time-view {
   position: absolute;
   top: 0;
@@ -410,27 +413,140 @@ html, body {
   height: 100%;
   display: flex;
   flex-direction: column;
-  justify-content: flex-end;
-  padding: 50px;
+  align-items: center;
+  justify-content: flex-start;
+  padding-top: 55px;
   transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1);
   cursor: pointer;
+  z-index: 10005;
+}
+
+.lock-time-center-wrap {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  margin-bottom: 25px;
 }
 
 .lock-time {
-  font-size: 92px;
+  font-size: 96px;
   font-weight: 200;
   line-height: 1;
-  text-shadow: 2px 2px 12px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 4px 18px rgba(0, 0, 0, 0.65);
   letter-spacing: -2px;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI Variable Display", "Segoe UI", sans-serif;
 }
 
 .lock-date {
-  font-size: 24px;
+  font-size: 22px;
   margin-top: 10px;
-  text-shadow: 1px 1px 6px rgba(0, 0, 0, 0.6);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.65);
   font-weight: 400;
+  letter-spacing: 0.3px;
 }
 
+/* Windows 11 即時資訊數據塊 (Live Widgets Grid) */
+.lock-widgets-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  justify-content: center;
+  align-items: stretch;
+  max-width: 920px;
+  width: 90%;
+  margin-top: 10px;
+}
+
+.lock-widget-card {
+  flex: 1 1 200px;
+  max-width: 220px;
+  background: rgba(22, 22, 22, 0.55);
+  backdrop-filter: blur(25px);
+  -webkit-backdrop-filter: blur(25px);
+  border: 1px solid rgba(255, 255, 255, 0.18);
+  border-radius: 12px;
+  padding: 14px 16px;
+  color: #ffffff;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+  transition: transform 0.2s ease, background 0.2s ease, border-color 0.2s ease;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.lock-widget-card:hover {
+  background: rgba(45, 45, 45, 0.65);
+  border-color: rgba(255, 255, 255, 0.35);
+  transform: translateY(-3px);
+}
+
+.lw-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 6px;
+}
+
+.lw-icon {
+  font-size: 16px;
+}
+
+.lw-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.lw-main-val {
+  font-size: 20px;
+  font-weight: 700;
+  margin: 4px 0 2px 0;
+  letter-spacing: -0.2px;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+}
+
+.lw-sub-text {
+  font-size: 11.5px;
+  color: rgba(255, 255, 255, 0.75);
+  line-height: 1.35;
+}
+
+.lock-swipe-hint {
+  position: absolute;
+  bottom: 35px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 13px;
+  font-weight: 400;
+  color: rgba(255, 255, 255, 0.85);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.7);
+  letter-spacing: 0.5px;
+  animation: pulseHint 2.2s infinite ease-in-out;
+  pointer-events: none;
+}
+
+@keyframes pulseHint {
+  0%, 100% { opacity: 0.5; transform: translate(-50%, 0); }
+  50% { opacity: 1; transform: translate(-50%, -4px); }
+}
+
+.lock-bottom-tray {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 13px;
+  color: #ffffff;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.6);
+  pointer-events: none;
+}
+
+/* 登入視窗 */
 #login-view {
   position: absolute;
   top: 0;
@@ -1048,7 +1164,7 @@ body.theme-ubuntu #power-menu {
 }
 
 /* ==========================================================================
-   7. WINDOW MANAGER & RESIZING CONTROLS (含 Win11 圓角與柔和邊框)
+   7. WINDOW MANAGER & RESIZING CONTROLS
    ========================================================================== */
 
 .window {
@@ -1619,7 +1735,7 @@ body.theme-ubuntu .ctrl-btn.close {
 }
 
 /* ==========================================================================
-   11. ABOUT WINDOW STYLING (WINDOWS 10 WINVER & EXACT MACOS ABOUT THIS MAC)
+   11. ABOUT WINDOW STYLING (WINDOWS 10 WINVER, WIN 11, MACOS & UBUNTU)
    ========================================================================== */
 
 #app-about-pc {
