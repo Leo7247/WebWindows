@@ -1,21 +1,21 @@
-MIT License
+Copyright (c) [Year] [Your Name/Your Company]
+All Rights Reserved.
 
-Copyright (c) 2026 iAnyFeature
+PROPRIETARY AND CONFIDENTIAL:
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
-furnished to do so, subject to the following conditions:
+1. NO SHARING OR REDISTRIBUTION: You may not copy, share, distribute, or host the source code of this program in any other repositories, forums, or online/offline locations. 
+2. LINKING ALLOWED: You are permitted to share direct hyperlinks pointing exclusively to the official GitHub repository ([Insert GitHub URL]) or the official project website ([Insert Website URL]).
+3. NO MODIFICATION OR DERIVATIVE WORKS: You may not edit, translate, reverse-engineer, decompile, or create derivative works of this program.
+4. NO FORKING: You may not fork this repository or use the codebase to spin off alternative versions.
+5. CREDIT AND ATTRIBUTION: Any reference to this software must explicitly state that it is originally written and owned by [Your Name/Your Company].
+```
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+### How to Enforce It on GitHub
+* **Public Repositories:** If your repository is public, GitHub's Terms of Service technically allow other users to view and **fork** your repository within the platform, even if you write a custom restrictive license. 
+* **Private Repositories:** To truly prevent others from cloning, viewing, or forking your code, set your repository visibility to **Private** in your GitHub repository settings.
 
-THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-SOFTWARE.
+<FollowUp>
+If you'd like, let me know:
+* Is your repository currently **public or private**?
+* Do you want help writing a **custom copyright header** to put at the top of your individual code files?
+</FollowUp>
