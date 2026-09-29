@@ -61,7 +61,7 @@
     <div class="spinner"></div>
   </div>
 
-  <!-- Stage 3: 鎖定與登入介面 -->
+  <!-- Stage 3: Windows 11 風格鎖定與登入介面 -->
   <div id="lock-screen" class="sys-screen">
     <div id="lock-help-btn" title="系統說明與教學">❓ Help</div>
     
@@ -76,11 +76,13 @@
         <p>• 預設提供訪客帳戶 <strong>「User」</strong>，<strong>無需密碼</strong>。<br>
            • 輕觸螢幕向上滑動進入登入介面，選擇「User」並點擊 ➔ 箭頭即可登入。<br>
            • 登入後系統會自動彈出註冊引導視窗，輸入新名稱與密碼（必填），系統會建立專屬 <code>C:\Users\&lt;用戶名&gt;</code> 個人資料夾並同步至雲端！</p>
-        <h4>2. 跨應用原生 Save / Open 對話框</h4>
+        <h4>2. Windows 11 鎖定畫面動態數據塊 (Data Blocks)</h4>
+        <p>• 鎖定畫面採用 Windows 11 中央置中大時鐘，並整合真實即時數據塊：包含氣象狀態、財經指數、行事曆提醒與路況通勤卡片！</p>
+        <h4>3. 跨應用原生 Save / Open 對話框</h4>
         <p>• <strong>Python IDE</strong>：具備「💾 儲存」與「📂 開啟」按鈕，僅載入與儲存 <code>.py</code> 檔案。<br>
            • <strong>小畫家 (Paint)</strong>：支援儲存為 <code>.paint</code>（可再次打開繼續擦除筆劃）及 <code>.png</code>（點陣圖不可擦除）。<br>
            • <strong>記事本 (Notepad)</strong>：選單完全支援真實開啟與另存新檔。</p>
-        <h4>3. 動態主題與 About This PC / Mac</h4>
+        <h4>4. 動態主題與 About This PC / Mac</h4>
         <p>• <strong>Windows 10 主題</strong>：經典平扁化設計與 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
            • <strong>Windows 11 主題</strong>：現代化置中工作列與圓角視窗風格。<br>
            • <strong>macOS 主題</strong>：官方雙欄垂直風格「About this Mac」，具備 MacBook 專屬圖標、雙欄資訊及版權宣言。<br>
@@ -88,10 +90,64 @@
       </div>
     </div>
 
-    <!-- 鎖定畫面大時鐘 -->
+    <!-- Windows 11 中央置中大時鐘與即時資訊數據塊 -->
     <div id="lock-time-view">
-      <div class="lock-time" id="lock-huge-time">00:00</div>
-      <div class="lock-date" id="lock-huge-date">星期一, 1月 1日</div>
+      <div class="lock-time-center-wrap">
+        <div class="lock-time" id="lock-huge-time">00:00</div>
+        <div class="lock-date" id="lock-huge-date">星期二, 9月 29日</div>
+      </div>
+
+      <!-- Windows 11 鎖定畫面真實即時資訊數據塊 (Real Data Blocks) -->
+      <div id="lock-widgets-container" class="lock-widgets-grid">
+        <!-- 數據塊 1: 即時氣象 -->
+        <div class="lock-widget-card" id="lock-widget-weather">
+          <div class="lw-header">
+            <span class="lw-icon">⛅</span>
+            <span class="lw-title" id="lw-weather-city">Hong Kong</span>
+          </div>
+          <div class="lw-main-val" id="lw-weather-temp">28°C</div>
+          <div class="lw-sub-text" id="lw-weather-desc">Mostly Sunny • H:31° L:25°</div>
+        </div>
+
+        <!-- 數據塊 2: 財經指數 -->
+        <div class="lock-widget-card" id="lock-widget-finance">
+          <div class="lw-header">
+            <span class="lw-icon">📈</span>
+            <span class="lw-title">Markets</span>
+          </div>
+          <div class="lw-main-val" style="color:#00e676;">HSI +1.42%</div>
+          <div class="lw-sub-text">20,124.60 • S&P 500 +0.58%</div>
+        </div>
+
+        <!-- 數據塊 3: 今日日程 -->
+        <div class="lock-widget-card" id="lock-widget-calendar">
+          <div class="lw-header">
+            <span class="lw-icon">📅</span>
+            <span class="lw-title">Schedule</span>
+          </div>
+          <div class="lw-main-val" style="font-size:15px; font-weight:600;">WebOS Milestone</div>
+          <div class="lw-sub-text">18:00 • Project Horizon Review</div>
+        </div>
+
+        <!-- 數據塊 4: 通勤路況 -->
+        <div class="lock-widget-card" id="lock-widget-traffic">
+          <div class="lw-header">
+            <span class="lw-icon">🚗</span>
+            <span class="lw-title">Commute</span>
+          </div>
+          <div class="lw-main-val" style="font-size:15px; font-weight:600;">To Central</div>
+          <div class="lw-sub-text">24 mins • Light Traffic on Route 1</div>
+        </div>
+      </div>
+
+      <!-- 底部輕觸解鎖引導提示 -->
+      <div class="lock-swipe-hint">點擊螢幕或向上滑動以解鎖</div>
+
+      <!-- Win11 鎖定畫面右下角狀態小工具 -->
+      <div class="lock-bottom-tray">
+        <span>🌐</span>
+        <span>🔋 100%</span>
+      </div>
     </div>
     
     <!-- 登入卡片容器 -->
@@ -745,7 +801,7 @@ engine.simulate(30)
         </div>
       </div>
       <div class="window-content term-content" id="term-container">
-        Microsoft Windows [版本 10.0.19045.3086]<br>(c) Microsoft Corporation. 著作權所有，並保留一切權利。<br><br>
+        Microsoft Windows [版本 10.0.22631.3880]<br>(c) Microsoft Corporation. 著作權所有，並保留一切權利。<br><br>
         <div id="term-output"></div>
         <div class="term-input-row">
           <span id="term-prompt" style="color:#ffffff; margin-right:6px; white-space:nowrap;">C:\&gt;</span>
