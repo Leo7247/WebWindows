@@ -244,7 +244,9 @@ const kernelLines = [
 
 function initOS() {
   applyCurrentTheme();
-  document.getElementById('theme-select').value = sysTheme;
+  const themeSelect = document.getElementById('theme-select');
+  if (themeSelect) themeSelect.value = sysTheme;
+  
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
   document.getElementById('lock-screen').style.backgroundImage = `url('${sysLockBg}')`;
   document.getElementById('set-bg-url').value = sysBg;
@@ -353,6 +355,9 @@ function updateStartIcon() {
   const bootLogo = document.getElementById('boot-logo');
   if (sysTheme === 'theme-win10') {
     icon.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
+    if (bootLogo) bootLogo.src = 'https://i.imgur.com/OjXxyOC.png';
+  } else if (sysTheme === 'theme-win11') {
+    icon.src = 'https://upload.wikimedia.org/wikipedia/commons/8/87/Windows_logo_-_2021.svg';
     if (bootLogo) bootLogo.src = 'https://i.imgur.com/OjXxyOC.png';
   } else if (sysTheme === 'theme-macos') {
     icon.src = 'https://icon.icepanel.io/Technology/png-shadow-512/Apple.png';
@@ -557,7 +562,7 @@ document.getElementById('mac-reboot-btn').onclick = () => document.getElementByI
 document.getElementById('mac-shutdown-btn').onclick = () => document.getElementById('pwr-shutdown').click();
 document.getElementById('mac-logout-btn').onclick = () => document.getElementById('pwr-logout').click();
 
-/* --- 開啟動態 About This PC / Mac / Ubuntu 視窗 --- */
+/* --- 開啟動態 About This PC / Mac / Ubuntu / Win11 視窗 --- */
 window.openAboutPC = () => {
   closeAllMenus();
   openApp('app-about-pc');
@@ -651,6 +656,30 @@ window.openAboutPC = () => {
     lineCopy.innerText = "© Canonical Ltd. Ubuntu and Canonical are registered trademarks.";
     lineDesc.innerText = "Ubuntu is an open source software operating system that runs from the desktop to the cloud.";
     diskInfo.innerText = "開機磁碟: /dev/nvme0n1p1 (Disk Type: NVME)";
+    copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
+  } else if (sysTheme === 'theme-win11') {
+    winTitle.innerText = "About Windows";
+    bannerTitle.innerText = "Windows 11";
+    bannerTitle.style.color = "#0067c0";
+    subTitle.style.display = "none";
+    logoImg.src = "https://upload.wikimedia.org/wikipedia/commons/8/87/Windows_logo_-_2021.svg";
+    logoImg.style.width = "68px";
+    lineOs.style.display = "block";
+    lineVer.style.display = "block";
+    lineCopy.style.display = "block";
+    lineDesc.style.display = "block";
+    licenseSection.style.display = "block";
+    sp1.style.display = "inline";
+    sp2.style.display = "inline";
+    browserBox.style.display = "flex";
+    okBtn.style.display = "inline-block";
+    macSpecsList.style.display = "none";
+    macBtnWrap.style.display = "none";
+    lineOs.innerText = "Microsoft Windows 11 Pro";
+    lineVer.innerText = "Version 23H2 (OS Build 22631.3880)";
+    lineCopy.innerText = "© 2026 Microsoft Corporation. All rights reserved.";
+    lineDesc.innerText = "The Windows 11 Pro operating system and its user interface are protected by trademark and other pending or existing intellectual property rights in the United States and other countries/regions.";
+    diskInfo.innerText = "開機磁碟: C:Local Disk";
     copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   } else {
     winTitle.innerText = "About Windows";
@@ -990,7 +1019,7 @@ function renderDesktop() {
   const desktopEntries = [rubbishBinIcon, ...allApps];
 
   let defaultX = 20;
-  let defaultY = sysTheme === 'theme-macos' ? 45 : 20;
+  let defaultY = (sysTheme === 'theme-macos') ? 45 : 20;
 
   desktopEntries.forEach((item) => {
     const displayName = item.name ? item.name : getAppName(item);
@@ -1002,7 +1031,7 @@ function renderDesktop() {
       desktopPositions[item.id] = { left: defaultX, top: defaultY };
       defaultY += 105;
       if (defaultY > window.innerHeight - 150) {
-        defaultY = sysTheme === 'theme-macos' ? 45 : 20;
+        defaultY = (sysTheme === 'theme-macos') ? 45 : 20;
         defaultX += 95;
       }
     }
@@ -1010,7 +1039,6 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
-    // 觸控與滑鼠拖曳擺位防抖判斷（閥值 6px，保證單擊即開）
     let iconDragging = false;
     let iconStartX = 0, iconStartY = 0, iconOffsetX = 0, iconOffsetY = 0;
     let hasMoved = false;
@@ -1033,7 +1061,7 @@ function renderDesktop() {
       if (hasMoved) {
         let posX = e.clientX - iconOffsetX;
         let posY = e.clientY - iconOffsetY;
-        let minY = sysTheme === 'theme-macos' ? 28 : 0;
+        let minY = (sysTheme === 'theme-macos') ? 28 : 0;
         if (posX < 0) posX = 0;
         if (posY < minY) posY = minY;
         iconItem.style.left = posX + 'px';
@@ -1052,7 +1080,6 @@ function renderDesktop() {
           };
           localStorage.setItem('os_desktop_pos', JSON.stringify(desktopPositions));
         } else {
-          // 單擊點擊事件，直接開啟程式
           if (item.action) {
             item.action();
           } else {
