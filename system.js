@@ -337,6 +337,9 @@ function initOS() {
   initStopwatch();
   setInterval(updateTime, 1000);
   updateTime();
+
+  // 啟動鎖定畫面真實數據即時連線 (香港預設天氣與市場數據)
+  fetchLockWeather(22.31, 114.17, "Hong Kong");
 }
 
 function applyCurrentTheme() {
@@ -1728,7 +1731,6 @@ function updateSaveDialogUI() {
     if (key === "isSystemProtected") continue;
     const isFolder = typeof dir[key] === 'object' && !dir[key].isAppShortcut;
     
-    // 副檔名過濾：在 Python Open 模式下只過濾出 .py
     if (dialogMode === 'open' && dialogCaller === 'python' && !isFolder && !key.endsWith('.py')) {
       continue;
     }
@@ -2116,7 +2118,7 @@ VER            顯示 Windows 版本號碼。<br>
       break;
 
     case 'ver':
-      cmdOutput.innerHTML += `<div>Microsoft Windows [Version 10.0.19045.3086]</div>`;
+      cmdOutput.innerHTML += `<div>Microsoft Windows [Version 10.0.22631.3880]</div>`;
       break;
 
     case 'date':
@@ -2194,7 +2196,7 @@ VER            顯示 Windows 版本號碼。<br>
 }
 
 /* ==========================================================================
-   11. ENHANCED WINDOWS 10 CALCULATOR LOGIC
+   11. ENHANCED WINDOWS 10 / 11 CALCULATOR LOGIC
    ========================================================================== */
 
 let calcExpr = "";
@@ -2570,11 +2572,30 @@ async function fetchWeather(lat, lon, cityName) {
   try {
     const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
     const data = await response.json();
-    document.getElementById('w-temp').innerText = data.current_weather.temperature + '°C';
+    const tempStr = data.current_weather.temperature + '°C';
+    document.getElementById('w-temp').innerText = tempStr;
     document.getElementById('w-desc').innerText = 'Satellite Link OK';
+
+    // 同步更新 Windows 11 鎖定畫面天氣 Widget
+    const lwCity = document.getElementById('lw-weather-city');
+    const lwTemp = document.getElementById('lw-weather-temp');
+    if (lwCity) lwCity.innerText = cityName;
+    if (lwTemp) lwTemp.innerText = tempStr;
   } catch (err) {
     document.getElementById('w-desc').innerText = "連線失敗";
   }
+}
+
+async function fetchLockWeather(lat, lon, cityName) {
+  try {
+    const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true`);
+    const data = await response.json();
+    const tempStr = data.current_weather.temperature + '°C';
+    const lwCity = document.getElementById('lw-weather-city');
+    const lwTemp = document.getElementById('lw-weather-temp');
+    if (lwCity) lwCity.innerText = cityName;
+    if (lwTemp) lwTemp.innerText = tempStr;
+  } catch (e) {}
 }
 
 document.getElementById('w-search').onclick = () => {
