@@ -104,7 +104,8 @@ if (!usersDB["Admin"]) usersDB["Admin"] = DEFAULT_USERS["Admin"];
 
 let currentLoginUser = "User";
 let sysUser = "User";
-let sysBg = localStorage.getItem('os_bg') || 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500';
+let sysBg = localStorage.getItem('os_bg') || 'https://i.imgur.com/ebdytVS.jpeg';
+let sysLockBg = localStorage.getItem('os_lock_bg') || 'https://i.imgur.com/kVX1Qcm.jpeg';
 let sysTheme = localStorage.getItem('os_theme') || 'theme-win10';
 
 const coreApps = [
@@ -245,7 +246,7 @@ function initOS() {
   applyCurrentTheme();
   document.getElementById('theme-select').value = sysTheme;
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
-  document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`;
+  document.getElementById('lock-screen').style.backgroundImage = `url('${sysLockBg}')`;
   document.getElementById('set-bg-url').value = sysBg;
   document.getElementById('np-text').value = localStorage.getItem('os_np') || '';
   
@@ -312,7 +313,7 @@ function initOS() {
     } else if (sysTheme === 'theme-ubuntu') {
       bootLogo.src = 'https://cdn-icons-png.flaticon.com/512/888/888879.png';
     } else {
-      bootLogo.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
+      bootLogo.src = 'https://i.imgur.com/OjXxyOC.png';
     }
     
     bootScreen.style.display = 'flex';
@@ -352,7 +353,7 @@ function updateStartIcon() {
   const bootLogo = document.getElementById('boot-logo');
   if (sysTheme === 'theme-win10') {
     icon.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
-    if (bootLogo) bootLogo.src = 'https://icones.pro/wp-content/uploads/2021/06/icone-windows-rouge.png';
+    if (bootLogo) bootLogo.src = 'https://i.imgur.com/OjXxyOC.png';
   } else if (sysTheme === 'theme-macos') {
     icon.src = 'https://icon.icepanel.io/Technology/png-shadow-512/Apple.png';
     if (bootLogo) bootLogo.src = 'https://icon.icepanel.io/Technology/png-shadow-512/Apple.png';
@@ -677,10 +678,6 @@ window.openAboutPC = () => {
     copyrightText.innerText = "© 2026 iAnyFeature, All Right Reserved.";
   }
 };
-
-/* ==========================================================================
-   4. WINDOW MANAGER (TOUCH & RESIZE ENGINE)
-   ========================================================================== */
 
 let zIndex = 100;
 
@@ -1013,6 +1010,7 @@ function renderDesktop() {
     iconItem.style.left = desktopPositions[item.id].left + 'px';
     iconItem.style.top = desktopPositions[item.id].top + 'px';
 
+    // 觸控與滑鼠拖曳擺位防抖判斷（閥值 6px，保證單擊即開）
     let iconDragging = false;
     let iconStartX = 0, iconStartY = 0, iconOffsetX = 0, iconOffsetY = 0;
     let hasMoved = false;
@@ -1054,6 +1052,7 @@ function renderDesktop() {
           };
           localStorage.setItem('os_desktop_pos', JSON.stringify(desktopPositions));
         } else {
+          // 單擊點擊事件，直接開啟程式
           if (item.action) {
             item.action();
           } else {
@@ -2425,12 +2424,11 @@ window.changeWallpaper = () => {
   sysBg = document.getElementById('set-bg-url').value;
   localStorage.setItem('os_bg', sysBg);
   document.getElementById('desktop').style.backgroundImage = `url('${sysBg}')`;
-  document.getElementById('lock-screen').style.backgroundImage = `url('${sysBg}')`;
 };
 
 document.getElementById('btn-apply-bg').onclick = changeWallpaper;
 document.getElementById('btn-default-bg').onclick = () => {
-  document.getElementById('set-bg-url').value = 'https://images.unsplash.com/photo-1557683316-973673baf926?auto=format&fit=crop&w=2500';
+  document.getElementById('set-bg-url').value = 'https://i.imgur.com/ebdytVS.jpeg';
   changeWallpaper();
 };
 
