@@ -1,6 +1,11 @@
 # Imagine Using Windows On Your Web Browser —— WebWin Project Horizon Does That!
 
-© 2026 iAnyFeature, All Rights Reserved.
+### License :
+  © 2026 iAnyFeature, All Rights Reserved.
+  
+  This license and the software are protected under international copyright laws.
+
+==========================
 
 ## Introduction :
   Welcome to WebWinOS: Project Horizon by iAnyFeature! This website is still under construction, so beware of bugs (just kidding, there are   actually none!). This project runs a Windows 11-like environment right in your browser, packed with many exciting features!
@@ -34,5 +39,4 @@
 - [ ] More Programming Languages Compiler
       
 =============================
-### License :
-  This license and the software are protected under international copyright laws.
+
