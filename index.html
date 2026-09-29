@@ -81,7 +81,8 @@
            • <strong>小畫家 (Paint)</strong>：支援儲存為 <code>.paint</code>（可再次打開繼續擦除筆劃）及 <code>.png</code>（點陣圖不可擦除）。<br>
            • <strong>記事本 (Notepad)</strong>：選單完全支援真實開啟與另存新檔。</p>
         <h4>3. 動態主題與 About This PC / Mac</h4>
-        <p>• <strong>Windows 主題</strong>：原生 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
+        <p>• <strong>Windows 10 主題</strong>：經典平扁化設計與 winver 視窗，主磁碟為 <code>C:Local Disk</code>。<br>
+           • <strong>Windows 11 主題</strong>：現代化置中工作列與圓角視窗風格。<br>
            • <strong>macOS 主題</strong>：官方雙欄垂直風格「About this Mac」，具備 MacBook 專屬圖標、雙欄資訊及版權宣言。<br>
            • <strong>Ubuntu 主題</strong>：開機磁碟為 <code>/dev/nvme0n1p1</code> (NVME)。</p>
       </div>
@@ -281,6 +282,7 @@
               <label data-i18n="theme_select">介面風格引擎 (即時切換)</label>
               <select id="theme-select">
                 <option value="theme-win10">Windows 10 (經典平扁化)</option>
+                <option value="theme-win11">Windows 11 (置中現代化風格)</option>
                 <option value="theme-macos">macOS 15 Sequoia (頂部選單 + 圓角 Dock)</option>
                 <option value="theme-ubuntu">Ubuntu 22 (Linux 頂部欄)</option>
               </select>
@@ -335,7 +337,7 @@
           <div id="set-about" style="display:none;">
             <h2 data-i18n="about_title">關於 WebOS</h2>
             <div class="set-group">
-              <p>Version: Project Horizon Ultimate (Windows 10 / macOS / Ubuntu Triple-Engine)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
+              <p>Version: Project Horizon Ultimate (Windows 10 / Windows 11 / macOS / Ubuntu Quad-Engine)<br>Engine: HTML5 DOM / Pointer Events / Brython 3.12 / Web Audio</p>
               <pre class="license-box">MIT License
 
 Copyright (c) 2026 iAnyFeature
@@ -473,15 +475,15 @@ SOFTWARE.</pre>
         <div class="guide-main">
           <div id="guide-intro" class="guide-section" style="display:block;">
             <h2>歡迎使用 WebOS Project Horizon</h2>
-            <p>這是一個基於純瀏覽器環境構建的高效仿真實作業系統，完全兼容於 GitHub Pages。本系統支援 Windows 10、macOS 15 及 Ubuntu 22 三大桌面環境風格隨時切換，全系統徹底封鎖商業內購與商城付費行為。</p>
+            <p>這是一個基於純瀏覽器環境構建的高效仿真實作業系統，完全兼容於 GitHub Pages。本系統支援 Windows 10、Windows 11、macOS 15 及 Ubuntu 22 四大桌面環境風格隨時切換，全系統徹底封鎖商業內購與商城付費行為。</p>
             <div class="guide-card">
               <h3>核心架構亮點</h3>
               <ul>
-                <li><strong>雙階段真實開機</strong>：Linux/NT 核心日誌強制逐行滾動輸出（含隨機卡頓模擬），緊接著 Windows 紅色標誌開機載入。</li>
+                <li><strong>雙階段真實開機</strong>：Linux/NT 核心日誌強制逐行滾動輸出（含隨機卡頓模擬），緊接著主題標誌開機載入。</li>
                 <li><strong>觸控螢幕原生支援與自由擺位</strong>：支援手指輕觸開啟、隨意拖曳桌面圖示擺放於任意座標，以及順滑拖曳視窗與右下角放大縮小。</li>
                 <li><strong>真實多用戶個人資料夾</strong>：每個登入帳戶均擁有獨立的 <code>C:\Users\&lt;名稱&gt;\Desktop</code> 與 <code>Documents</code>。</li>
                 <li><strong>真實資源回收筒保護機制</strong>：系統核心檔案受到防護無法刪除；刪除的檔案將進入資源回收筒，支援還原或徹底抹除。</li>
-                <li><strong>macOS 原生頂部選單列</strong>：切換 macOS 主題時自動啟用頂部 Apple 選單與半透明毛玻璃 Dock。</li>
+                <li><strong>macOS 原生頂部選單列與 Win11 置中工作列</strong>：切換主題時自動啟用 Apple 選單或 Fluent 居中控制項。</li>
               </ul>
             </div>
           </div>
@@ -529,12 +531,12 @@ SOFTWARE.</pre>
             <h2>內建應用程式特色</h2>
             <ul>
               <li><strong>小畫家 (Paint)</strong>：針對 iPad 觸控螢幕進行精確座標轉換，具備畫筆、橡皮擦、筆刷粗幼調節 (1-40px)、調色盤，支援另存 <code>.paint</code>（向量工程檔，開檔可擦除）與 <code>.png</code>（唯讀靜態圖，底圖受保護）。</li>
-              <li><strong>Windows 10 全功能計算機</strong>：包含百分比、平方、開平方根、倒數、退格、全套記憶體 (MC/MR/M+/M-/MS) 實裝。</li>
+              <li><strong>Windows 10 / 11 全功能計算機</strong>：包含百分比、平方、開平方根、倒數、退格、全套記憶體 (MC/MR/M+/M-/MS) 實裝。</li>
               <li><strong>Python IDE</strong>：整合 Brython 3.12 引擎，無需後端伺服器即可直接在瀏覽器本地直譯執行標準 Python 3 語法與演算法，支援另存與開啟 <code>.py</code> 檔案。</li>
               <li><strong>氣象中心 (Weather)</strong>：串接 Open-Meteo 免費衛星 API，支援香港、開封 (汴京)、倫敦及即時 GPS 經緯度定位。</li>
               <li><strong>音效合成器 (Audio Synth)</strong>：利用 HTML5 Web Audio API 本地即時產生電子音階。</li>
               <li><strong>碼錶計時器 (Stopwatch)</strong>：精準毫秒計時、支援計圈 (Laps)、暫停 (Pause)、繼續 (Resume) 與重設 (Reset)。</li>
-              <li><strong>檔案總管 (VFS)</strong>：Windows 10 介面、樹狀目錄瀏覽、文字建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
+              <li><strong>檔案總管 (VFS)</strong>：Windows 風格介面、樹狀目錄瀏覽、文字建立與實體檔案上傳轉碼儲存至 LocalStorage。</li>
             </ul>
           </div>
 
@@ -566,7 +568,7 @@ SOFTWARE.</pre>
       </div>
     </div>
 
-    <!-- APP: File Explorer (Windows 10 風格檔案總管) -->
+    <!-- APP: File Explorer (Windows 風格檔案總管) -->
     <div class="window" id="app-explorer" style="width: 860px; height: 580px;">
       <div class="title-bar" data-win="app-explorer">
         <div class="title-text" data-i18n="file_explorer">檔案總管 (File Explorer)</div>
@@ -834,7 +836,7 @@ engine.simulate(30)
       </div>
     </div>
     
-    <!-- APP: Enhanced Windows 10 Calculator -->
+    <!-- APP: Enhanced Windows 10 / 11 Calculator -->
     <div class="window" id="app-calc" style="width: 350px; height: 540px;">
       <div class="title-bar" data-win="app-calc">
         <div class="title-text" data-i18n="calc">計算機 (Calculator)</div>
