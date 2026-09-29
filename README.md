@@ -35,4 +35,4 @@
       
 =============================
 ### License :
-This Project Is Protected Under MIT License, Read The LICENSE File To Learn More.
+  This license and the software are protected under international copyright laws.
