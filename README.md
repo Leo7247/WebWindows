@@ -39,6 +39,11 @@
 - [x] Cloud File Saving
 - [ ] User File Sharing
 - [ ] More Programming Languages Compiler
+- [ ] Use Actual Windows Icons
+- [ ] Add More System Languages
       
-=============================
+============================
+### Notice :
+  Some Codes Of This Website Are Ai Written.
 
+============================  
