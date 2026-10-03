@@ -48,8 +48,7 @@
 
 ============================
 ### Notes :
-  - [1]
- Operating Procedure : 
+  - [1]  Operating Procedure : 
 1. Open the system's built-in Edge Browser. 
 2. Click "MDM Proxy: OFF" at the top right of the address bar to switch it to the green "ON" state. 
 3. Enter the target URL (e.g., wikipedia.org) in the address bar and press Enter. 
