@@ -25,13 +25,17 @@
   
 ===========================
 ### ScreenShots :
+  Windows 11 Theme:
+  <img width="2360" height="1376" alt="image" src="https://github.com/user-attachments/assets/3fc89522-17f7-4312-aa02-bd4b87746be5" />
+
   Red Windows 10 Theme:
- <img width="2360" height="1390" alt="image" src="https://github.com/user-attachments/assets/e99f2f70-63d4-476d-8954-099b3e7d0429" />\
+ <img width="2360" height="1390" alt="image" src="https://github.com/user-attachments/assets/e99f2f70-63d4-476d-8954-099b3e7d0429" />
+ 
  Ubuntu 22.04 Theme:
  <img width="2360" height="1385" alt="image" src="https://github.com/user-attachments/assets/54b83fa4-9fbb-40d6-9bcc-cee494502964" />
+ 
  macOS Theme:
  <img width="2360" height="1376" alt="image" src="https://github.com/user-attachments/assets/44aed13e-1fac-481a-a170-05aa1d0f6186" />
-
  
 ===========================
 ### What We Have, What We Planned :
@@ -65,4 +69,4 @@
       Proxy Tunnel Mechanism:\
 The system automatically packages and redirects the target URL to the Google Web Translation proxy server (translate.google.com/translate?...).  Since campus or corporate networks usually whitelist Google domains for security, the connection request is proxied by Google servers to fetch, translate, and return the target webpage. This effectively bypasses direct connection restrictions on the device side.
 
- - [2] Apart Of App Icons, System Settings, Lock Screen, Themes, Apps (Countdown Timer, Python IDE Apps, Music Maker, Terminal, File Explorer) Are Configured By Google Gemini AI
+ - [2] Apart Of App Icons, System Settings, Lock Screen, Themes, Apps (Countdown Timer, Python IDE Apps, Music Maker, Command Prompt, File Explorer, User Guide) Are Configured By Google Gemini AI
