@@ -48,9 +48,10 @@
 
 ============================
 ### Notes :
-  - [1] Operating Procedure : \
-1. Open the system's built-in Edge Browser. \
+  - [1]
+ Operating Procedure : 
+1. Open the system's built-in Edge Browser. 
 2. Click "MDM Proxy: OFF" at the top right of the address bar to switch it to the green "ON" state. 
 3. Enter the target URL (e.g., wikipedia.org) in the address bar and press Enter. 
-Proxy Tunnel Mechanism: 
+ Proxy Tunnel Mechanism: 
 The system automatically packages and redirects the target URL to the Google Web Translation proxy server (translate.google.com/translate?...).  Since campus or corporate networks usually whitelist Google domains for security, the connection request is proxied by Google servers to fetch, translate, and return the target webpage. This effectively bypasses direct connection restrictions on the device side.
